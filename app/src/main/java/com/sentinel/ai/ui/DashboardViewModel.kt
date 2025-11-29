@@ -52,6 +52,18 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         )
     }
 
+    fun handleTranscript(text: String) {
+        val risk = riskScoring.score(text)
+        GuardianEventStore.addEvent(
+            GuardianEvent(
+                source = "Mic STT",
+                content = text,
+                score = risk.score,
+                riskLevel = levelFromScore(risk.score)
+            )
+        )
+    }
+
     fun runMockChat() {
         val text = "urgent please verify your account and send otp now"
         val risk = riskScoring.score(text, RiskScoring.BehaviorFlags(pressureDetected = true))

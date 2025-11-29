@@ -24,6 +24,15 @@ public final class ActivityDashboardBinding implements ViewBinding {
   private final ConstraintLayout rootView;
 
   @NonNull
+  public final MaterialButton btnClearEvents;
+
+  @NonNull
+  public final MaterialButton btnMockCall;
+
+  @NonNull
+  public final MaterialButton btnMockChat;
+
+  @NonNull
   public final MaterialButton btnTestStt;
 
   @NonNull
@@ -47,12 +56,24 @@ public final class ActivityDashboardBinding implements ViewBinding {
   @NonNull
   public final TextView statusValue;
 
+  @NonNull
+  public final MaterialCardView testCard;
+
+  @NonNull
+  public final TextView tvLiveTranscript;
+
   private ActivityDashboardBinding(@NonNull ConstraintLayout rootView,
-      @NonNull MaterialButton btnTestStt, @NonNull SwitchMaterial guardianToggle,
-      @NonNull TextView header, @NonNull TextView recentLabel, @NonNull RecyclerView recentRecycler,
+      @NonNull MaterialButton btnClearEvents, @NonNull MaterialButton btnMockCall,
+      @NonNull MaterialButton btnMockChat, @NonNull MaterialButton btnTestStt,
+      @NonNull SwitchMaterial guardianToggle, @NonNull TextView header,
+      @NonNull TextView recentLabel, @NonNull RecyclerView recentRecycler,
       @NonNull MaterialCardView statusCard, @NonNull TextView statusLabel,
-      @NonNull TextView statusValue) {
+      @NonNull TextView statusValue, @NonNull MaterialCardView testCard,
+      @NonNull TextView tvLiveTranscript) {
     this.rootView = rootView;
+    this.btnClearEvents = btnClearEvents;
+    this.btnMockCall = btnMockCall;
+    this.btnMockChat = btnMockChat;
     this.btnTestStt = btnTestStt;
     this.guardianToggle = guardianToggle;
     this.header = header;
@@ -61,6 +82,8 @@ public final class ActivityDashboardBinding implements ViewBinding {
     this.statusCard = statusCard;
     this.statusLabel = statusLabel;
     this.statusValue = statusValue;
+    this.testCard = testCard;
+    this.tvLiveTranscript = tvLiveTranscript;
   }
 
   @Override
@@ -90,6 +113,24 @@ public final class ActivityDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnClearEvents;
+      MaterialButton btnClearEvents = ViewBindings.findChildViewById(rootView, id);
+      if (btnClearEvents == null) {
+        break missingId;
+      }
+
+      id = R.id.btnMockCall;
+      MaterialButton btnMockCall = ViewBindings.findChildViewById(rootView, id);
+      if (btnMockCall == null) {
+        break missingId;
+      }
+
+      id = R.id.btnMockChat;
+      MaterialButton btnMockChat = ViewBindings.findChildViewById(rootView, id);
+      if (btnMockChat == null) {
+        break missingId;
+      }
+
       id = R.id.btnTestStt;
       MaterialButton btnTestStt = ViewBindings.findChildViewById(rootView, id);
       if (btnTestStt == null) {
@@ -138,8 +179,21 @@ public final class ActivityDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityDashboardBinding((ConstraintLayout) rootView, btnTestStt, guardianToggle,
-          header, recentLabel, recentRecycler, statusCard, statusLabel, statusValue);
+      id = R.id.testCard;
+      MaterialCardView testCard = ViewBindings.findChildViewById(rootView, id);
+      if (testCard == null) {
+        break missingId;
+      }
+
+      id = R.id.tvLiveTranscript;
+      TextView tvLiveTranscript = ViewBindings.findChildViewById(rootView, id);
+      if (tvLiveTranscript == null) {
+        break missingId;
+      }
+
+      return new ActivityDashboardBinding((ConstraintLayout) rootView, btnClearEvents, btnMockCall,
+          btnMockChat, btnTestStt, guardianToggle, header, recentLabel, recentRecycler, statusCard,
+          statusLabel, statusValue, testCard, tvLiveTranscript);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

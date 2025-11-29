@@ -18,8 +18,11 @@ id alertScore
 id alertTitle
 id btnAccessibility
 id btnCallScreening
+id btnClearEvents
 id btnContinue
 id btnMic
+id btnMockCall
+id btnMockChat
 id btnNotification
 id btnOverlay
 id btnTestStt
@@ -47,7 +50,9 @@ id statusCard
 id statusLabel
 id statusValue
 id subtitle
+id testCard
 id title
+id tvLiveTranscript
 layout activity_alert
 layout activity_dashboard
 layout activity_setup
