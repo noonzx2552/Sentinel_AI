@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/view_overlay_critical.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/view_overlay_critical.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/item_event.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/item_event.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/activity_setup.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/activity_setup.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/activity_dashboard.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/activity_dashboard.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/activity_alert.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/activity_alert.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/view_overlay_warning.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/view_overlay_warning.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/activity_splash.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/activity_splash.xml"
+    }
+]

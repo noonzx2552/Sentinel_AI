@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SentinelAI" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/sentinel_primary</item>
+        <item name="colorSecondary">@color/sentinel_accent</item>
+        <item name="android:statusBarColor">@color/sentinel_primary</item>
+        <item name="android:navigationBarColor">@color/sentinel_primary</item>
+    </style>
+
+    <style name="Theme.SentinelAI.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/sentinel_primary</item>
+    </style>
+
+    <style name="Widget.Sentinel.Card">
+        <item name="android:background">@color/sentinel_card</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <!-- Fallback widget namespace to satisfy style lookups -->
+    <style name="Widget.Sentinel" parent="android:Widget" />
+</resources>
