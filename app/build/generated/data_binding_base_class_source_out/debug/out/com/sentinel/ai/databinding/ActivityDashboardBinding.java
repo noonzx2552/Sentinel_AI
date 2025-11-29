@@ -11,6 +11,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.sentinel.ai.R;
@@ -21,6 +22,9 @@ import java.lang.String;
 public final class ActivityDashboardBinding implements ViewBinding {
   @NonNull
   private final ConstraintLayout rootView;
+
+  @NonNull
+  public final MaterialButton btnTestStt;
 
   @NonNull
   public final SwitchMaterial guardianToggle;
@@ -44,11 +48,12 @@ public final class ActivityDashboardBinding implements ViewBinding {
   public final TextView statusValue;
 
   private ActivityDashboardBinding(@NonNull ConstraintLayout rootView,
-      @NonNull SwitchMaterial guardianToggle, @NonNull TextView header,
-      @NonNull TextView recentLabel, @NonNull RecyclerView recentRecycler,
+      @NonNull MaterialButton btnTestStt, @NonNull SwitchMaterial guardianToggle,
+      @NonNull TextView header, @NonNull TextView recentLabel, @NonNull RecyclerView recentRecycler,
       @NonNull MaterialCardView statusCard, @NonNull TextView statusLabel,
       @NonNull TextView statusValue) {
     this.rootView = rootView;
+    this.btnTestStt = btnTestStt;
     this.guardianToggle = guardianToggle;
     this.header = header;
     this.recentLabel = recentLabel;
@@ -85,6 +90,12 @@ public final class ActivityDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnTestStt;
+      MaterialButton btnTestStt = ViewBindings.findChildViewById(rootView, id);
+      if (btnTestStt == null) {
+        break missingId;
+      }
+
       id = R.id.guardianToggle;
       SwitchMaterial guardianToggle = ViewBindings.findChildViewById(rootView, id);
       if (guardianToggle == null) {
@@ -127,8 +138,8 @@ public final class ActivityDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityDashboardBinding((ConstraintLayout) rootView, guardianToggle, header,
-          recentLabel, recentRecycler, statusCard, statusLabel, statusValue);
+      return new ActivityDashboardBinding((ConstraintLayout) rootView, btnTestStt, guardianToggle,
+          header, recentLabel, recentRecycler, statusCard, statusLabel, statusValue);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

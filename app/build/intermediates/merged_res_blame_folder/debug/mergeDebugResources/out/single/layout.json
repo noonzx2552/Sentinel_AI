@@ -8,10 +8,6 @@
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\activity_alert.xml"
     },
     {
-        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/activity_setup.xml",
-        "source": "com.sentinel.ai.app-main-41:/layout/activity_setup.xml"
-    },
-    {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\item_event.xml",
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\item_event.xml"
     },
@@ -22,6 +18,10 @@
     {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\activity_setup.xml",
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\activity_setup.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/activity_dashboard.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/activity_dashboard.xml"
     },
     {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\activity_dashboard.xml",

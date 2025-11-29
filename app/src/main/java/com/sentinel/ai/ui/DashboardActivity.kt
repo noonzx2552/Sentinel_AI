@@ -30,6 +30,19 @@ class DashboardActivity : AppCompatActivity() {
             viewModel.setGuardianEnabled(isChecked)
         }
 
+        binding.btnTestStt.setOnClickListener {
+            viewModel.runSttTest()
+        }
+        binding.btnMockChat.setOnClickListener {
+            viewModel.runMockChat()
+        }
+        binding.btnMockCall.setOnClickListener {
+            viewModel.runMockCall()
+        }
+        binding.btnClearEvents.setOnClickListener {
+            viewModel.clearEvents()
+        }
+
         viewModel.guardianEnabled.observe(this) { enabled ->
             binding.guardianToggle.isChecked = enabled
         }

@@ -20,10 +20,6 @@
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
     },
     {
-        "merged": "com.sentinel.ai.app-debug-39:/layout_activity_setup.xml.flat",
-        "source": "com.sentinel.ai.app-main-41:/layout/activity_setup.xml"
-    },
-    {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-39:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\mipmap-anydpi-v26\\ic_launcher.xml"
     },
@@ -54,5 +50,9 @@
     {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-39:\\layout_item_event.xml.flat",
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\item_event.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-debug-39:/layout_activity_dashboard.xml.flat",
+        "source": "com.sentinel.ai.app-main-41:/layout/activity_dashboard.xml"
     }
 ]

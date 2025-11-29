@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -18,6 +19,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
 
     <permission
         android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -52,12 +54,13 @@
         <service
             android:name="com.sentinel.ai.service.SentinelGuardianService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
         <service
             android:name="com.sentinel.ai.service.SentinelCallScreeningService"
             android:enabled="true"
             android:exported="true"
-            android:permission="android.permission.BIND_CALL_SCREENING_SERVICE" >
+            android:permission="android.permission.BIND_SCREENING_SERVICE" >
             <intent-filter>
                 <action android:name="android.telecom.CallScreeningService" />
             </intent-filter>
