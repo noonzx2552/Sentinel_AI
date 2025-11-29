@@ -53,6 +53,12 @@ class SetupActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (PermissionUtils.allEssentialGranted(this)) {
+            SentinelGuardianService.start(this)
+            startActivity(Intent(this, DashboardActivity::class.java))
+            finish()
+            return
+        }
         updateButtons()
     }
 

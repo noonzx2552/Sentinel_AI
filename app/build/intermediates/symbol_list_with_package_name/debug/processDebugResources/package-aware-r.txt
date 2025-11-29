@@ -3177,8 +3177,11 @@ id bounceEnd
 id bounceStart
 id btnAccessibility
 id btnCallScreening
+id btnClearEvents
 id btnContinue
 id btnMic
+id btnMockCall
+id btnMockChat
 id btnNotification
 id btnOverlay
 id btnTestStt
@@ -3552,6 +3555,7 @@ id tag_transition_group
 id tag_unhandled_key_event_manager
 id tag_unhandled_key_listeners
 id tag_window_insets_animation_callback
+id testCard
 id text
 id text2
 id textEnd
@@ -3584,6 +3588,7 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id tvLiveTranscript
 id unchecked
 id uniform
 id unlabeled

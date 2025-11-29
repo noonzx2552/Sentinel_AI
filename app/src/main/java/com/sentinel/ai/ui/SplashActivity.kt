@@ -6,7 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.sentinel.ai.databinding.ActivitySplashBinding
-import com.sentinel.ai.service.SentinelGuardianService
+import com.sentinel.ai.utils.PermissionUtils
 
 class SplashActivity : AppCompatActivity() {
 
@@ -18,7 +18,12 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, SetupActivity::class.java))
+            val target = if (PermissionUtils.allEssentialGranted(this)) {
+                Intent(this, DashboardActivity::class.java)
+            } else {
+                Intent(this, SetupActivity::class.java)
+            }
+            startActivity(target)
             finish()
         }, 1200)
     }
