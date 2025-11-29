@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.sentinel.ai.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -39,6 +40,21 @@ public final class ActivitySetupBinding implements ViewBinding {
   public final MaterialButton btnOverlay;
 
   @NonNull
+  public final MaterialCardView cardAccessibility;
+
+  @NonNull
+  public final MaterialCardView cardCall;
+
+  @NonNull
+  public final MaterialCardView cardMic;
+
+  @NonNull
+  public final MaterialCardView cardNotification;
+
+  @NonNull
+  public final MaterialCardView cardOverlay;
+
+  @NonNull
   public final TextView setupSubtitle;
 
   @NonNull
@@ -48,7 +64,10 @@ public final class ActivitySetupBinding implements ViewBinding {
       @NonNull MaterialButton btnAccessibility, @NonNull MaterialButton btnCallScreening,
       @NonNull MaterialButton btnContinue, @NonNull MaterialButton btnMic,
       @NonNull MaterialButton btnNotification, @NonNull MaterialButton btnOverlay,
-      @NonNull TextView setupSubtitle, @NonNull TextView setupTitle) {
+      @NonNull MaterialCardView cardAccessibility, @NonNull MaterialCardView cardCall,
+      @NonNull MaterialCardView cardMic, @NonNull MaterialCardView cardNotification,
+      @NonNull MaterialCardView cardOverlay, @NonNull TextView setupSubtitle,
+      @NonNull TextView setupTitle) {
     this.rootView = rootView;
     this.btnAccessibility = btnAccessibility;
     this.btnCallScreening = btnCallScreening;
@@ -56,6 +75,11 @@ public final class ActivitySetupBinding implements ViewBinding {
     this.btnMic = btnMic;
     this.btnNotification = btnNotification;
     this.btnOverlay = btnOverlay;
+    this.cardAccessibility = cardAccessibility;
+    this.cardCall = cardCall;
+    this.cardMic = cardMic;
+    this.cardNotification = cardNotification;
+    this.cardOverlay = cardOverlay;
     this.setupSubtitle = setupSubtitle;
     this.setupTitle = setupTitle;
   }
@@ -123,6 +147,36 @@ public final class ActivitySetupBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.cardAccessibility;
+      MaterialCardView cardAccessibility = ViewBindings.findChildViewById(rootView, id);
+      if (cardAccessibility == null) {
+        break missingId;
+      }
+
+      id = R.id.cardCall;
+      MaterialCardView cardCall = ViewBindings.findChildViewById(rootView, id);
+      if (cardCall == null) {
+        break missingId;
+      }
+
+      id = R.id.cardMic;
+      MaterialCardView cardMic = ViewBindings.findChildViewById(rootView, id);
+      if (cardMic == null) {
+        break missingId;
+      }
+
+      id = R.id.cardNotification;
+      MaterialCardView cardNotification = ViewBindings.findChildViewById(rootView, id);
+      if (cardNotification == null) {
+        break missingId;
+      }
+
+      id = R.id.cardOverlay;
+      MaterialCardView cardOverlay = ViewBindings.findChildViewById(rootView, id);
+      if (cardOverlay == null) {
+        break missingId;
+      }
+
       id = R.id.setupSubtitle;
       TextView setupSubtitle = ViewBindings.findChildViewById(rootView, id);
       if (setupSubtitle == null) {
@@ -136,7 +190,8 @@ public final class ActivitySetupBinding implements ViewBinding {
       }
 
       return new ActivitySetupBinding((ScrollView) rootView, btnAccessibility, btnCallScreening,
-          btnContinue, btnMic, btnNotification, btnOverlay, setupSubtitle, setupTitle);
+          btnContinue, btnMic, btnNotification, btnOverlay, cardAccessibility, cardCall, cardMic,
+          cardNotification, cardOverlay, setupSubtitle, setupTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -2048,6 +2048,8 @@ color mtrl_textinput_focused_box_stroke_color
 color mtrl_textinput_hovered_box_stroke_color
 color notification_action_color_filter
 color notification_icon_bg_color
+color permission_done
+color permission_pending
 color primary_dark_material_dark
 color primary_dark_material_light
 color primary_material_dark
@@ -3183,6 +3185,11 @@ id buttonPanel
 id cache_measures
 id callMeasure
 id cancel_button
+id cardAccessibility
+id cardCall
+id cardMic
+id cardNotification
+id cardOverlay
 id carryVelocity
 id center
 id centerCrop
@@ -3835,6 +3842,7 @@ string accessibility_description
 string accessibility_summary
 string action_continue
 string action_enable
+string action_enabled
 string alert_back
 string androidx_startup
 string app_name

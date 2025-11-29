@@ -1,9 +1,14 @@
 package com.sentinel.ai.ui
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
+import com.sentinel.ai.R
 import com.sentinel.ai.databinding.ActivitySetupBinding
 import com.sentinel.ai.service.SentinelGuardianService
 import com.sentinel.ai.utils.ModelInitializer
@@ -58,11 +63,50 @@ class SetupActivity : AppCompatActivity() {
         binding.btnCallScreening.isEnabled = !PermissionUtils.isCallScreeningRoleGranted(this)
         binding.btnNotification.isEnabled = !PermissionUtils.isNotificationPermissionGranted(this)
 
-        binding.btnAccessibility.text = if (binding.btnAccessibility.isEnabled) "Enable" else "Enabled"
-        binding.btnMic.text = if (binding.btnMic.isEnabled) "Enable" else "Enabled"
-        binding.btnOverlay.text = if (binding.btnOverlay.isEnabled) "Enable" else "Enabled"
-        binding.btnCallScreening.text = if (binding.btnCallScreening.isEnabled) "Enable" else "Enabled"
-        binding.btnNotification.text = if (binding.btnNotification.isEnabled) "Enable" else "Enabled"
+        applyPermissionState(
+            binding.cardAccessibility,
+            binding.btnAccessibility,
+            PermissionUtils.isAccessibilityEnabled(this)
+        )
+        applyPermissionState(
+            binding.cardMic,
+            binding.btnMic,
+            PermissionUtils.hasMicPermission(this)
+        )
+        applyPermissionState(
+            binding.cardOverlay,
+            binding.btnOverlay,
+            PermissionUtils.canDrawOverlays(this)
+        )
+        applyPermissionState(
+            binding.cardCall,
+            binding.btnCallScreening,
+            PermissionUtils.isCallScreeningRoleGranted(this)
+        )
+        applyPermissionState(
+            binding.cardNotification,
+            binding.btnNotification,
+            PermissionUtils.isNotificationPermissionGranted(this)
+        )
+
+        val allGranted = PermissionUtils.allEssentialGranted(this)
+        binding.btnContinue.isEnabled = allGranted
+        binding.btnContinue.alpha = if (allGranted) 1f else 0.6f
+    }
+
+    private fun applyPermissionState(card: MaterialCardView, button: MaterialButton, granted: Boolean) {
+        val ctx = card.context
+        val doneColor = ContextCompat.getColor(ctx, R.color.permission_done)
+        val pendingColor = ContextCompat.getColor(ctx, R.color.permission_pending)
+        card.setCardBackgroundColor(if (granted) doneColor else pendingColor)
+
+        button.text = if (granted) getString(R.string.action_enabled) else getString(R.string.action_enable)
+        button.isEnabled = !granted
+        val btnTint = if (granted) doneColor else ContextCompat.getColor(ctx, R.color.sentinel_accent)
+        button.setBackgroundTintList(ColorStateList.valueOf(btnTint))
+        button.strokeColor = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.sentinel_accent))
+        button.setTextColor(ContextCompat.getColor(ctx, R.color.sentinel_on_surface))
+        button.iconTint = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.sentinel_on_surface))
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
