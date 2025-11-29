@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:2:1-87:12
-INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:2:1-87:12
-INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:2:1-87:12
-INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:2:1-87:12
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:2:1-86:12
+INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:2:1-86:12
+INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:2:1-86:12
+INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:2:1-86:12
 MERGED from [androidx.databinding:viewbinding:8.3.2] C:\Users\thammasorn\.gradle\caches\transforms-4\9015e99d8b927fc846023e091181ca40\transformed\viewbinding-8.3.2\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.10.0] C:\Users\thammasorn\.gradle\caches\transforms-4\ea1a5ac3f86697d6e4f73e285bb1546b\transformed\material-1.10.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\thammasorn\.gradle\caches\transforms-4\b5f36088d95dd34d063453fba4a15edc\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
@@ -104,8 +104,8 @@ ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:5-
 	android:name
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:22-66
 application
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-85:19
-INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-85:19
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-84:19
+INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-84:19
 MERGED from [com.google.android.material:material:1.10.0] C:\Users\thammasorn\.gradle\caches\transforms-4\ea1a5ac3f86697d6e4f73e285bb1546b\transformed\material-1.10.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.10.0] C:\Users\thammasorn\.gradle\caches\transforms-4\ea1a5ac3f86697d6e4f73e285bb1546b\transformed\material-1.10.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\thammasorn\.gradle\caches\transforms-4\b5f36088d95dd34d063453fba4a15edc\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
@@ -163,91 +163,89 @@ ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:33:17
 	android:name
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:33:25-79
 service#com.sentinel.ai.service.SentinelGuardianService
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:37:9-41:68
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:37:9-40:40
 	android:enabled
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:39:13-35
 	android:exported
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:40:13-37
-	android:foregroundServiceType
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:41:13-65
 	android:name
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:38:13-60
 service#com.sentinel.ai.service.SentinelCallScreeningService
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:43:9-51:19
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:42:9-50:19
 	android:enabled
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:45:13-35
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:44:13-35
 	android:exported
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:46:13-36
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:45:13-36
 	android:permission
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:47:13-80
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:46:13-80
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:44:13-65
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:43:13-65
 intent-filter#action:name:android.telecom.CallScreeningService
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:48:13-50:29
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:47:13-49:29
 action#android.telecom.CallScreeningService
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:49:17-79
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:48:17-79
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:49:25-76
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:48:25-76
 service#com.sentinel.ai.service.SentinelAccessibilityService
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:53:9-64:19
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:52:9-63:19
 	android:enabled
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:55:13-35
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:54:13-35
 	android:exported
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:56:13-36
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:55:13-36
 	android:permission
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:57:13-79
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:56:13-79
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:54:13-65
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:53:13-65
 intent-filter#action:name:android.accessibilityservice.AccessibilityService
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:58:13-60:29
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:57:13-59:29
 action#android.accessibilityservice.AccessibilityService
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:59:17-92
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:58:17-92
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:59:25-89
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:58:25-89
 meta-data#android.accessibilityservice
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:61:13-63:72
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:60:13-62:72
 	android:resource
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:63:17-69
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:62:17-69
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:62:17-60
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:61:17-60
 activity#com.sentinel.ai.ui.SplashActivity
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:66:9-74:20
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:65:9-73:20
 	android:exported
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:68:13-36
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:67:13-36
 	android:theme
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:69:13-59
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:68:13-59
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:67:13-46
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:66:13-46
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:70:13-73:29
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:69:13-72:29
 action#android.intent.action.MAIN
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:71:17-69
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:70:17-69
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:71:25-66
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:70:25-66
 category#android.intent.category.LAUNCHER
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:72:17-77
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:71:17-77
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:72:27-74
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:71:27-74
 activity#com.sentinel.ai.ui.SetupActivity
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:75:9-77:39
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:74:9-76:39
 	android:exported
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:77:13-36
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:76:13-36
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:76:13-45
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:75:13-45
 activity#com.sentinel.ai.ui.DashboardActivity
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:78:9-80:39
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:77:9-79:39
 	android:exported
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:80:13-36
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:79:13-36
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:79:13-49
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:78:13-49
 activity#com.sentinel.ai.ui.CriticalAlertActivity
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:81:9-84:55
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:80:9-83:55
 	android:exported
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:83:13-37
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:82:13-37
 	android:theme
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:84:13-52
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:83:13-52
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:82:13-53
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:81:13-53
 uses-sdk
 INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml

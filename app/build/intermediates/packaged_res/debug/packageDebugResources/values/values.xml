@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#0F172A</color>
+    <color name="permission_done">#0EA5E9</color>
+    <color name="permission_pending">@color/sentinel_card</color>
     <color name="sentinel_accent">#F97316</color>
     <color name="sentinel_card">#1F2937</color>
     <color name="sentinel_critical">#EF4444</color>
@@ -12,6 +14,7 @@
     <string name="accessibility_summary">Sentinel AI monitors chat apps for scam signals.</string>
     <string name="action_continue">Continue</string>
     <string name="action_enable">Enable</string>
+    <string name="action_enabled">Enabled</string>
     <string name="alert_back">Back to dashboard</string>
     <string name="app_name">Sentinel AI</string>
     <string name="dashboard_title">Sentinel Dashboard</string>

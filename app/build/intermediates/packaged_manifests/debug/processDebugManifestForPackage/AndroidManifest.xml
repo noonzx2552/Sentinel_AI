@@ -52,8 +52,7 @@
         <service
             android:name="com.sentinel.ai.service.SentinelGuardianService"
             android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="microphone|phoneCall" />
+            android:exported="false" />
         <service
             android:name="com.sentinel.ai.service.SentinelCallScreeningService"
             android:enabled="true"

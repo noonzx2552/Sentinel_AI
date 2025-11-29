@@ -16,7 +16,6 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        SentinelGuardianService.start(this)
 
         Handler(Looper.getMainLooper()).postDelayed({
             startActivity(Intent(this, SetupActivity::class.java))

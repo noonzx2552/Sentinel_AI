@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -38,7 +39,7 @@
             android:name=".service.SentinelGuardianService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="microphone|phoneCall" />
+            android:foregroundServiceType="dataSync" />
 
         <service
             android:name=".service.SentinelCallScreeningService"
@@ -79,9 +80,4 @@
             android:name=".ui.DashboardActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.CriticalAlertActivity"
-            android:exported="false"
-            android:theme="@style/Theme.SentinelAI" />
-    </application>
-
-</manifest>
+            android:name=".ui.Critica

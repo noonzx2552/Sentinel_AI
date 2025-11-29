@@ -1,6 +1,8 @@
 R_DEF: Internal format may change without notice
 local
 color ic_launcher_background
+color permission_done
+color permission_pending
 color sentinel_accent
 color sentinel_card
 color sentinel_critical
@@ -20,6 +22,11 @@ id btnContinue
 id btnMic
 id btnNotification
 id btnOverlay
+id cardAccessibility
+id cardCall
+id cardMic
+id cardNotification
+id cardOverlay
 id eventDetail
 id eventScore
 id eventTitle
@@ -53,6 +60,7 @@ string accessibility_description
 string accessibility_summary
 string action_continue
 string action_enable
+string action_enabled
 string alert_back
 string app_name
 string dashboard_title
