@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sentinel_primary">#0F172A</color>
+    <color name="sentinel_accent">#F97316</color>
+    <color name="sentinel_warning">#FACC15</color>
+    <color name="sentinel_critical">#EF4444</color>
+    <color name="sentinel_surface">#111827</color>
+    <color name="sentinel_on_surface">#E5E7EB</color>
+    <color name="sentinel_card">#1F2937</color>
+    <color name="ic_launcher_background">#0F172A</color>
+</resources>

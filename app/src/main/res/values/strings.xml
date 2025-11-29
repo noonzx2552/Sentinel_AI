@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sentinel AI</string>
+    <string name="splash_title">Sentinel AI</string>
+    <string name="splash_subtitle">Initializing AI engine and checking updates...</string>
+    <string name="setup_title">Guardian Setup</string>
+    <string name="setup_permissions">Enable required permissions to keep you safe.</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_enable">Enable</string>
+    <string name="dashboard_title">Sentinel Dashboard</string>
+    <string name="guardian_toggle">Guardian Mode</string>
+    <string name="status_monitoring">Monitoring</string>
+    <string name="status_warning">Warning</string>
+    <string name="status_critical">Critical</string>
+    <string name="recent_events">Recent events</string>
+    <string name="accessibility_description">Reads chat messages to detect scam intent. Processing stays on-device and no data leaves the device.</string>
+    <string name="accessibility_summary">Sentinel AI monitors chat apps for scam signals.</string>
+    <string name="overlay_warning_title">High-risk conversation detected</string>
+    <string name="overlay_warning_body">Stay alert. Caller or chat shows scam patterns.</string>
+    <string name="overlay_critical_title">Critical scam risk</string>
+    <string name="overlay_critical_body">Sentinel AI ended the call to protect you.</string>
+    <string name="notification_channel_name">Sentinel Guardian</string>
+    <string name="notification_channel_desc">Real-time anti-scam monitoring</string>
+    <string name="notification_title">Sentinel AI is protecting you from scams</string>
+    <string name="notification_body">Monitoring calls and chats for scam signals</string>
+    <string name="label_status">Status</string>
+    <string name="alert_back">Back to dashboard</string>
+</resources>
