@@ -3181,6 +3181,7 @@ id btnContinue
 id btnMic
 id btnNotification
 id btnOverlay
+id btnTestStt
 id buttonPanel
 id cache_measures
 id callMeasure

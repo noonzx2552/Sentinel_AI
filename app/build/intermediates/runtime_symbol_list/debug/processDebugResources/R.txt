@@ -3180,6 +3180,7 @@ int id btnContinue 0x7f080068
 int id btnMic 0x7f080069
 int id btnNotification 0x7f08006a
 int id btnOverlay 0x7f08006b
+int id btnTestStt 0x7f080215
 int id buttonPanel 0x7f08006c
 int id cache_measures 0x7f08006d
 int id callMeasure 0x7f08006e

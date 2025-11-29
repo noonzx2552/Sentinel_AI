@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
 
     <application
         android:allowBackup="true"
@@ -45,7 +46,7 @@
             android:name=".service.SentinelCallScreeningService"
             android:enabled="true"
             android:exported="true"
-            android:permission="android.permission.BIND_CALL_SCREENING_SERVICE">
+            android:permission="android.permission.BIND_SCREENING_SERVICE">
             <intent-filter>
                 <action android:name="android.telecom.CallScreeningService" />
             </intent-filter>
@@ -80,4 +81,9 @@
             android:name=".ui.DashboardActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.Critica
+            android:name=".ui.CriticalAlertActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI" />
+    </application>
+
+</manifest>

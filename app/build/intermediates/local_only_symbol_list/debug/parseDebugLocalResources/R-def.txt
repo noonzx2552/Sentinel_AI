@@ -22,6 +22,7 @@ id btnContinue
 id btnMic
 id btnNotification
 id btnOverlay
+id btnTestStt
 id cardAccessibility
 id cardCall
 id cardMic
