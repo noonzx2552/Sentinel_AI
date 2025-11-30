@@ -7,6 +7,7 @@ import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.utils.OverlayController
+import com.sentinel.ai.utils.SensitiveAppBypass
 
 /**
  * Monitors chat app text to surface scam warnings. Everything is analyzed locally and discarded.
@@ -30,6 +31,10 @@ class SentinelAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val pkg = event.packageName?.toString() ?: return
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            SensitiveAppBypass.updateForeground(pkg)
+            overlay.dismissIfBlocked()
+        }
         if (!allowedPackages.contains(pkg)) return
         val text = event.text?.joinToString(" ")?.trim().orEmpty()
         if (text.isEmpty()) return

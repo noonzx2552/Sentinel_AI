@@ -11,11 +11,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import com.sentinel.ai.R
+import com.sentinel.ai.utils.SensitiveAppBypass
+import com.sentinel.ai.utils.OverlayGatekeeper
 
 class OverlayController(private val context: Context) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var currentView: View? = null
     private val handler = Handler(Looper.getMainLooper())
+
+    init {
+        OverlayGatekeeper.register(this)
+    }
 
     fun showWarning() {
         showLayout(R.layout.view_overlay_warning, autoDismissMs = 6000L)
@@ -25,8 +31,17 @@ class OverlayController(private val context: Context) {
         showLayout(R.layout.view_overlay_critical, autoDismissMs = 12000L)
     }
 
+    fun showListening() {
+        // Persistent banner while call monitoring is active.
+        showLayout(R.layout.view_overlay_listening, autoDismissMs = 0L)
+    }
+
     private fun showLayout(layoutId: Int, autoDismissMs: Long) {
         if (!Settings.canDrawOverlays(context)) return
+        if (SensitiveAppBypass.isBlocked()) {
+            dismiss()
+            return
+        }
         handler.post {
             dismissInternal()
             val inflater = LayoutInflater.from(context)
@@ -44,12 +59,20 @@ class OverlayController(private val context: Context) {
             }
             windowManager.addView(view, params)
             currentView = view
-            handler.postDelayed({ dismissInternal() }, autoDismissMs)
+            if (autoDismissMs > 0) {
+                handler.postDelayed({ dismissInternal() }, autoDismissMs)
+            }
         }
     }
 
     fun dismiss() {
         handler.post { dismissInternal() }
+    }
+
+    fun dismissIfBlocked() {
+        if (SensitiveAppBypass.isBlocked()) {
+            dismiss()
+        }
     }
 
     private fun dismissInternal() {
