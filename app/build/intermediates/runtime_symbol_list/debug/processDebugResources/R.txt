@@ -2996,6 +2996,7 @@ int drawable ic_mtrl_chip_checked_circle 0x7f070098
 int drawable ic_mtrl_chip_close_circle 0x7f070099
 int drawable ic_search_black_24 0x7f07009a
 int drawable icon_background 0x7f07009b
+int drawable loading_bar_drawable 0x7f0700ea
 int drawable m3_appbar_background 0x7f07009c
 int drawable m3_avd_hide_password 0x7f07009d
 int drawable m3_avd_show_password 0x7f07009e
@@ -3069,6 +3070,9 @@ int drawable notification_template_icon_bg 0x7f0700e1
 int drawable notification_template_icon_low_bg 0x7f0700e2
 int drawable notification_tile_bg 0x7f0700e3
 int drawable notify_panel_notification_icon_bg 0x7f0700e4
+int drawable overlay_card_bg 0x7f0700e8
+int drawable overlay_loading_card 0x7f0700e9
+int drawable overlay_transcript_bubble 0x7f0700eb
 int drawable test_level_drawable 0x7f0700e5
 int drawable tooltip_frame_dark 0x7f0700e6
 int drawable tooltip_frame_light 0x7f0700e7
@@ -3175,6 +3179,8 @@ int id bounceBoth 0x7f080063
 int id bounceEnd 0x7f080064
 int id bounceStart 0x7f080065
 int id btnAccessibility 0x7f080066
+int id btnAggressiveListen 0x7f08021b
+int id btnAggressiveStop 0x7f08021c
 int id btnCallScreening 0x7f080067
 int id btnClearEvents 0x7f080068
 int id btnContinue 0x7f080069
@@ -3187,6 +3193,10 @@ int id btnTestStt 0x7f08006f
 int id buttonPanel 0x7f080070
 int id cache_measures 0x7f080071
 int id callMeasure 0x7f080072
+int id callerName 0x7f08021d
+int id callerNumber 0x7f08021e
+int id callerReason 0x7f08021f
+int id callerRisk 0x7f080220
 int id cancel_button 0x7f080073
 int id cardAccessibility 0x7f080074
 int id cardCall 0x7f080075
@@ -3337,6 +3347,9 @@ int id line3 0x7f080105
 int id linear 0x7f080106
 int id listMode 0x7f080107
 int id list_item 0x7f080108
+int id loadingOverlay 0x7f080221
+int id loadingSubtitle 0x7f080222
+int id loadingTitle 0x7f080223
 int id logo 0x7f080109
 int id m3_side_sheet 0x7f08010a
 int id marquee 0x7f08010b
@@ -3587,7 +3600,10 @@ int id transition_position 0x7f0801ff
 int id transition_scene_layoutid_cache 0x7f080200
 int id transition_transform 0x7f080201
 int id triangle 0x7f080202
+int id tvListeningText 0x7f080224
+int id tvListeningTitle 0x7f080225
 int id tvLiveTranscript 0x7f080203
+int id tvOverlayTranscript 0x7f080227
 int id unchecked 0x7f080204
 int id uniform 0x7f080205
 int id unlabeled 0x7f080206
@@ -3746,6 +3762,7 @@ int layout design_navigation_menu 0x7f0b002c
 int layout design_navigation_menu_item 0x7f0b002d
 int layout design_text_input_end_icon 0x7f0b002e
 int layout design_text_input_start_icon 0x7f0b002f
+int layout dialog_listening_overlay 0x7f0b0075
 int layout ime_base_split_test_activity 0x7f0b0030
 int layout ime_secondary_split_test_activity 0x7f0b0031
 int layout item_event 0x7f0b0032
@@ -3811,7 +3828,10 @@ int layout select_dialog_multichoice_material 0x7f0b006d
 int layout select_dialog_singlechoice_material 0x7f0b006e
 int layout splash_screen_view 0x7f0b006f
 int layout support_simple_spinner_dropdown_item 0x7f0b0070
+int layout view_overlay_caller_info 0x7f0b0074
 int layout view_overlay_critical 0x7f0b0071
+int layout view_overlay_listening 0x7f0b0073
+int layout view_overlay_live_transcript 0x7f0b0076
 int layout view_overlay_warning 0x7f0b0072
 int mipmap ic_launcher 0x7f0d0000
 int mipmap ic_launcher_round 0x7f0d0001
@@ -3848,6 +3868,7 @@ int string accessibility_summary 0x7f0f001c
 int string action_continue 0x7f0f001d
 int string action_enable 0x7f0f001e
 int string action_enabled 0x7f0f001f
+int string action_stop_guardian 0x7f0f00c2
 int string alert_back 0x7f0f0020
 int string androidx_startup 0x7f0f0021
 int string app_name 0x7f0f0022
@@ -3865,6 +3886,8 @@ int string call_notification_hang_up_action 0x7f0f002d
 int string call_notification_incoming_text 0x7f0f002e
 int string call_notification_ongoing_text 0x7f0f002f
 int string call_notification_screening_text 0x7f0f0030
+int string caretaker_channel_desc 0x7f0f00c0
+int string caretaker_channel_name 0x7f0f00c1
 int string character_counter_content_description 0x7f0f0031
 int string character_counter_overflowed_content_description 0x7f0f0032
 int string character_counter_pattern 0x7f0f0033

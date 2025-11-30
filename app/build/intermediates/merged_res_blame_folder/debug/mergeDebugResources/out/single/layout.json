@@ -4,16 +4,16 @@
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\view_overlay_critical.xml"
     },
     {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-38:/layout/view_overlay_live_transcript.xml",
+        "source": "com.sentinel.ai.app-main-41:/layout/view_overlay_live_transcript.xml"
+    },
+    {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\activity_alert.xml",
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\activity_alert.xml"
     },
     {
-        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\item_event.xml",
-        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\item_event.xml"
-    },
-    {
-        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\activity_splash.xml",
-        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\activity_splash.xml"
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\view_overlay_caller_info.xml",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\view_overlay_caller_info.xml"
     },
     {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\activity_setup.xml",
@@ -30,5 +30,25 @@
     {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\view_overlay_warning.xml",
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\view_overlay_warning.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\view_overlay_live_transcript.xml",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\view_overlay_live_transcript.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\item_event.xml",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\item_event.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\activity_splash.xml",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\activity_splash.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\dialog_listening_overlay.xml",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\dialog_listening_overlay.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-38:\\layout\\view_overlay_listening.xml",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-41:\\layout\\view_overlay_listening.xml"
     }
 ]

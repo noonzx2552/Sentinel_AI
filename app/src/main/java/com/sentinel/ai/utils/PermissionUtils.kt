@@ -20,6 +20,9 @@ object PermissionUtils {
     fun hasMicPermission(context: Context): Boolean =
         ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 
+    fun hasReadContacts(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+
     fun requestMicPermission(activity: Activity, requestCode: Int) {
         ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.RECORD_AUDIO), requestCode)
     }
@@ -82,6 +85,10 @@ object PermissionUtils {
 
     fun requestPhoneStatePermission(activity: Activity, requestCode: Int) {
         ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_PHONE_STATE), requestCode)
+    }
+
+    fun requestContacts(activity: Activity, requestCode: Int) {
+        ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_CONTACTS), requestCode)
     }
 
     fun allEssentialGranted(context: Context): Boolean {

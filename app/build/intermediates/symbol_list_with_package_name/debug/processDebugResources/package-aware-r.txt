@@ -2997,6 +2997,7 @@ drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable ic_search_black_24
 drawable icon_background
+drawable loading_bar_drawable
 drawable m3_appbar_background
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
@@ -3070,6 +3071,9 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable overlay_card_bg
+drawable overlay_loading_card
+drawable overlay_transcript_bubble
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
@@ -3176,6 +3180,8 @@ id bounceBoth
 id bounceEnd
 id bounceStart
 id btnAccessibility
+id btnAggressiveListen
+id btnAggressiveStop
 id btnCallScreening
 id btnClearEvents
 id btnContinue
@@ -3188,6 +3194,10 @@ id btnTestStt
 id buttonPanel
 id cache_measures
 id callMeasure
+id callerName
+id callerNumber
+id callerReason
+id callerRisk
 id cancel_button
 id cardAccessibility
 id cardCall
@@ -3338,6 +3348,9 @@ id line3
 id linear
 id listMode
 id list_item
+id loadingOverlay
+id loadingSubtitle
+id loadingTitle
 id logo
 id m3_side_sheet
 id marquee
@@ -3588,7 +3601,10 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id tvListeningText
+id tvListeningTitle
 id tvLiveTranscript
+id tvOverlayTranscript
 id unchecked
 id uniform
 id unlabeled
@@ -3747,6 +3763,7 @@ layout design_navigation_menu
 layout design_navigation_menu_item
 layout design_text_input_end_icon
 layout design_text_input_start_icon
+layout dialog_listening_overlay
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
 layout item_event
@@ -3812,7 +3829,10 @@ layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material
 layout splash_screen_view
 layout support_simple_spinner_dropdown_item
+layout view_overlay_caller_info
 layout view_overlay_critical
+layout view_overlay_listening
+layout view_overlay_live_transcript
 layout view_overlay_warning
 mipmap ic_launcher
 mipmap ic_launcher_round
@@ -3849,6 +3869,7 @@ string accessibility_summary
 string action_continue
 string action_enable
 string action_enabled
+string action_stop_guardian
 string alert_back
 string androidx_startup
 string app_name
@@ -3866,6 +3887,8 @@ string call_notification_hang_up_action
 string call_notification_incoming_text
 string call_notification_ongoing_text
 string call_notification_screening_text
+string caretaker_channel_desc
+string caretaker_channel_name
 string character_counter_content_description
 string character_counter_overflowed_content_description
 string character_counter_pattern

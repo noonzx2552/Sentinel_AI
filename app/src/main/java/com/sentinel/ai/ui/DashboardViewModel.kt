@@ -10,6 +10,7 @@ import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.service.SentinelGuardianService
+import com.sentinel.ai.utils.PressureAnalyzer
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -21,6 +22,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val whisper = WhisperEngine()
     private val riskScoring = RiskScoring()
+    private val pressureAnalyzer = PressureAnalyzer()
 
     private fun levelFromScore(score: Int): RiskLevel = when {
         score >= 80 -> RiskLevel.CRITICAL
@@ -40,7 +42,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun runSttTest() {
         val transcript = whisper.transcribe()
-        val risk = riskScoring.score(transcript)
+        val behavior = pressureAnalyzer.analyze(transcript)
+        val risk = riskScoring.score(transcript, behavior)
         val level = levelFromScore(risk.score)
         GuardianEventStore.addEvent(
             GuardianEvent(
@@ -53,7 +56,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun handleTranscript(text: String) {
-        val risk = riskScoring.score(text)
+        val behavior = pressureAnalyzer.analyze(text)
+        val risk = riskScoring.score(text, behavior)
         GuardianEventStore.addEvent(
             GuardianEvent(
                 source = "Mic STT",

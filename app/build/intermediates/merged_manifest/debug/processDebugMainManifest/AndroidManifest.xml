@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <permission
         android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
