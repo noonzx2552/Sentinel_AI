@@ -35,7 +35,11 @@ class SetupActivity : AppCompatActivity() {
             PermissionUtils.requestOverlayPermission(this)
         }
         binding.btnCallScreening.setOnClickListener {
-            PermissionUtils.requestCallScreeningRole(this, REQ_ROLE)
+            if (!PermissionUtils.hasPhoneStatePermission(this)) {
+                PermissionUtils.requestPhoneStatePermission(this, REQ_PHONE)
+            } else {
+                PermissionUtils.requestCallScreeningRole(this, REQ_ROLE)
+            }
         }
         binding.btnNotification.setOnClickListener {
             PermissionUtils.requestNotificationPermission(this, REQ_NOTIFICATIONS)
@@ -66,7 +70,7 @@ class SetupActivity : AppCompatActivity() {
         binding.btnAccessibility.isEnabled = !PermissionUtils.isAccessibilityEnabled(this)
         binding.btnMic.isEnabled = !PermissionUtils.hasMicPermission(this)
         binding.btnOverlay.isEnabled = !PermissionUtils.canDrawOverlays(this)
-        binding.btnCallScreening.isEnabled = !PermissionUtils.isCallScreeningRoleGranted(this)
+        binding.btnCallScreening.isEnabled = !PermissionUtils.isCallScreeningRoleGranted(this) || !PermissionUtils.hasPhoneStatePermission(this)
         binding.btnNotification.isEnabled = !PermissionUtils.isNotificationPermissionGranted(this)
 
         applyPermissionState(
@@ -87,7 +91,7 @@ class SetupActivity : AppCompatActivity() {
         applyPermissionState(
             binding.cardCall,
             binding.btnCallScreening,
-            PermissionUtils.isCallScreeningRoleGranted(this)
+            PermissionUtils.isCallScreeningRoleGranted(this) && PermissionUtils.hasPhoneStatePermission(this)
         )
         applyPermissionState(
             binding.cardNotification,
@@ -117,8 +121,11 @@ class SetupActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQ_MIC || requestCode == REQ_NOTIFICATIONS) {
+        if (requestCode == REQ_MIC || requestCode == REQ_NOTIFICATIONS || requestCode == REQ_PHONE) {
             updateButtons()
+            if (requestCode == REQ_PHONE && PermissionUtils.hasPhoneStatePermission(this)) {
+                PermissionUtils.requestCallScreeningRole(this, REQ_ROLE)
+            }
         }
     }
 
@@ -133,5 +140,6 @@ class SetupActivity : AppCompatActivity() {
         private const val REQ_MIC = 100
         private const val REQ_NOTIFICATIONS = 101
         private const val REQ_ROLE = 102
+        private const val REQ_PHONE = 103
     }
 }

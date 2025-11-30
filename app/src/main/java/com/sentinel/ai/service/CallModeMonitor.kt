@@ -26,6 +26,17 @@ class CallModeMonitor(private val context: Context) {
     @Suppress("DEPRECATION")
     fun start() {
         if (phoneStateListener != null) return
+        if (!PermissionUtils.hasPhoneStatePermission(context)) {
+            GuardianEventStore.addEvent(
+                GuardianEvent(
+                    source = "Call monitor",
+                    content = "Phone state permission missing. Call listening disabled.",
+                    score = 0,
+                    riskLevel = RiskLevel.SAFE
+                )
+            )
+            return
+        }
         phoneStateListener = object : PhoneStateListener() {
             override fun onCallStateChanged(state: Int, phoneNumber: String?) {
                 when (state) {
@@ -35,7 +46,18 @@ class CallModeMonitor(private val context: Context) {
                 }
             }
         }
-        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
+        try {
+            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
+        } catch (se: SecurityException) {
+            GuardianEventStore.addEvent(
+                GuardianEvent(
+                    source = "Call monitor",
+                    content = "Cannot start call listener: ${se.message}",
+                    score = 0,
+                    riskLevel = RiskLevel.SAFE
+                )
+            )
+        }
     }
 
     @Suppress("DEPRECATION")
