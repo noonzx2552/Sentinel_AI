@@ -70,10 +70,18 @@ object PermissionUtils {
         }
     }
 
+    fun hasPhoneStatePermission(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+    }
+
     fun requestNotificationPermission(activity: Activity, requestCode: Int) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), requestCode)
         }
+    }
+
+    fun requestPhoneStatePermission(activity: Activity, requestCode: Int) {
+        ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_PHONE_STATE), requestCode)
     }
 
     fun allEssentialGranted(context: Context): Boolean {
@@ -81,6 +89,7 @@ object PermissionUtils {
             canDrawOverlays(context) &&
             isCallScreeningRoleGranted(context) &&
             isNotificationPermissionGranted(context) &&
-            isAccessibilityEnabled(context)
+            isAccessibilityEnabled(context) &&
+            hasPhoneStatePermission(context)
     }
 }
