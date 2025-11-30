@@ -9,6 +9,7 @@ import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.utils.CallTtsController
 import com.sentinel.ai.utils.PermissionUtils
+import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.SpeechTestController
 
 /**
@@ -19,6 +20,7 @@ class CallModeMonitor(private val context: Context) {
     private val speechTester = SpeechTestController(context)
     private val tts = CallTtsController(context)
     private val riskScoring = RiskScoring()
+    private val overlay by lazy { OverlayController(context) }
 
     private var phoneStateListener: PhoneStateListener? = null
     private var micRunning = false
@@ -90,6 +92,7 @@ class CallModeMonitor(private val context: Context) {
                 riskLevel = RiskLevel.SAFE
             )
         )
+        overlay.showListening()
         tts.startKeepAliveLoop("Call monitoring active. Text to speech is running.")
         speechTester.listenContinuously(
             onResult = { handleTranscript(it) },
@@ -129,11 +132,13 @@ class CallModeMonitor(private val context: Context) {
     private fun exitCallMode() {
         if (!micRunning) {
             tts.stopKeepAliveLoop()
+            overlay.dismiss()
             return
         }
         micRunning = false
         speechTester.stopContinuous()
         tts.stopKeepAliveLoop()
+        overlay.dismiss()
     }
 
     fun destroy() {
