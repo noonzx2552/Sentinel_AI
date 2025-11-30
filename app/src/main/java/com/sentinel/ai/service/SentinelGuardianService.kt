@@ -14,19 +14,29 @@ import com.sentinel.ai.utils.NotificationHelper
 class SentinelGuardianService : Service() {
 
     private lateinit var notificationHelper: NotificationHelper
+    private lateinit var callModeMonitor: CallModeMonitor
 
     override fun onCreate() {
         super.onCreate()
         notificationHelper = NotificationHelper(this)
         val notification = notificationHelper.buildGuardianNotification()
         startForeground(NOTIFICATION_ID, notification)
+        callModeMonitor = CallModeMonitor(this)
+        callModeMonitor.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Re-attach listeners if the system restarts the service.
+        callModeMonitor.start()
         return START_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onDestroy() {
+        callModeMonitor.destroy()
+        super.onDestroy()
+    }
 
     companion object {
         private const val NOTIFICATION_ID = 1001

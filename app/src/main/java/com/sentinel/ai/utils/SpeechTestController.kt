@@ -3,6 +3,8 @@ package com.sentinel.ai.utils
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -14,6 +16,8 @@ import java.util.Locale
  */
 class SpeechTestController(context: Context) {
     private var recognizer: SpeechRecognizer? = SpeechRecognizer.createSpeechRecognizer(context.applicationContext)
+    private val handler = Handler(Looper.getMainLooper())
+    private var continuous = false
 
     fun listenOnce(
         onResult: (String) -> Unit,
@@ -62,7 +66,44 @@ class SpeechTestController(context: Context) {
         r.startListening(intent)
     }
 
+    /**
+     * Keeps the mic open by restarting recognition after each result/error
+     * until stopContinuous() is called.
+     */
+    fun listenContinuously(
+        onResult: (String) -> Unit,
+        onError: (String) -> Unit,
+        onPartial: (String) -> Unit = {},
+        languageTag: String? = null,
+        restartDelayMs: Long = 350L
+    ) {
+        continuous = true
+        fun startRound() {
+            if (!continuous) return
+            listenOnce(
+                onResult = {
+                    onResult(it)
+                    if (continuous) handler.postDelayed({ startRound() }, restartDelayMs)
+                },
+                onError = {
+                    onError(it)
+                    if (continuous) handler.postDelayed({ startRound() }, restartDelayMs)
+                },
+                onPartial = onPartial,
+                languageTag = languageTag
+            )
+        }
+        startRound()
+    }
+
+    fun stopContinuous() {
+        continuous = false
+        handler.removeCallbacksAndMessages(null)
+        recognizer?.cancel()
+    }
+
     fun destroy() {
+        stopContinuous()
         recognizer?.destroy()
         recognizer = null
     }
