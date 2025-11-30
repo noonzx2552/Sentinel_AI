@@ -11,6 +11,7 @@ import com.sentinel.ai.utils.CallTtsController
 import com.sentinel.ai.utils.PermissionUtils
 import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.SpeechTestController
+import com.sentinel.ai.utils.PressureAnalyzer
 
 /**
  * Watches call state and keeps the mic + TTS alive while a call is active.
@@ -21,6 +22,7 @@ class CallModeMonitor(private val context: Context) {
     private val tts = CallTtsController(context)
     private val riskScoring = RiskScoring()
     private val overlay by lazy { OverlayController(context) }
+    private val pressureAnalyzer = PressureAnalyzer()
 
     private var phoneStateListener: PhoneStateListener? = null
     private var micRunning = false
@@ -103,7 +105,8 @@ class CallModeMonitor(private val context: Context) {
     }
 
     private fun handleTranscript(text: String) {
-        val risk = riskScoring.score(text)
+        val behavior = pressureAnalyzer.analyze(text)
+        val risk = riskScoring.score(text, behavior)
         val level = toRiskLevel(risk.score)
         GuardianEventStore.addEvent(
             GuardianEvent(

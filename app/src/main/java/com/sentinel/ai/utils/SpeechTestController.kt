@@ -15,7 +15,8 @@ import java.util.Locale
  * Uses on-device SpeechRecognizer (network may be required on some devices).
  */
 class SpeechTestController(context: Context) {
-    private var recognizer: SpeechRecognizer? = SpeechRecognizer.createSpeechRecognizer(context.applicationContext)
+    private val appContext = context.applicationContext
+    private var recognizer: SpeechRecognizer? = SpeechRecognizer.createSpeechRecognizer(appContext)
     private val handler = Handler(Looper.getMainLooper())
     private var continuous = false
 
@@ -25,7 +26,7 @@ class SpeechTestController(context: Context) {
         onPartial: (String) -> Unit = {},
         languageTag: String? = null
     ) {
-        val r = recognizer ?: return onError("SpeechRecognizer not available")
+        val r = recognizer ?: SpeechRecognizer.createSpeechRecognizer(appContext).also { recognizer = it }
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
@@ -43,7 +44,15 @@ class SpeechTestController(context: Context) {
             override fun onBufferReceived(buffer: ByteArray?) {}
             override fun onEndOfSpeech() {}
             override fun onError(error: Int) {
-                onError("STT error: $error")
+                // Treat "no match" as silence, keep loop alive silently.
+                if (error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
+                    onPartial("...")
+                } else {
+                    onError("STT error: $error")
+                    // Re-create recognizer on fatal errors to keep loop healthy.
+                    recognizer?.destroy()
+                    recognizer = SpeechRecognizer.createSpeechRecognizer(appContext)
+                }
             }
 
             override fun onResults(results: Bundle?) {

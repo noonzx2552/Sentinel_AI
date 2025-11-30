@@ -4,10 +4,10 @@ package com.sentinel.ai.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
@@ -21,7 +21,13 @@ import java.lang.String;
 
 public final class ActivityDashboardBinding implements ViewBinding {
   @NonNull
-  private final ConstraintLayout rootView;
+  private final View rootView;
+
+  @NonNull
+  public final MaterialButton btnAggressiveListen;
+
+  @NonNull
+  public final MaterialButton btnAggressiveStop;
 
   @NonNull
   public final MaterialButton btnClearEvents;
@@ -40,6 +46,15 @@ public final class ActivityDashboardBinding implements ViewBinding {
 
   @NonNull
   public final TextView header;
+
+  @NonNull
+  public final FrameLayout loadingOverlay;
+
+  @NonNull
+  public final TextView loadingSubtitle;
+
+  @NonNull
+  public final TextView loadingTitle;
 
   @NonNull
   public final TextView recentLabel;
@@ -62,21 +77,28 @@ public final class ActivityDashboardBinding implements ViewBinding {
   @NonNull
   public final TextView tvLiveTranscript;
 
-  private ActivityDashboardBinding(@NonNull ConstraintLayout rootView,
+  private ActivityDashboardBinding(@NonNull View rootView,
+      @NonNull MaterialButton btnAggressiveListen, @NonNull MaterialButton btnAggressiveStop,
       @NonNull MaterialButton btnClearEvents, @NonNull MaterialButton btnMockCall,
       @NonNull MaterialButton btnMockChat, @NonNull MaterialButton btnTestStt,
       @NonNull SwitchMaterial guardianToggle, @NonNull TextView header,
-      @NonNull TextView recentLabel, @NonNull RecyclerView recentRecycler,
-      @NonNull MaterialCardView statusCard, @NonNull TextView statusLabel,
-      @NonNull TextView statusValue, @NonNull MaterialCardView testCard,
-      @NonNull TextView tvLiveTranscript) {
+      @NonNull FrameLayout loadingOverlay, @NonNull TextView loadingSubtitle,
+      @NonNull TextView loadingTitle, @NonNull TextView recentLabel,
+      @NonNull RecyclerView recentRecycler, @NonNull MaterialCardView statusCard,
+      @NonNull TextView statusLabel, @NonNull TextView statusValue,
+      @NonNull MaterialCardView testCard, @NonNull TextView tvLiveTranscript) {
     this.rootView = rootView;
+    this.btnAggressiveListen = btnAggressiveListen;
+    this.btnAggressiveStop = btnAggressiveStop;
     this.btnClearEvents = btnClearEvents;
     this.btnMockCall = btnMockCall;
     this.btnMockChat = btnMockChat;
     this.btnTestStt = btnTestStt;
     this.guardianToggle = guardianToggle;
     this.header = header;
+    this.loadingOverlay = loadingOverlay;
+    this.loadingSubtitle = loadingSubtitle;
+    this.loadingTitle = loadingTitle;
     this.recentLabel = recentLabel;
     this.recentRecycler = recentRecycler;
     this.statusCard = statusCard;
@@ -88,7 +110,7 @@ public final class ActivityDashboardBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public ConstraintLayout getRoot() {
+  public View getRoot() {
     return rootView;
   }
 
@@ -113,6 +135,18 @@ public final class ActivityDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnAggressiveListen;
+      MaterialButton btnAggressiveListen = ViewBindings.findChildViewById(rootView, id);
+      if (btnAggressiveListen == null) {
+        break missingId;
+      }
+
+      id = R.id.btnAggressiveStop;
+      MaterialButton btnAggressiveStop = ViewBindings.findChildViewById(rootView, id);
+      if (btnAggressiveStop == null) {
+        break missingId;
+      }
+
       id = R.id.btnClearEvents;
       MaterialButton btnClearEvents = ViewBindings.findChildViewById(rootView, id);
       if (btnClearEvents == null) {
@@ -146,6 +180,24 @@ public final class ActivityDashboardBinding implements ViewBinding {
       id = R.id.header;
       TextView header = ViewBindings.findChildViewById(rootView, id);
       if (header == null) {
+        break missingId;
+      }
+
+      id = R.id.loadingOverlay;
+      FrameLayout loadingOverlay = ViewBindings.findChildViewById(rootView, id);
+      if (loadingOverlay == null) {
+        break missingId;
+      }
+
+      id = R.id.loadingSubtitle;
+      TextView loadingSubtitle = ViewBindings.findChildViewById(rootView, id);
+      if (loadingSubtitle == null) {
+        break missingId;
+      }
+
+      id = R.id.loadingTitle;
+      TextView loadingTitle = ViewBindings.findChildViewById(rootView, id);
+      if (loadingTitle == null) {
         break missingId;
       }
 
@@ -191,8 +243,9 @@ public final class ActivityDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityDashboardBinding((ConstraintLayout) rootView, btnClearEvents, btnMockCall,
-          btnMockChat, btnTestStt, guardianToggle, header, recentLabel, recentRecycler, statusCard,
+      return new ActivityDashboardBinding(rootView, btnAggressiveListen, btnAggressiveStop,
+          btnClearEvents, btnMockCall, btnMockChat, btnTestStt, guardianToggle, header,
+          loadingOverlay, loadingSubtitle, loadingTitle, recentLabel, recentRecycler, statusCard,
           statusLabel, statusValue, testCard, tvLiveTranscript);
     }
     String missingId = rootView.getResources().getResourceName(id);

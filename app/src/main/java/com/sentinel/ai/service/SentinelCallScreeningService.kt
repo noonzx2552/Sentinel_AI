@@ -9,6 +9,9 @@ import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.utils.OverlayController
+import com.sentinel.ai.utils.ContactLookup
+import com.sentinel.ai.utils.KnownNumberRepository
+import com.sentinel.ai.utils.NotificationHelper
 import com.sentinel.ai.ui.CriticalAlertActivity
 
 /**
@@ -20,13 +23,19 @@ class SentinelCallScreeningService : CallScreeningService() {
     private val riskScoring by lazy { RiskScoring() }
     private val whisperEngine by lazy { WhisperEngine() }
     private val overlay by lazy { OverlayController(this) }
+    private val notificationHelper by lazy { NotificationHelper(this) }
 
     override fun onScreenCall(callDetails: Call.Details) {
         SentinelGuardianService.start(this)
         val number = callDetails.handle?.schemeSpecificPart ?: "Unknown"
+        val contactName = ContactLookup.getContactName(this, number)
+        val known = KnownNumberRepository.lookup(number) ?: KnownNumberRepository.heuristic(number)
         val transcript = whisperEngine.transcribe()
         val risk = riskScoring.score(transcript)
-        val riskLevel = toRiskLevel(risk.score)
+        val riskLevel = known?.riskLevel ?: toRiskLevel(risk.score)
+
+        val displayName = contactName ?: known?.displayName ?: "Unknown caller"
+        val reason = known?.reason ?: "Not in contacts"
 
         val event = GuardianEvent(
             source = "Call from $number",
@@ -36,10 +45,18 @@ class SentinelCallScreeningService : CallScreeningService() {
         )
         GuardianEventStore.addEvent(event)
 
+        overlay.showCallerInfo(
+            name = displayName,
+            number = number,
+            riskLevel = riskLevel,
+            reason = reason
+        )
+
         when (riskLevel) {
             RiskLevel.CRITICAL -> {
                 overlay.showCritical()
                 launchCriticalAlert(risk.score, transcript)
+                notifyCaretaker(displayName, number, riskLevel)
                 respondToCall(callDetails, CallResponse.Builder()
                     .setDisallowCall(true)
                     .setRejectCall(true)
@@ -49,6 +66,7 @@ class SentinelCallScreeningService : CallScreeningService() {
             }
             RiskLevel.WARNING -> {
                 overlay.showWarning()
+                notifyCaretaker(displayName, number, riskLevel)
                 allowCall(callDetails)
             }
             RiskLevel.SAFE -> allowCall(callDetails)
@@ -78,5 +96,15 @@ class SentinelCallScreeningService : CallScreeningService() {
         score >= 80 -> RiskLevel.CRITICAL
         score in 40..79 -> RiskLevel.WARNING
         else -> RiskLevel.SAFE
+    }
+
+    private fun notifyCaretaker(name: String, number: String, riskLevel: RiskLevel) {
+        val title = when (riskLevel) {
+            RiskLevel.CRITICAL -> "Call flagged: CRITICAL"
+            RiskLevel.WARNING -> "Call flagged: WARNING"
+            RiskLevel.SAFE -> "Call flagged"
+        }
+        val body = "$name ($number) has risk level ${riskLevel.name}"
+        notificationHelper.sendCaretakerAlert(title, body)
     }
 }

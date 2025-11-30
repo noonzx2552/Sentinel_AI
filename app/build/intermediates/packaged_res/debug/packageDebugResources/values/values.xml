@@ -15,8 +15,11 @@
     <string name="action_continue">Continue</string>
     <string name="action_enable">Enable</string>
     <string name="action_enabled">Enabled</string>
+    <string name="action_stop_guardian">ปิด Guardian</string>
     <string name="alert_back">Back to dashboard</string>
     <string name="app_name">Sentinel AI</string>
+    <string name="caretaker_channel_desc">Alerts sent when calls are flagged high risk</string>
+    <string name="caretaker_channel_name">Caretaker Alerts</string>
     <string name="dashboard_title">Sentinel Dashboard</string>
     <string name="guardian_toggle">Guardian Mode</string>
     <string name="label_status">Status</string>

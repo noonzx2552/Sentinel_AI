@@ -26,6 +26,10 @@ class SentinelGuardianService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         // Re-attach listeners if the system restarts the service.
         callModeMonitor.start()
         return START_STICKY
@@ -40,6 +44,7 @@ class SentinelGuardianService : Service() {
 
     companion object {
         private const val NOTIFICATION_ID = 1001
+        const val ACTION_STOP = "com.sentinel.ai.ACTION_STOP_GUARDIAN"
 
         fun start(context: Context) {
             val intent = Intent(context, SentinelGuardianService::class.java)
