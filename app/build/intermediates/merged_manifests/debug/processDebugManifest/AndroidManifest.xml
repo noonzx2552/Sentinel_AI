@@ -39,7 +39,6 @@
         android:label="Sentinel AI"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:testOnly="true"
         android:theme="@style/Theme.SentinelAI"
         android:usesCleartextTraffic="false" >
         <receiver

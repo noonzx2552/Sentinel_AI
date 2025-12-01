@@ -12,6 +12,7 @@ color sentinel_surface
 color sentinel_warning
 drawable ic_launcher_foreground
 drawable loading_bar_drawable
+drawable overlay_badge_bg
 drawable overlay_card_bg
 drawable overlay_loading_card
 drawable overlay_transcript_bubble
@@ -31,6 +32,7 @@ id btnMockCall
 id btnMockChat
 id btnNotification
 id btnOverlay
+id btnOverlayClose
 id btnTestStt
 id callerName
 id callerNumber
@@ -46,6 +48,7 @@ id eventScore
 id eventTitle
 id guardianToggle
 id header
+id headerRow
 id loadingOverlay
 id loadingSubtitle
 id loadingTitle
@@ -65,9 +68,13 @@ id statusValue
 id subtitle
 id testCard
 id title
+id tvEventCounts
+id tvLastEvent
 id tvListeningText
 id tvListeningTitle
 id tvLiveTranscript
+id tvOverlayRisk
+id tvOverlayTitle
 id tvOverlayTranscript
 layout activity_alert
 layout activity_dashboard
@@ -84,6 +91,7 @@ mipmap ic_launcher
 mipmap ic_launcher_round
 string accessibility_description
 string accessibility_summary
+string action_close
 string action_continue
 string action_enable
 string action_enabled

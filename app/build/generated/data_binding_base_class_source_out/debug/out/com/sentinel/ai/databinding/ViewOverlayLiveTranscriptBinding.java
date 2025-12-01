@@ -4,6 +4,7 @@ package com.sentinel.ai.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -20,11 +21,29 @@ public final class ViewOverlayLiveTranscriptBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
+  public final ImageButton btnOverlayClose;
+
+  @NonNull
+  public final LinearLayout headerRow;
+
+  @NonNull
+  public final TextView tvOverlayRisk;
+
+  @NonNull
+  public final TextView tvOverlayTitle;
+
+  @NonNull
   public final TextView tvOverlayTranscript;
 
   private ViewOverlayLiveTranscriptBinding(@NonNull LinearLayout rootView,
+      @NonNull ImageButton btnOverlayClose, @NonNull LinearLayout headerRow,
+      @NonNull TextView tvOverlayRisk, @NonNull TextView tvOverlayTitle,
       @NonNull TextView tvOverlayTranscript) {
     this.rootView = rootView;
+    this.btnOverlayClose = btnOverlayClose;
+    this.headerRow = headerRow;
+    this.tvOverlayRisk = tvOverlayRisk;
+    this.tvOverlayTitle = tvOverlayTitle;
     this.tvOverlayTranscript = tvOverlayTranscript;
   }
 
@@ -55,13 +74,38 @@ public final class ViewOverlayLiveTranscriptBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnOverlayClose;
+      ImageButton btnOverlayClose = ViewBindings.findChildViewById(rootView, id);
+      if (btnOverlayClose == null) {
+        break missingId;
+      }
+
+      id = R.id.headerRow;
+      LinearLayout headerRow = ViewBindings.findChildViewById(rootView, id);
+      if (headerRow == null) {
+        break missingId;
+      }
+
+      id = R.id.tvOverlayRisk;
+      TextView tvOverlayRisk = ViewBindings.findChildViewById(rootView, id);
+      if (tvOverlayRisk == null) {
+        break missingId;
+      }
+
+      id = R.id.tvOverlayTitle;
+      TextView tvOverlayTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvOverlayTitle == null) {
+        break missingId;
+      }
+
       id = R.id.tvOverlayTranscript;
       TextView tvOverlayTranscript = ViewBindings.findChildViewById(rootView, id);
       if (tvOverlayTranscript == null) {
         break missingId;
       }
 
-      return new ViewOverlayLiveTranscriptBinding((LinearLayout) rootView, tvOverlayTranscript);
+      return new ViewOverlayLiveTranscriptBinding((LinearLayout) rootView, btnOverlayClose,
+          headerRow, tvOverlayRisk, tvOverlayTitle, tvOverlayTranscript);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

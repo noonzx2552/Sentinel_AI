@@ -13,11 +13,13 @@ import android.view.WindowManager
 import com.sentinel.ai.R
 import com.sentinel.ai.utils.SensitiveAppBypass
 import com.sentinel.ai.utils.OverlayGatekeeper
+import com.sentinel.ai.model.RiskLevel
 
 class OverlayController(private val context: Context) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var currentView: View? = null
     private var liveTranscriptView: android.widget.TextView? = null
+    private var liveTranscriptBadge: android.widget.TextView? = null
     private var liveTranscriptParams: WindowManager.LayoutParams? = null
     private val handler = Handler(Looper.getMainLooper())
 
@@ -50,6 +52,12 @@ class OverlayController(private val context: Context) {
             val view = inflater.inflate(R.layout.view_overlay_live_transcript, null)
             liveTranscriptView = view.findViewById(R.id.tvOverlayTranscript)
             liveTranscriptView?.text = initial
+            liveTranscriptBadge = view.findViewById(R.id.tvOverlayRisk)
+            view.findViewById<View>(R.id.btnOverlayClose)?.setOnClickListener { dismiss() }
+            liveTranscriptBadge?.let {
+                it.text = "LISTENING"
+                it.background?.setTint(android.graphics.Color.parseColor("#0EA5E9"))
+            }
             val params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -71,6 +79,20 @@ class OverlayController(private val context: Context) {
 
     fun updateLiveTranscript(text: String) {
         handler.post { liveTranscriptView?.text = text }
+    }
+
+    fun updateLiveTranscriptRisk(level: RiskLevel) {
+        handler.post {
+            liveTranscriptBadge?.let { badge ->
+                val (label, color) = when (level) {
+                    RiskLevel.SAFE -> "SAFE" to android.graphics.Color.parseColor("#16A34A")
+                    RiskLevel.WARNING -> "WARN" to android.graphics.Color.parseColor("#FACC15")
+                    RiskLevel.CRITICAL -> "CRITICAL" to android.graphics.Color.parseColor("#EF4444")
+                }
+                badge.text = label
+                badge.background?.setTint(color)
+            }
+        }
     }
 
     fun showCallerInfo(name: String, number: String, riskLevel: com.sentinel.ai.model.RiskLevel, reason: String) {
@@ -158,6 +180,7 @@ class OverlayController(private val context: Context) {
             }
             currentView = null
             liveTranscriptView = null
+            liveTranscriptBadge = null
             liveTranscriptParams = null
         }
     }

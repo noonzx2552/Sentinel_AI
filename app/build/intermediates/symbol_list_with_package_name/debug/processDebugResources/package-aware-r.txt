@@ -3071,6 +3071,7 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable overlay_badge_bg
 drawable overlay_card_bg
 drawable overlay_loading_card
 drawable overlay_transcript_bubble
@@ -3190,6 +3191,7 @@ id btnMockCall
 id btnMockChat
 id btnNotification
 id btnOverlay
+id btnOverlayClose
 id btnTestStt
 id buttonPanel
 id cache_measures
@@ -3314,6 +3316,7 @@ id grouping
 id groups
 id guardianToggle
 id header
+id headerRow
 id header_title
 id hide_ime_id
 id hideable
@@ -3601,9 +3604,13 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id tvEventCounts
+id tvLastEvent
 id tvListeningText
 id tvListeningTitle
 id tvLiveTranscript
+id tvOverlayRisk
+id tvOverlayTitle
 id tvOverlayTranscript
 id unchecked
 id uniform
@@ -3866,6 +3873,7 @@ string abc_shareactionprovider_share_with_application
 string abc_toolbar_collapse_description
 string accessibility_description
 string accessibility_summary
+string action_close
 string action_continue
 string action_enable
 string action_enabled
