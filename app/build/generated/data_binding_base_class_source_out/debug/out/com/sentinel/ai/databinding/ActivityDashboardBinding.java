@@ -74,6 +74,38 @@ public final class ActivityDashboardBinding implements ViewBinding {
   @NonNull
   public final MaterialCardView testCard;
 
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView tvEventCounts;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView tvLastEvent;
+
   @NonNull
   public final TextView tvLiveTranscript;
 
@@ -86,7 +118,8 @@ public final class ActivityDashboardBinding implements ViewBinding {
       @NonNull TextView loadingTitle, @NonNull TextView recentLabel,
       @NonNull RecyclerView recentRecycler, @NonNull MaterialCardView statusCard,
       @NonNull TextView statusLabel, @NonNull TextView statusValue,
-      @NonNull MaterialCardView testCard, @NonNull TextView tvLiveTranscript) {
+      @NonNull MaterialCardView testCard, @Nullable TextView tvEventCounts,
+      @Nullable TextView tvLastEvent, @NonNull TextView tvLiveTranscript) {
     this.rootView = rootView;
     this.btnAggressiveListen = btnAggressiveListen;
     this.btnAggressiveStop = btnAggressiveStop;
@@ -105,6 +138,8 @@ public final class ActivityDashboardBinding implements ViewBinding {
     this.statusLabel = statusLabel;
     this.statusValue = statusValue;
     this.testCard = testCard;
+    this.tvEventCounts = tvEventCounts;
+    this.tvLastEvent = tvLastEvent;
     this.tvLiveTranscript = tvLiveTranscript;
   }
 
@@ -237,6 +272,12 @@ public final class ActivityDashboardBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvEventCounts;
+      TextView tvEventCounts = ViewBindings.findChildViewById(rootView, id);
+
+      id = R.id.tvLastEvent;
+      TextView tvLastEvent = ViewBindings.findChildViewById(rootView, id);
+
       id = R.id.tvLiveTranscript;
       TextView tvLiveTranscript = ViewBindings.findChildViewById(rootView, id);
       if (tvLiveTranscript == null) {
@@ -246,7 +287,7 @@ public final class ActivityDashboardBinding implements ViewBinding {
       return new ActivityDashboardBinding(rootView, btnAggressiveListen, btnAggressiveStop,
           btnClearEvents, btnMockCall, btnMockChat, btnTestStt, guardianToggle, header,
           loadingOverlay, loadingSubtitle, loadingTitle, recentLabel, recentRecycler, statusCard,
-          statusLabel, statusValue, testCard, tvLiveTranscript);
+          statusLabel, statusValue, testCard, tvEventCounts, tvLastEvent, tvLiveTranscript);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

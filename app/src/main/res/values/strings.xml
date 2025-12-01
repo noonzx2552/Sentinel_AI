@@ -25,7 +25,8 @@
     <string name="notification_body">Monitoring calls and chats for scam signals</string>
     <string name="caretaker_channel_name">Caretaker Alerts</string>
     <string name="caretaker_channel_desc">Alerts sent when calls are flagged high risk</string>
-    <string name="action_stop_guardian">ปิด Guardian</string>
+    <string name="action_stop_guardian">Stop Guardian</string>
+    <string name="action_close">Close</string>
     <string name="action_enabled">Enabled</string>
     <string name="label_status">Status</string>
     <string name="alert_back">Back to dashboard</string>

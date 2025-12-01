@@ -94,12 +94,16 @@ class CallModeMonitor(private val context: Context) {
                 riskLevel = RiskLevel.SAFE
             )
         )
-        overlay.showListening()
+        overlay.showLiveTranscript("Listening...")
         tts.startKeepAliveLoop("Call monitoring active. Text to speech is running.")
         speechTester.listenContinuously(
             onResult = { handleTranscript(it) },
             onError = { handleError(it) },
-            onPartial = {},
+            onPartial = { partial ->
+                if (partial.isNotBlank() && partial != "...") {
+                    overlay.updateLiveTranscript(partial)
+                }
+            },
             languageTag = PREFERRED_LANG
         )
     }
@@ -116,6 +120,8 @@ class CallModeMonitor(private val context: Context) {
                 riskLevel = level
             )
         )
+        overlay.updateLiveTranscript(text)
+        overlay.updateLiveTranscriptRisk(level)
         if (level != RiskLevel.SAFE) {
             tts.speak("Warning level ${level.name.lowercase()} detected.", flush = true)
         }
@@ -130,6 +136,8 @@ class CallModeMonitor(private val context: Context) {
                 riskLevel = RiskLevel.SAFE
             )
         )
+        overlay.updateLiveTranscript("Mic error: $err")
+        overlay.updateLiveTranscriptRisk(RiskLevel.SAFE)
     }
 
     private fun exitCallMode() {

@@ -55,11 +55,27 @@
                 android:id="@+id/statusValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/status_monitoring"
+            android:textColor="@color/sentinel_on_surface"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvLastEvent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Last event: none"
+                android:textColor="@color/sentinel_on_surface" />
+
+            <TextView
+                android:id="@+id/tvEventCounts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@string/status_monitoring"
-                android:textColor="@color/sentinel_on_surface"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:text="Critical 0 • Warning 0 • Safe 0"
+                android:textColor="@color/sentinel_on_surface" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

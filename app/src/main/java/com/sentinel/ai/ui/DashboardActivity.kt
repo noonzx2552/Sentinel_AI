@@ -8,10 +8,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sentinel.ai.R
+import com.sentinel.ai.ai.RiskScoring
 import com.sentinel.ai.ai.WhisperEngine
 import com.sentinel.ai.databinding.ActivityDashboardBinding
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.service.SentinelGuardianService
+import com.sentinel.ai.utils.MicCaptureManager
 import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.PermissionUtils
 import com.sentinel.ai.utils.SpeechTestController
@@ -23,6 +25,8 @@ class DashboardActivity : AppCompatActivity() {
     private val viewModel: DashboardViewModel by viewModels()
     private lateinit var speechTester: SpeechTestController
     private val whisperFallback = WhisperEngine()
+    private val riskScoring = RiskScoring()
+    private val micCapture by lazy { MicCaptureManager(this) }
     private lateinit var overlayController: OverlayController
     private var aggressiveListening = false
     private var loadingDismissed = false
@@ -58,6 +62,7 @@ class DashboardActivity : AppCompatActivity() {
         viewModel.status.observe(this) { level -> renderStatus(level) }
         viewModel.events.observe(this) { events ->
             adapter.submit(events)
+            renderEventSummary(events)
             if (!loadingDismissed) {
                 loadingDismissed = true
                 binding.loadingOverlay.isVisible = false
@@ -110,6 +115,18 @@ class DashboardActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         speechTester.destroy()
+        micCapture.stop()
+    }
+
+    private fun renderEventSummary(events: List<com.sentinel.ai.model.GuardianEvent>) {
+        val critical = events.count { it.riskLevel == RiskLevel.CRITICAL }
+        val warning = events.count { it.riskLevel == RiskLevel.WARNING }
+        val safe = events.count { it.riskLevel == RiskLevel.SAFE }
+        binding.tvEventCounts?.text = "Critical $critical | Warning $warning | Safe $safe"
+        val latest = events.firstOrNull()
+        binding.tvLastEvent?.text = latest?.let {
+            "Last: ${it.source} (${it.riskLevel.name}, score ${it.score})"
+        } ?: "Last: none yet"
     }
 
     private fun renderStatus(level: RiskLevel) {
@@ -134,54 +151,51 @@ class DashboardActivity : AppCompatActivity() {
         }
         if (aggressiveListening) return
         aggressiveListening = true
-        binding.tvLiveTranscript.text = "Aggressive monitor: listening..."
+        binding.tvLiveTranscript.text = "Aggressive monitor: mic listening..."
         if (PermissionUtils.canDrawOverlays(this)) {
-            overlayController.showLiveTranscript("กำลังฟังเสียงจากเครื่อง...")
+            overlayController.showLiveTranscript("Mic listening... hold near the speaker if playing a clip.")
         } else {
-            showListeningPopup("กำลังฟังเสียงจากเครื่อง...")
+            showListeningPopup("Mic listening... hold near the speaker if playing a clip.")
         }
-        speechTester.listenContinuously(
-            onResult = { text ->
+        micCapture.start(
+            onChunk = { bytes ->
+                val transcript = whisperFallback.transcribe(bytes)
+                val behavior = com.sentinel.ai.utils.PressureAnalyzer().analyze(transcript)
+                val risk = riskScoring.score(transcript, behavior)
+                val level = when {
+                    risk.score >= 80 -> RiskLevel.CRITICAL
+                    risk.score in 40..79 -> RiskLevel.WARNING
+                    else -> RiskLevel.SAFE
+                }
                 runOnUiThread {
-                    binding.tvLiveTranscript.text = "Aggressive final: $text"
+                    binding.tvLiveTranscript.text = "Aggressive final: $transcript"
                     if (PermissionUtils.canDrawOverlays(this)) {
-                        overlayController.updateLiveTranscript(text)
+                        overlayController.updateLiveTranscript(transcript)
+                        overlayController.updateLiveTranscriptRisk(level)
                     } else {
-                        listeningTextView?.text = text
+                        listeningTextView?.text = transcript
                     }
-                    viewModel.handleTranscript(text)
+                    viewModel.handleTranscript(transcript)
                 }
             },
             onError = { err ->
                 runOnUiThread {
-                    binding.tvLiveTranscript.text = "Aggressive listening… (auto-retrying)"
+                    binding.tvLiveTranscript.text = "Mic capture error (auto-retrying): $err"
                     if (PermissionUtils.canDrawOverlays(this)) {
-                        overlayController.updateLiveTranscript("กำลังฟังต่อ... ($err)")
+                        overlayController.updateLiveTranscript("Mic capture error: $err")
+                        overlayController.updateLiveTranscriptRisk(RiskLevel.SAFE)
                     } else {
-                        listeningTextView?.text = "กำลังฟังต่อ... ($err)"
+                        listeningTextView?.text = "Mic capture error: $err"
                     }
                 }
-            },
-            onPartial = { partial ->
-                if (partial != "...") {
-                    runOnUiThread {
-                        binding.tvLiveTranscript.text = "Aggressive heard: $partial"
-                        if (PermissionUtils.canDrawOverlays(this)) {
-                            overlayController.updateLiveTranscript(partial)
-                        } else {
-                            listeningTextView?.text = partial
-                        }
-                    }
-                }
-            },
-            languageTag = PREFERRED_LANGS
+            }
         )
     }
 
     private fun stopAggressiveMic() {
         if (!aggressiveListening) return
         aggressiveListening = false
-        speechTester.stopContinuous()
+        micCapture.stop()
         binding.tvLiveTranscript.text = "Aggressive monitor stopped."
         overlayController.dismiss()
         listeningDialog?.dismiss()
@@ -196,7 +210,7 @@ class DashboardActivity : AppCompatActivity() {
         listeningDialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .setCancelable(false)
-            .setNegativeButton("ปิด") { d, _ ->
+            .setNegativeButton("Stop") { d, _ ->
                 stopAggressiveMic()
                 d.dismiss()
             }
