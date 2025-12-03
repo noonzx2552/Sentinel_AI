@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.sentinel.ai.app-mergeDebugResources-37:/values-v23/values-v23.xml",
+            "outputFile": "com.sentinel.ai.app-mergeDebugResources-38:/values-v23/values-v23.xml",
             "map": [
                 {
                     "source": "C:\\Users\\thammasorn\\.gradle\\caches\\transforms-4\\d7ba6b9ef9fb06bfdce11e3319abe41e\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",

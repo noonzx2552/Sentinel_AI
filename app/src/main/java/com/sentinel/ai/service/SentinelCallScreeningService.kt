@@ -22,7 +22,7 @@ import com.sentinel.ai.ui.CriticalAlertActivity
 class SentinelCallScreeningService : CallScreeningService() {
 
     private val riskScoring by lazy { RiskScoring() }
-    private val whisperEngine by lazy { WhisperEngine() }
+    private val whisperEngine by lazy { WhisperEngine(applicationContext) }
     private val pressureAnalyzer by lazy { PressureAnalyzer() }
     private val overlay by lazy { OverlayController(this) }
     private val notificationHelper by lazy { NotificationHelper(this) }
