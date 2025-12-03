@@ -83,38 +83,38 @@ uses-permission#android.permission.FOREGROUND_SERVICE_MICROPHONE
 ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:9:5-88
 	android:name
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:9:22-85
-uses-permission#android.permission.FOREGROUND_SERVICE_PHONE_CALL
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:10:5-88
-	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:10:22-85
 uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:11:5-81
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:10:5-81
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:11:22-78
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:10:22-78
 uses-permission#android.permission.POST_NOTIFICATIONS
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:5-77
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:11:5-77
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:22-74
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:11:22-74
 uses-permission#android.permission.READ_PHONE_STATE
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:5-75
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:5-75
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:22-72
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:22-72
 uses-permission#android.permission.READ_CALL_LOG
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:5-72
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:5-72
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:22-69
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:22-69
 uses-permission#android.permission.CALL_PHONE
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:5-69
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:5-69
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:22-66
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:22-66
 uses-permission#android.permission.ANSWER_PHONE_CALLS
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-77
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:5-77
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:22-74
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:22-74
 uses-permission#android.permission.READ_CONTACTS
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:5-72
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-72
 	android:name
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:22-69
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:22-69
+uses-permission#android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:5-94
+	android:name
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:22-91
 application
 ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:19:5-88:19
 INJECTED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:19:5-88:19
@@ -175,13 +175,13 @@ ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:36:17
 	android:name
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:36:25-79
 service#com.sentinel.ai.service.SentinelGuardianService
-ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:40:9-44:56
+ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:40:9-44:67
 	android:enabled
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:42:13-35
 	android:exported
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:43:13-37
 	android:foregroundServiceType
-		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:44:13-53
+		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:44:13-64
 	android:name
 		ADDED from D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:41:13-60
 service#com.sentinel.ai.service.SentinelCallScreeningService

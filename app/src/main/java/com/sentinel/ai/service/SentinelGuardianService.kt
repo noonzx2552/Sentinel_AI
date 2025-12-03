@@ -1,9 +1,13 @@
 package com.sentinel.ai.service
 
+import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.sentinel.ai.utils.NotificationHelper
 
@@ -20,7 +24,7 @@ class SentinelGuardianService : Service() {
         super.onCreate()
         notificationHelper = NotificationHelper(this)
         val notification = notificationHelper.buildGuardianNotification()
-        startForeground(NOTIFICATION_ID, notification)
+        startForegroundSafe(notification)
         callModeMonitor = CallModeMonitor(this)
         callModeMonitor.start()
     }
@@ -42,7 +46,22 @@ class SentinelGuardianService : Service() {
         super.onDestroy()
     }
 
+    private fun startForegroundSafe(notification: Notification) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Limit the FGS type to mic/data-sync to avoid phoneCall restrictions on Android 14.
+            val types = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE or ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            try {
+                startForeground(NOTIFICATION_ID, notification, types)
+                return
+            } catch (se: SecurityException) {
+                Log.w(TAG, "startForeground rejected for declared types; falling back. ${se.message}")
+            }
+        }
+        startForeground(NOTIFICATION_ID, notification)
+    }
+
     companion object {
+        private const val TAG = "SentinelGuardianService"
         private const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.sentinel.ai.ACTION_STOP_GUARDIAN"
 

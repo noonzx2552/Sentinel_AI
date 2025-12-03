@@ -1,6 +1,11 @@
 package com.sentinel.ai.ui
 
+import android.content.Context
+import android.content.Intent
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.os.Build
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +20,7 @@ import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.service.SentinelGuardianService
 import com.sentinel.ai.utils.MicCaptureManager
 import com.sentinel.ai.utils.OverlayController
+import com.sentinel.ai.utils.PlaybackCaptureController
 import com.sentinel.ai.utils.PermissionUtils
 import com.sentinel.ai.utils.SpeechTestController
 
@@ -27,6 +33,9 @@ class DashboardActivity : AppCompatActivity() {
     private val whisperFallback = WhisperEngine()
     private val riskScoring = RiskScoring()
     private val micCapture by lazy { MicCaptureManager(this) }
+    private var playbackCapture: PlaybackCaptureController? = null
+    private var mediaProjection: MediaProjection? = null
+    private var pendingStartInternal = false
     private lateinit var overlayController: OverlayController
     private var aggressiveListening = false
     private var loadingDismissed = false
@@ -112,10 +121,33 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_MEDIA_PROJECTION) {
+            if (resultCode == RESULT_OK && data != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val mgr = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                mediaProjection = mgr.getMediaProjection(resultCode, data)
+                if (pendingStartInternal) {
+                    pendingStartInternal = false
+                    startAggressiveMic(usePlayback = true)
+                }
+            } else {
+                pendingStartInternal = false
+                aggressiveListening = false
+                startAggressiveMic(usePlayback = false)
+            }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         speechTester.destroy()
         micCapture.stop()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            playbackCapture?.destroy()
+            mediaProjection?.stop()
+        }
     }
 
     private fun renderEventSummary(events: List<com.sentinel.ai.model.GuardianEvent>) {
@@ -144,7 +176,7 @@ class DashboardActivity : AppCompatActivity() {
         binding.statusValue.setTextColor(ContextCompat.getColor(this, color))
     }
 
-    private fun startAggressiveMic() {
+    private fun startAggressiveMic(usePlayback: Boolean = true) {
         if (!PermissionUtils.hasMicPermission(this)) {
             PermissionUtils.requestMicPermission(this, REQ_MIC_STT)
             return
@@ -152,55 +184,110 @@ class DashboardActivity : AppCompatActivity() {
         if (aggressiveListening) return
         aggressiveListening = true
         binding.tvLiveTranscript.text = "Aggressive monitor: mic listening..."
-        if (PermissionUtils.canDrawOverlays(this)) {
-            overlayController.showLiveTranscript("Mic listening... hold near the speaker if playing a clip.")
+        ensureLiveOverlayVisible("Mic listening... capturing internal audio when allowed.")
+        if (usePlayback && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val projection = mediaProjection
+            if (projection == null) {
+                pendingStartInternal = true
+                val mgr = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                startActivityForResult(mgr.createScreenCaptureIntent(), REQ_MEDIA_PROJECTION)
+                return
+            } else {
+                startPlaybackCapture(projection)
+            }
         } else {
-            showListeningPopup("Mic listening... hold near the speaker if playing a clip.")
+            startMicContinuous()
         }
-        micCapture.start(
-            onChunk = { bytes ->
-                val transcript = whisperFallback.transcribe(bytes)
-                val behavior = com.sentinel.ai.utils.PressureAnalyzer().analyze(transcript)
-                val risk = riskScoring.score(transcript, behavior)
-                val level = when {
-                    risk.score >= 80 -> RiskLevel.CRITICAL
-                    risk.score in 40..79 -> RiskLevel.WARNING
-                    else -> RiskLevel.SAFE
-                }
-                runOnUiThread {
-                    binding.tvLiveTranscript.text = "Aggressive final: $transcript"
-                    if (PermissionUtils.canDrawOverlays(this)) {
-                        overlayController.updateLiveTranscript(transcript)
-                        overlayController.updateLiveTranscriptRisk(level)
-                    } else {
-                        listeningTextView?.text = transcript
+    }
+
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.Q)
+    private fun startPlaybackCapture(projection: MediaProjection) {
+        playbackCapture?.stop()
+        playbackCapture = PlaybackCaptureController(projection)
+        ensureLiveOverlayVisible("Capturing screen audio... generating captions.")
+        try {
+            playbackCapture?.start(
+                onChunk = { bytes ->
+                    val transcript = whisperFallback.transcribe(bytes)
+                    runOnUiThread {
+                        val display = transcript.ifBlank { "Audio playing..." }
+                        binding.tvLiveTranscript.text = display
+                        updateListeningUi(display)
+                        if (transcript.isNotBlank()) {
+                            viewModel.addRawTranscript(transcript)
+                        }
                     }
-                    viewModel.handleTranscript(transcript)
+                },
+                onError = { err ->
+                    runOnUiThread {
+                        binding.tvLiveTranscript.text = "Playback capture error: $err (fallback to mic)"
+                        startMicContinuous()
+                    }
+                }
+            )
+        } catch (e: Exception) {
+            runOnUiThread {
+                binding.tvLiveTranscript.text = "Playback capture failed: ${e.message ?: "unknown"} (fallback to mic)"
+                startMicContinuous()
+            }
+        }
+    }
+
+    private fun startMicContinuous() {
+        ensureLiveOverlayVisible("Mic listening for live captions...")
+        speechTester.listenContinuously(
+            onResult = { text ->
+                runOnUiThread {
+                    binding.tvLiveTranscript.text = text
+                    updateListeningUi(text)
+                    viewModel.addRawTranscript(text)
                 }
             },
             onError = { err ->
                 runOnUiThread {
-                    binding.tvLiveTranscript.text = "Mic capture error (auto-retrying): $err"
-                    if (PermissionUtils.canDrawOverlays(this)) {
-                        overlayController.updateLiveTranscript("Mic capture error: $err")
-                        overlayController.updateLiveTranscriptRisk(RiskLevel.SAFE)
-                    } else {
-                        listeningTextView?.text = "Mic capture error: $err"
+                    binding.tvLiveTranscript.text = "STT error (auto-retrying): $err"
+                    updateListeningUi("STT error: $err")
+                }
+            },
+            onPartial = { partial ->
+                if (partial.isNotBlank() && partial != "...") {
+                    runOnUiThread {
+                        updateListeningUi(partial)
                     }
                 }
-            }
+            },
+            languageTag = PREFERRED_LANGS
         )
     }
 
     private fun stopAggressiveMic() {
         if (!aggressiveListening) return
         aggressiveListening = false
-        micCapture.stop()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            playbackCapture?.stop()
+        }
+        speechTester.stopContinuous()
         binding.tvLiveTranscript.text = "Aggressive monitor stopped."
         overlayController.dismiss()
         listeningDialog?.dismiss()
         listeningDialog = null
         listeningTextView = null
+    }
+
+    private fun ensureLiveOverlayVisible(initialText: String) {
+        if (PermissionUtils.canDrawOverlays(this)) {
+            overlayController.showLiveTranscript(initialText)
+        } else {
+            showListeningPopup(initialText)
+        }
+    }
+
+    private fun updateListeningUi(text: String) {
+        if (PermissionUtils.canDrawOverlays(this)) {
+            overlayController.updateLiveTranscript(text)
+        } else {
+            listeningTextView?.text = text
+        }
     }
 
     private fun showListeningPopup(initialText: String) {
@@ -219,6 +306,7 @@ class DashboardActivity : AppCompatActivity() {
 
     companion object {
         private const val REQ_MIC_STT = 501
+        private const val REQ_MEDIA_PROJECTION = 502
         private const val PREFERRED_LANGS = "th-TH"
     }
 }

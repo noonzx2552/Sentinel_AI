@@ -55,6 +55,17 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         )
     }
 
+    fun addRawTranscript(text: String) {
+        GuardianEventStore.addEvent(
+            GuardianEvent(
+                source = "Mic STT",
+                content = text,
+                score = 0,
+                riskLevel = RiskLevel.SAFE
+            )
+        )
+    }
+
     fun handleTranscript(text: String) {
         val behavior = pressureAnalyzer.analyze(text)
         val risk = riskScoring.score(text, behavior)

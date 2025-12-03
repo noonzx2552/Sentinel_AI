@@ -12,9 +12,9 @@ import androidx.core.content.ContextCompat
 import java.io.ByteArrayOutputStream
 
 /**
- * Lightweight microphone capturer that streams raw PCM chunks for on-device STT.
- * Buffers stay in memory only and are not persisted.
- */
+     * Lightweight microphone capturer that streams raw PCM chunks for on-device processing.
+     * (Currently unused for UI; kept for future offline Whisper integration.)
+     */
 class MicCaptureManager(private val context: Context) {
 
     private val sampleRate = 16000
