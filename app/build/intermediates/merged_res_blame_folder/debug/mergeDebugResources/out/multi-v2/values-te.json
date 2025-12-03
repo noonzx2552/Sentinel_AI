@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.sentinel.ai.app-mergeDebugResources-37:/values-te/values-te.xml",
+            "outputFile": "com.sentinel.ai.app-mergeDebugResources-38:/values-te/values-te.xml",
             "map": [
                 {
                     "source": "C:\\Users\\thammasorn\\.gradle\\caches\\transforms-4\\1ebf28548f4b7eb96f60b33dd93f22e9\\transformed\\appcompat-1.6.1\\res\\values-te\\values-te.xml",

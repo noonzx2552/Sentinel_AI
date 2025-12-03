@@ -41,11 +41,17 @@ class PlaybackCaptureController(private val mediaProjection: MediaProjection) {
 
     fun start(onChunk: (ByteArray) -> Unit, onError: (String) -> Unit) {
         if (running) return
-        audioRecord = AudioRecord.Builder()
-            .setAudioPlaybackCaptureConfig(config)
-            .setAudioFormat(audioFormat)
-            .setBufferSizeInBytes(bufferSize * 2)
-            .build()
+        try {
+            audioRecord = AudioRecord.Builder()
+                .setAudioPlaybackCaptureConfig(config)
+                .setAudioFormat(audioFormat)
+                .setBufferSizeInBytes(bufferSize * 2)
+                .build()
+        } catch (e: Exception) {
+            onError("Playback capture failed: ${e.message ?: "init error"}")
+            cleanup()
+            return
+        }
         if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
             onError("Cannot init playback capture")
             cleanup()
@@ -54,16 +60,32 @@ class PlaybackCaptureController(private val mediaProjection: MediaProjection) {
         workerThread = HandlerThread("sentinel-playback-capture").also { it.start() }
         handler = Handler(workerThread!!.looper)
         running = true
-        audioRecord?.startRecording()
+        try {
+            audioRecord?.startRecording()
+            if (audioRecord?.recordingState != AudioRecord.RECORDSTATE_RECORDING) {
+                onError("Playback capture failed: not recording")
+                stop()
+                return
+            }
+        } catch (e: Exception) {
+            onError("Playback capture failed: ${e.message ?: "could not start"}")
+            stop()
+            return
+        }
         handler?.post {
             val buf = ByteArray(bufferSize)
             while (running) {
-                val read = audioRecord?.read(buf, 0, buf.size) ?: break
-                if (read <= 0) {
-                    onError("Playback read error: $read")
+                try {
+                    val read = audioRecord?.read(buf, 0, buf.size) ?: break
+                    if (read <= 0) {
+                        onError("Playback read error: $read")
+                        break
+                    }
+                    onChunk(buf.copyOf(read))
+                } catch (e: Exception) {
+                    onError("Playback read exception: ${e.message ?: "unknown"}")
                     break
                 }
-                onChunk(buf.copyOf(read))
             }
         }
     }

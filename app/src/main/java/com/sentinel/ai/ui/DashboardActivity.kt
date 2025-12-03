@@ -30,7 +30,7 @@ class DashboardActivity : AppCompatActivity() {
     private val adapter = EventsAdapter()
     private val viewModel: DashboardViewModel by viewModels()
     private lateinit var speechTester: SpeechTestController
-    private val whisperFallback = WhisperEngine()
+    private val whisperFallback by lazy { WhisperEngine(applicationContext) }
     private val riskScoring = RiskScoring()
     private val micCapture by lazy { MicCaptureManager(this) }
     private var playbackCapture: PlaybackCaptureController? = null
@@ -38,6 +38,7 @@ class DashboardActivity : AppCompatActivity() {
     private var pendingStartInternal = false
     private lateinit var overlayController: OverlayController
     private var aggressiveListening = false
+    private var micContinuousActive = false
     private var loadingDismissed = false
     private var listeningDialog: AlertDialog? = null
     private var listeningTextView: android.widget.TextView? = null
@@ -121,11 +122,17 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        requestMicIfMissing()
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQ_MEDIA_PROJECTION) {
             if (resultCode == RESULT_OK && data != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                SentinelGuardianService.startProjectionMode(this)
                 val mgr = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
                 mediaProjection = mgr.getMediaProjection(resultCode, data)
                 if (pendingStartInternal) {
@@ -137,6 +144,12 @@ class DashboardActivity : AppCompatActivity() {
                 aggressiveListening = false
                 startAggressiveMic(usePlayback = false)
             }
+        }
+    }
+
+    private fun requestMicIfMissing() {
+        if (!PermissionUtils.hasMicPermission(this)) {
+            PermissionUtils.requestMicPermission(this, REQ_MIC_STT)
         }
     }
 
@@ -190,11 +203,16 @@ class DashboardActivity : AppCompatActivity() {
             if (projection == null) {
                 pendingStartInternal = true
                 val mgr = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                // Ensure FGS with mediaProjection type is active before requesting capture.
+                SentinelGuardianService.startProjectionMode(this)
                 startActivityForResult(mgr.createScreenCaptureIntent(), REQ_MEDIA_PROJECTION)
                 return
             } else {
+                SentinelGuardianService.startProjectionMode(this)
                 startPlaybackCapture(projection)
             }
+            // Also keep mic STT running so we still get transcripts even if playback capture yields no text.
+            startMicContinuous()
         } else {
             startMicContinuous()
         }
@@ -234,6 +252,7 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun startMicContinuous() {
+        micContinuousActive = true
         ensureLiveOverlayVisible("Mic listening for live captions...")
         speechTester.listenContinuously(
             onResult = { text ->
@@ -266,12 +285,16 @@ class DashboardActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             playbackCapture?.stop()
         }
-        speechTester.stopContinuous()
+        if (micContinuousActive) {
+            speechTester.stopContinuous()
+            micContinuousActive = false
+        }
         binding.tvLiveTranscript.text = "Aggressive monitor stopped."
         overlayController.dismiss()
         listeningDialog?.dismiss()
         listeningDialog = null
         listeningTextView = null
+        SentinelGuardianService.stopProjectionMode(this)
     }
 
     private fun ensureLiveOverlayVisible(initialText: String) {
@@ -283,10 +306,11 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun updateListeningUi(text: String) {
+        val safeText = text.ifBlank { "Listening... audio detected" }
         if (PermissionUtils.canDrawOverlays(this)) {
-            overlayController.updateLiveTranscript(text)
+            overlayController.updateLiveTranscript(safeText)
         } else {
-            listeningTextView?.text = text
+            listeningTextView?.text = safeText
         }
     }
 

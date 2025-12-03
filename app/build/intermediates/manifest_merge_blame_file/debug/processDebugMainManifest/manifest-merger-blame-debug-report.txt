@@ -14,186 +14,188 @@
 12    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 12-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:6:5-78
 12-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:6:22-75
-13    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-13-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:7:5-77
-13-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:7:22-74
-14    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-14-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:8:5-87
-14-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:8:22-84
-15    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
-15-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:9:5-88
-15-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:9:22-85
-16    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-16-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:10:5-81
-16-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:10:22-78
-17    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-17-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:11:5-77
-17-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:11:22-74
-18    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-18-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:5-75
-18-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:22-72
-19    <uses-permission android:name="android.permission.READ_CALL_LOG" />
-19-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:5-72
-19-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:22-69
-20    <uses-permission android:name="android.permission.CALL_PHONE" />
-20-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:5-69
-20-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:22-66
-21    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
-21-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:5-77
-21-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:22-74
-22    <uses-permission android:name="android.permission.READ_CONTACTS" />
-22-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-72
-22-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:22-69
-23    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-23-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:5-94
-23-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:22-91
-24
-25    <permission
-25-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
-26        android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-26-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
-27        android:protectionLevel="signature" />
-27-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
-28
-29    <uses-permission android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-29-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
-29-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
-30
-31    <application
-31-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:19:5-88:19
-32        android:allowBackup="true"
-32-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:20:9-35
-33        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-33-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
-34        android:dataExtractionRules="@xml/data_extraction_rules"
-34-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:21:9-65
-35        android:debuggable="true"
-36        android:extractNativeLibs="false"
-37        android:fullBackupContent="@xml/backup_rules"
-37-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:22:9-54
-38        android:icon="@mipmap/ic_launcher"
-38-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:23:9-43
-39        android:label="Sentinel AI"
-39-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:24:9-36
-40        android:roundIcon="@mipmap/ic_launcher_round"
-40-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:25:9-54
-41        android:supportsRtl="true"
-41-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:26:9-35
-42        android:testOnly="true"
+13    <uses-permission android:name="android.permission.INTERNET" />
+13-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:7:5-67
+13-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:7:22-64
+14    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+14-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:8:5-77
+14-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:8:22-74
+15    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+15-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:9:5-87
+15-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:9:22-84
+16    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+16-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:10:5-88
+16-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:10:22-85
+17    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+17-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:11:5-81
+17-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:11:22-78
+18    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+18-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:5-77
+18-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:22-74
+19    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+19-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:5-75
+19-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:22-72
+20    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+20-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:5-72
+20-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:22-69
+21    <uses-permission android:name="android.permission.CALL_PHONE" />
+21-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:5-69
+21-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:22-66
+22    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+22-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-77
+22-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:22-74
+23    <uses-permission android:name="android.permission.READ_CONTACTS" />
+23-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:5-72
+23-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:22-69
+24    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+24-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:18:5-94
+24-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:18:22-91
+25
+26    <permission
+26-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
+27        android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+27-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
+28        android:protectionLevel="signature" />
+28-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+29
+30    <uses-permission android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+30-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
+30-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
+31
+32    <application
+32-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:20:5-89:19
+33        android:allowBackup="true"
+33-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:21:9-35
+34        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+34-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
+35        android:dataExtractionRules="@xml/data_extraction_rules"
+35-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:22:9-65
+36        android:debuggable="true"
+37        android:extractNativeLibs="false"
+38        android:fullBackupContent="@xml/backup_rules"
+38-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:23:9-54
+39        android:icon="@mipmap/ic_launcher"
+39-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:24:9-43
+40        android:label="Sentinel AI"
+40-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:25:9-36
+41        android:roundIcon="@mipmap/ic_launcher_round"
+41-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:26:9-54
+42        android:supportsRtl="true"
+42-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:27:9-35
 43        android:theme="@style/Theme.SentinelAI"
-43-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:27:9-48
+43-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:28:9-48
 44        android:usesCleartextTraffic="false" >
-44-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:28:9-45
+44-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:29:9-45
 45        <receiver
-45-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:30:9-38:20
+45-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:31:9-39:20
 46            android:name="com.sentinel.ai.receiver.BootReceiver"
-46-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:31:13-50
+46-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:32:13-50
 47            android:enabled="true"
-47-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:32:13-35
+47-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:33:13-35
 48            android:exported="true" >
-48-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:33:13-36
+48-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:34:13-36
 49            <intent-filter>
-49-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:34:13-37:29
+49-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:35:13-38:29
 50                <action android:name="android.intent.action.BOOT_COMPLETED" />
-50-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:35:17-79
-50-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:35:25-76
+50-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:36:17-79
+50-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:36:25-76
 51                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-51-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:36:17-82
-51-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:36:25-79
+51-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:37:17-82
+51-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:37:25-79
 52            </intent-filter>
 53        </receiver>
 54
 55        <service
-55-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:40:9-44:67
+55-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:41:9-45:83
 56            android:name="com.sentinel.ai.service.SentinelGuardianService"
-56-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:41:13-60
+56-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:42:13-60
 57            android:enabled="true"
-57-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:42:13-35
+57-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:43:13-35
 58            android:exported="false"
-58-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:43:13-37
-59            android:foregroundServiceType="dataSync|microphone" />
-59-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:44:13-64
+58-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:44:13-37
+59            android:foregroundServiceType="dataSync|microphone|mediaProjection" />
+59-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:45:13-80
 60        <service
-60-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:46:9-54:19
+60-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:47:9-55:19
 61            android:name="com.sentinel.ai.service.SentinelCallScreeningService"
-61-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:47:13-65
+61-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:48:13-65
 62            android:enabled="true"
-62-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:48:13-35
+62-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:49:13-35
 63            android:exported="true"
-63-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:49:13-36
+63-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:50:13-36
 64            android:permission="android.permission.BIND_SCREENING_SERVICE" >
-64-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:50:13-75
+64-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:51:13-75
 65            <intent-filter>
-65-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:51:13-53:29
+65-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:52:13-54:29
 66                <action android:name="android.telecom.CallScreeningService" />
-66-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:52:17-79
-66-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:52:25-76
+66-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:53:17-79
+66-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:53:25-76
 67            </intent-filter>
 68        </service>
 69        <service
-69-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:56:9-67:19
+69-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:57:9-68:19
 70            android:name="com.sentinel.ai.service.SentinelAccessibilityService"
-70-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:57:13-65
+70-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:58:13-65
 71            android:enabled="true"
-71-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:58:13-35
+71-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:59:13-35
 72            android:exported="true"
-72-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:59:13-36
+72-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:60:13-36
 73            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
-73-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:60:13-79
+73-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:61:13-79
 74            <intent-filter>
-74-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:61:13-63:29
+74-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:62:13-64:29
 75                <action android:name="android.accessibilityservice.AccessibilityService" />
-75-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:62:17-92
-75-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:62:25-89
+75-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:63:17-92
+75-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:63:25-89
 76            </intent-filter>
 77
 78            <meta-data
-78-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:64:13-66:72
+78-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:65:13-67:72
 79                android:name="android.accessibilityservice"
-79-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:65:17-60
+79-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:66:17-60
 80                android:resource="@xml/accessibility_service_config" />
-80-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:66:17-69
+80-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:67:17-69
 81        </service>
 82
 83        <activity
-83-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:69:9-77:20
+83-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:70:9-78:20
 84            android:name="com.sentinel.ai.ui.SplashActivity"
-84-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:70:13-46
+84-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:71:13-46
 85            android:exported="true"
-85-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:71:13-36
+85-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:72:13-36
 86            android:theme="@style/Theme.SentinelAI.Splash" >
-86-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:72:13-59
+86-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:73:13-59
 87            <intent-filter>
-87-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:73:13-76:29
+87-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:74:13-77:29
 88                <action android:name="android.intent.action.MAIN" />
-88-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:74:17-69
-88-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:74:25-66
+88-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:75:17-69
+88-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:75:25-66
 89
 90                <category android:name="android.intent.category.LAUNCHER" />
-90-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:75:17-77
-90-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:75:27-74
+90-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:76:17-77
+90-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:76:27-74
 91            </intent-filter>
 92        </activity>
 93        <activity
-93-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:78:9-80:39
+93-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:79:9-81:39
 94            android:name="com.sentinel.ai.ui.SetupActivity"
-94-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:79:13-45
+94-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:80:13-45
 95            android:exported="true" />
-95-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:80:13-36
+95-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:81:13-36
 96        <activity
-96-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:81:9-83:39
+96-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:82:9-84:39
 97            android:name="com.sentinel.ai.ui.DashboardActivity"
-97-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:82:13-49
+97-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:83:13-49
 98            android:exported="true" />
-98-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:83:13-36
+98-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:84:13-36
 99        <activity
-99-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:84:9-87:55
+99-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:85:9-88:55
 100            android:name="com.sentinel.ai.ui.CriticalAlertActivity"
-100-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:85:13-53
+100-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:86:13-53
 101            android:exported="false"
-101-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:86:13-37
+101-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:87:13-37
 102            android:theme="@style/Theme.SentinelAI" />
-102-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:87:13-52
+102-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:88:13-52
 103
 104        <provider
 104-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thammasorn\.gradle\caches\transforms-4\b4c54be5bde8f444e023df5fbf82fb0c\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20

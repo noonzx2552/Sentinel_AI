@@ -57,6 +57,9 @@ class SetupActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!PermissionUtils.hasMicPermission(this)) {
+            PermissionUtils.requestMicPermission(this, REQ_MIC)
+        }
         if (PermissionUtils.allEssentialGranted(this)) {
             SentinelGuardianService.start(this)
             startActivity(Intent(this, DashboardActivity::class.java))

@@ -20,7 +20,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _guardianEnabled = MutableLiveData(true)
     val guardianEnabled: LiveData<Boolean> = _guardianEnabled
 
-    private val whisper = WhisperEngine()
+    private val whisper = WhisperEngine(getApplication())
     private val riskScoring = RiskScoring()
     private val pressureAnalyzer = PressureAnalyzer()
 
