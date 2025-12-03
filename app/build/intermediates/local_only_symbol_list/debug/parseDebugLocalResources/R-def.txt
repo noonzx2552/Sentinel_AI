@@ -10,6 +10,8 @@ color sentinel_on_surface
 color sentinel_primary
 color sentinel_surface
 color sentinel_warning
+drawable bg_card_glass
+drawable bg_dashboard_gradient
 drawable ic_launcher_foreground
 drawable loading_bar_drawable
 drawable overlay_badge_bg
@@ -49,6 +51,7 @@ id eventTitle
 id guardianToggle
 id header
 id headerRow
+id loadingBar
 id loadingOverlay
 id loadingSubtitle
 id loadingTitle

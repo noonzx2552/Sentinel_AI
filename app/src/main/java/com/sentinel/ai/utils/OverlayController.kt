@@ -58,6 +58,9 @@ class OverlayController(private val context: Context) {
                 it.text = "LISTENING"
                 it.background?.setTint(android.graphics.Color.parseColor("#0EA5E9"))
             }
+            // Enable scrolling inside the transcript box
+            liveTranscriptView?.isVerticalScrollBarEnabled = true
+            liveTranscriptView?.movementMethod = android.text.method.ScrollingMovementMethod.getInstance()
             val params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,

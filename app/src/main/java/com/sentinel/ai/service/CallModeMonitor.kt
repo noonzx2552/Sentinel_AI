@@ -3,7 +3,6 @@ package com.sentinel.ai.service
 import android.content.Context
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
-import com.sentinel.ai.ai.RiskScoring
 import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
@@ -11,7 +10,6 @@ import com.sentinel.ai.utils.CallTtsController
 import com.sentinel.ai.utils.PermissionUtils
 import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.SpeechTestController
-import com.sentinel.ai.utils.PressureAnalyzer
 
 /**
  * Watches call state and keeps the mic + TTS alive while a call is active.
@@ -20,9 +18,7 @@ class CallModeMonitor(private val context: Context) {
     private val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
     private val speechTester = SpeechTestController(context)
     private val tts = CallTtsController(context)
-    private val riskScoring = RiskScoring()
     private val overlay by lazy { OverlayController(context) }
-    private val pressureAnalyzer = PressureAnalyzer()
 
     private var phoneStateListener: PhoneStateListener? = null
     private var micRunning = false
@@ -109,22 +105,15 @@ class CallModeMonitor(private val context: Context) {
     }
 
     private fun handleTranscript(text: String) {
-        val behavior = pressureAnalyzer.analyze(text)
-        val risk = riskScoring.score(text, behavior)
-        val level = toRiskLevel(risk.score)
         GuardianEventStore.addEvent(
             GuardianEvent(
                 source = "Call mic",
                 content = text,
-                score = risk.score,
-                riskLevel = level
+                score = 0,
+                riskLevel = RiskLevel.SAFE
             )
         )
         overlay.updateLiveTranscript(text)
-        overlay.updateLiveTranscriptRisk(level)
-        if (level != RiskLevel.SAFE) {
-            tts.speak("Warning level ${level.name.lowercase()} detected.", flush = true)
-        }
     }
 
     private fun handleError(err: String) {
@@ -137,7 +126,6 @@ class CallModeMonitor(private val context: Context) {
             )
         )
         overlay.updateLiveTranscript("Mic error: $err")
-        overlay.updateLiveTranscriptRisk(RiskLevel.SAFE)
     }
 
     private fun exitCallMode() {
@@ -156,12 +144,6 @@ class CallModeMonitor(private val context: Context) {
         stop()
         speechTester.destroy()
         tts.shutdown()
-    }
-
-    private fun toRiskLevel(score: Int): RiskLevel = when {
-        score >= 80 -> RiskLevel.CRITICAL
-        score in 40..79 -> RiskLevel.WARNING
-        else -> RiskLevel.SAFE
     }
 
     companion object {

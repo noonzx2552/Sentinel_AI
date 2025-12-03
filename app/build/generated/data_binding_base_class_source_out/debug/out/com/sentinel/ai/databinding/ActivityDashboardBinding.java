@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +22,7 @@ import java.lang.String;
 
 public final class ActivityDashboardBinding implements ViewBinding {
   @NonNull
-  private final View rootView;
+  private final FrameLayout rootView;
 
   @NonNull
   public final MaterialButton btnAggressiveListen;
@@ -46,6 +47,22 @@ public final class ActivityDashboardBinding implements ViewBinding {
 
   @NonNull
   public final TextView header;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final ProgressBar loadingBar;
 
   @NonNull
   public final FrameLayout loadingOverlay;
@@ -109,17 +126,18 @@ public final class ActivityDashboardBinding implements ViewBinding {
   @NonNull
   public final TextView tvLiveTranscript;
 
-  private ActivityDashboardBinding(@NonNull View rootView,
+  private ActivityDashboardBinding(@NonNull FrameLayout rootView,
       @NonNull MaterialButton btnAggressiveListen, @NonNull MaterialButton btnAggressiveStop,
       @NonNull MaterialButton btnClearEvents, @NonNull MaterialButton btnMockCall,
       @NonNull MaterialButton btnMockChat, @NonNull MaterialButton btnTestStt,
       @NonNull SwitchMaterial guardianToggle, @NonNull TextView header,
-      @NonNull FrameLayout loadingOverlay, @NonNull TextView loadingSubtitle,
-      @NonNull TextView loadingTitle, @NonNull TextView recentLabel,
-      @NonNull RecyclerView recentRecycler, @NonNull MaterialCardView statusCard,
-      @NonNull TextView statusLabel, @NonNull TextView statusValue,
-      @NonNull MaterialCardView testCard, @Nullable TextView tvEventCounts,
-      @Nullable TextView tvLastEvent, @NonNull TextView tvLiveTranscript) {
+      @Nullable ProgressBar loadingBar, @NonNull FrameLayout loadingOverlay,
+      @NonNull TextView loadingSubtitle, @NonNull TextView loadingTitle,
+      @NonNull TextView recentLabel, @NonNull RecyclerView recentRecycler,
+      @NonNull MaterialCardView statusCard, @NonNull TextView statusLabel,
+      @NonNull TextView statusValue, @NonNull MaterialCardView testCard,
+      @Nullable TextView tvEventCounts, @Nullable TextView tvLastEvent,
+      @NonNull TextView tvLiveTranscript) {
     this.rootView = rootView;
     this.btnAggressiveListen = btnAggressiveListen;
     this.btnAggressiveStop = btnAggressiveStop;
@@ -129,6 +147,7 @@ public final class ActivityDashboardBinding implements ViewBinding {
     this.btnTestStt = btnTestStt;
     this.guardianToggle = guardianToggle;
     this.header = header;
+    this.loadingBar = loadingBar;
     this.loadingOverlay = loadingOverlay;
     this.loadingSubtitle = loadingSubtitle;
     this.loadingTitle = loadingTitle;
@@ -145,7 +164,7 @@ public final class ActivityDashboardBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public View getRoot() {
+  public FrameLayout getRoot() {
     return rootView;
   }
 
@@ -218,6 +237,9 @@ public final class ActivityDashboardBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.loadingBar;
+      ProgressBar loadingBar = ViewBindings.findChildViewById(rootView, id);
+
       id = R.id.loadingOverlay;
       FrameLayout loadingOverlay = ViewBindings.findChildViewById(rootView, id);
       if (loadingOverlay == null) {
@@ -284,10 +306,11 @@ public final class ActivityDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityDashboardBinding(rootView, btnAggressiveListen, btnAggressiveStop,
-          btnClearEvents, btnMockCall, btnMockChat, btnTestStt, guardianToggle, header,
-          loadingOverlay, loadingSubtitle, loadingTitle, recentLabel, recentRecycler, statusCard,
-          statusLabel, statusValue, testCard, tvEventCounts, tvLastEvent, tvLiveTranscript);
+      return new ActivityDashboardBinding((FrameLayout) rootView, btnAggressiveListen,
+          btnAggressiveStop, btnClearEvents, btnMockCall, btnMockChat, btnTestStt, guardianToggle,
+          header, loadingBar, loadingOverlay, loadingSubtitle, loadingTitle, recentLabel,
+          recentRecycler, statusCard, statusLabel, statusValue, testCard, tvEventCounts,
+          tvLastEvent, tvLiveTranscript);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

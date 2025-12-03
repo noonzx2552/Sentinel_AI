@@ -13,7 +13,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -21,6 +20,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
 
     <permission
         android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -39,6 +39,7 @@
         android:label="Sentinel AI"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@style/Theme.SentinelAI"
         android:usesCleartextTraffic="false" >
         <receiver
@@ -55,7 +56,7 @@
             android:name="com.sentinel.ai.service.SentinelGuardianService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:foregroundServiceType="dataSync|microphone" />
         <service
             android:name="com.sentinel.ai.service.SentinelCallScreeningService"
             android:enabled="true"
