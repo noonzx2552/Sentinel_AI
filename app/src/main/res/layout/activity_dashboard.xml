@@ -88,7 +88,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Critical 0 • Warning 0 • Safe 0"
+                        android:text="Critical 0 | Warning 0 | Safe 0"
                         android:textColor="@color/sentinel_on_surface" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -195,6 +195,18 @@
                             android:textColor="@color/sentinel_on_surface"
                             app:iconTint="@color/sentinel_on_surface"
                             app:icon="@android:drawable/ic_menu_close_clear_cancel"
+                            app:iconGravity="textStart" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSelectApps"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/action_select_apps"
+                            android:textColor="@color/sentinel_on_surface"
+                            app:iconTint="@color/sentinel_on_surface"
+                            app:icon="@android:drawable/ic_menu_manage"
                             app:iconGravity="textStart" />
                     </LinearLayout>
 

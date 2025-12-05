@@ -31,26 +31,19 @@ class SentinelGuardianService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_PROJECTION_ON) {
-            projectionEnabled = true
-        } else if (intent?.action == ACTION_PROJECTION_OFF) {
-            projectionEnabled = false
-        }
         when (intent?.action) {
-            ACTION_STOP -> {
+            ACTION_STOP, ACTION_EXIT -> {
                 stopSelf()
                 return START_NOT_STICKY
             }
             ACTION_PROJECTION_ON -> {
+                projectionEnabled = true
                 startForegroundSafe(notificationHelper.buildGuardianNotification(), includeProjection = true)
             }
             ACTION_PROJECTION_OFF -> {
+                projectionEnabled = false
                 startForegroundSafe(notificationHelper.buildGuardianNotification(), includeProjection = false)
             }
-        }
-        if (intent?.action == ACTION_STOP) {
-            stopSelf()
-            return START_NOT_STICKY
         }
         // Re-attach listeners if the system restarts the service.
         callModeMonitor.start()
@@ -85,6 +78,7 @@ class SentinelGuardianService : Service() {
         private const val TAG = "SentinelGuardianService"
         private const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.sentinel.ai.ACTION_STOP_GUARDIAN"
+        const val ACTION_EXIT = "com.sentinel.ai.ACTION_EXIT_GUARDIAN"
         const val ACTION_PROJECTION_ON = "com.sentinel.ai.ACTION_PROJECTION_ON"
         const val ACTION_PROJECTION_OFF = "com.sentinel.ai.ACTION_PROJECTION_OFF"
 

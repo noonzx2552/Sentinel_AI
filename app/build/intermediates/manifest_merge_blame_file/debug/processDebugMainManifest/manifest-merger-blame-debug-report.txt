@@ -1,0 +1,290 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.sentinel.ai"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="28"
+9        android:targetSdkVersion="34" />
+10
+11    <queries>
+11-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:5:5-10:15
+12        <intent>
+12-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:6:9-9:18
+13            <action android:name="android.intent.action.MAIN" />
+13-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:7:13-65
+13-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:7:21-62
+14
+15            <category android:name="android.intent.category.LAUNCHER" />
+15-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:8:13-73
+15-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:8:23-70
+16        </intent>
+17    </queries>
+18
+19    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+19-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:5-71
+19-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:12:22-68
+20    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+20-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:5-78
+20-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:13:22-75
+21    <uses-permission android:name="android.permission.INTERNET" />
+21-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:5-67
+21-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:14:22-64
+22    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+22-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:5-77
+22-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:15:22-74
+23    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+23-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:5-87
+23-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:16:22-84
+24    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+24-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:5-88
+24-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:17:22-85
+25    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+25-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:18:5-81
+25-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:18:22-78
+26    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+26-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:19:5-77
+26-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:19:22-74
+27    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+27-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:20:5-75
+27-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:20:22-72
+28    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+28-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:21:5-72
+28-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:21:22-69
+29    <uses-permission android:name="android.permission.CALL_PHONE" />
+29-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:22:5-69
+29-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:22:22-66
+30    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+30-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:23:5-77
+30-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:23:22-74
+31    <uses-permission android:name="android.permission.READ_CONTACTS" />
+31-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:24:5-72
+31-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:24:22-69
+32    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+32-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:25:5-94
+32-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:25:22-91
+33
+34    <permission
+34-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
+35        android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+35-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
+36        android:protectionLevel="signature" />
+36-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+37
+38    <uses-permission android:name="com.sentinel.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+38-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
+38-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
+39
+40    <application
+40-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:27:5-100:19
+41        android:allowBackup="true"
+41-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:28:9-35
+42        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+42-->[androidx.core:core:1.12.0] C:\Users\thammasorn\.gradle\caches\transforms-4\e951f163077fec1e75a3e50e7842b2d9\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
+43        android:dataExtractionRules="@xml/data_extraction_rules"
+43-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:29:9-65
+44        android:debuggable="true"
+45        android:extractNativeLibs="false"
+46        android:fullBackupContent="@xml/backup_rules"
+46-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:30:9-54
+47        android:icon="@mipmap/ic_launcher"
+47-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:31:9-43
+48        android:label="Sentinel AI"
+48-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:32:9-36
+49        android:roundIcon="@mipmap/ic_launcher_round"
+49-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:33:9-54
+50        android:supportsRtl="true"
+50-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:34:9-35
+51        android:testOnly="true"
+52        android:theme="@style/Theme.SentinelAI"
+52-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:35:9-48
+53        android:usesCleartextTraffic="false" >
+53-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:36:9-45
+54        <receiver
+54-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:38:9-46:20
+55            android:name="com.sentinel.ai.receiver.BootReceiver"
+55-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:39:13-50
+56            android:enabled="true"
+56-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:40:13-35
+57            android:exported="true" >
+57-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:41:13-36
+58            <intent-filter>
+58-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:42:13-45:29
+59                <action android:name="android.intent.action.BOOT_COMPLETED" />
+59-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:43:17-79
+59-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:43:25-76
+60                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+60-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:44:17-82
+60-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:44:25-79
+61            </intent-filter>
+62        </receiver>
+63
+64        <service
+64-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:48:9-52:83
+65            android:name="com.sentinel.ai.service.SentinelGuardianService"
+65-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:49:13-60
+66            android:enabled="true"
+66-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:50:13-35
+67            android:exported="false"
+67-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:51:13-37
+68            android:foregroundServiceType="dataSync|microphone|mediaProjection" />
+68-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:52:13-80
+69        <service
+69-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:54:9-62:19
+70            android:name="com.sentinel.ai.service.SentinelCallScreeningService"
+70-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:55:13-65
+71            android:enabled="true"
+71-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:56:13-35
+72            android:exported="true"
+72-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:57:13-36
+73            android:permission="android.permission.BIND_SCREENING_SERVICE" >
+73-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:58:13-75
+74            <intent-filter>
+74-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:59:13-61:29
+75                <action android:name="android.telecom.CallScreeningService" />
+75-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:60:17-79
+75-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:60:25-76
+76            </intent-filter>
+77        </service>
+78        <service
+78-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:64:9-75:19
+79            android:name="com.sentinel.ai.service.SentinelAccessibilityService"
+79-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:65:13-65
+80            android:enabled="true"
+80-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:66:13-35
+81            android:exported="true"
+81-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:67:13-36
+82            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+82-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:68:13-79
+83            <intent-filter>
+83-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:69:13-71:29
+84                <action android:name="android.accessibilityservice.AccessibilityService" />
+84-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:70:17-92
+84-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:70:25-89
+85            </intent-filter>
+86
+87            <meta-data
+87-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:72:13-74:72
+88                android:name="android.accessibilityservice"
+88-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:73:17-60
+89                android:resource="@xml/accessibility_service_config" />
+89-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:74:17-69
+90        </service>
+91
+92        <activity
+92-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:77:9-85:20
+93            android:name="com.sentinel.ai.ui.SplashActivity"
+93-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:78:13-46
+94            android:exported="true"
+94-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:79:13-36
+95            android:theme="@style/Theme.SentinelAI.Splash" >
+95-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:80:13-59
+96            <intent-filter>
+96-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:81:13-84:29
+97                <action android:name="android.intent.action.MAIN" />
+97-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:7:13-65
+97-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:7:21-62
+98
+99                <category android:name="android.intent.category.LAUNCHER" />
+99-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:8:13-73
+99-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:8:23-70
+100            </intent-filter>
+101        </activity>
+102        <activity
+102-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:86:9-88:39
+103            android:name="com.sentinel.ai.ui.SetupActivity"
+103-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:87:13-45
+104            android:exported="true" />
+104-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:88:13-36
+105        <activity
+105-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:89:9-91:39
+106            android:name="com.sentinel.ai.ui.DashboardActivity"
+106-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:90:13-49
+107            android:exported="true" />
+107-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:91:13-36
+108        <activity
+108-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:92:9-95:55
+109            android:name="com.sentinel.ai.ui.AppSelectionActivity"
+109-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:93:13-52
+110            android:exported="false"
+110-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:94:13-37
+111            android:theme="@style/Theme.SentinelAI" />
+111-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:95:13-52
+112        <activity
+112-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:96:9-99:55
+113            android:name="com.sentinel.ai.ui.CriticalAlertActivity"
+113-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:97:13-53
+114            android:exported="false"
+114-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:98:13-37
+115            android:theme="@style/Theme.SentinelAI" />
+115-->D:\scammerdetect\scammerdetect\app\src\main\AndroidManifest.xml:99:13-52
+116
+117        <provider
+117-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thammasorn\.gradle\caches\transforms-4\b4c54be5bde8f444e023df5fbf82fb0c\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+118            android:name="androidx.startup.InitializationProvider"
+118-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thammasorn\.gradle\caches\transforms-4\b4c54be5bde8f444e023df5fbf82fb0c\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+119            android:authorities="com.sentinel.ai.androidx-startup"
+119-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thammasorn\.gradle\caches\transforms-4\b4c54be5bde8f444e023df5fbf82fb0c\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+120            android:exported="false" >
+120-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thammasorn\.gradle\caches\transforms-4\b4c54be5bde8f444e023df5fbf82fb0c\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+121            <meta-data
+121-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thammasorn\.gradle\caches\transforms-4\b4c54be5bde8f444e023df5fbf82fb0c\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+122                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+122-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thammasorn\.gradle\caches\transforms-4\b4c54be5bde8f444e023df5fbf82fb0c\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+123                android:value="androidx.startup" />
+123-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thammasorn\.gradle\caches\transforms-4\b4c54be5bde8f444e023df5fbf82fb0c\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+124            <meta-data
+124-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\thammasorn\.gradle\caches\transforms-4\22e0ebdc18d6729fbb3957bcd37a560d\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+125                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+125-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\thammasorn\.gradle\caches\transforms-4\22e0ebdc18d6729fbb3957bcd37a560d\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+126                android:value="androidx.startup" />
+126-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\thammasorn\.gradle\caches\transforms-4\22e0ebdc18d6729fbb3957bcd37a560d\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+127            <meta-data
+127-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+128                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+128-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+129                android:value="androidx.startup" />
+129-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+130        </provider>
+131
+132        <receiver
+132-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+133            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+133-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+134            android:directBootAware="false"
+134-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+135            android:enabled="true"
+135-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+136            android:exported="true"
+136-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+137            android:permission="android.permission.DUMP" >
+137-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+138            <intent-filter>
+138-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+139                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+139-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+139-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+140            </intent-filter>
+141            <intent-filter>
+141-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+142                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+142-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+142-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+143            </intent-filter>
+144            <intent-filter>
+144-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+145                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+145-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+145-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+146            </intent-filter>
+147            <intent-filter>
+147-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+148                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+148-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+148-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\thammasorn\.gradle\caches\transforms-4\bb13c8d86a15671311cba80bbbf24ee6\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+149            </intent-filter>
+150        </receiver>
+151    </application>
+152
+153</manifest>

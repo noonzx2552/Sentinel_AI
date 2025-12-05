@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sentinel.ai">
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -45,6 +52,11 @@
             android:foregroundServiceType="dataSync|microphone|mediaProjection" />
 
         <service
+            android:name=".service.InternalAudioPressureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection|microphone" />
+
+        <service
             android:name=".service.SentinelCallScreeningService"
             android:enabled="true"
             android:exported="true"
@@ -82,6 +94,10 @@
         <activity
             android:name=".ui.DashboardActivity"
             android:exported="true" />
+        <activity
+            android:name=".ui.AppSelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI" />
         <activity
             android:name=".ui.CriticalAlertActivity"
             android:exported="false"

@@ -21,33 +21,22 @@ class NotificationHelper(private val context: Context) {
 
     fun buildGuardianNotification(): Notification {
         ensureChannel()
-        val intent = Intent(context, DashboardActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val stopIntent = Intent(context, SentinelGuardianService::class.java).apply {
-            action = SentinelGuardianService.ACTION_STOP
+        val exitIntent = Intent(context, SentinelGuardianService::class.java).apply {
+            action = SentinelGuardianService.ACTION_EXIT
         }
-        val stopPendingIntent = PendingIntent.getService(
+        val exitPendingIntent = PendingIntent.getService(
             context,
-            99,
-            stopIntent,
+            100,
+            exitIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setContentTitle(context.getString(R.string.notification_title))
-            .setContentText(context.getString(R.string.notification_body))
+            .setContentText(context.getString(R.string.notification_tap_to_stop))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setOngoing(true)
-            .setContentIntent(pendingIntent)
-            .addAction(
-                R.drawable.ic_launcher_foreground,
-                context.getString(R.string.action_stop_guardian),
-                stopPendingIntent
-            )
+            // Tap header to exit directly.
+            .setContentIntent(exitPendingIntent)
             .build()
     }
 
