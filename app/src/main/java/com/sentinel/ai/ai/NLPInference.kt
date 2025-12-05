@@ -10,7 +10,7 @@ class NLPInference {
     fun classify(text: String): Intent {
         val lower = text.lowercase()
         return when {
-            listOf("จับกุม", "หมายศาล", "ตำรวจ", "threat", "arrest").any(lower::contains) -> Intent.THREAT
+            listOf("จับกุม", "หมายศาล", "ตำรวจ", "ขู่", "threat", "arrest").any(lower::contains) -> Intent.THREAT
             listOf("รางวัล", "โอนคืน", "คืนเงิน", "reward", "bonus", "prize").any(lower::contains) -> Intent.REWARD
             listOf("otp", "รหัส", "password", "verify", "account", "ข้อมูลส่วนตัว").any(lower::contains) -> Intent.PHISHING
             else -> Intent.SAFE

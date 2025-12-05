@@ -17,6 +17,9 @@ android {
         // Provide your Google Speech-to-Text API key via -PSTT_API_KEY=... or in gradle.properties/local.properties
         def sttKey = (project.findProperty("STT_API_KEY") ?: "").toString().replace("\"", "")
         buildConfigField("String", "STT_API_KEY", "\"${sttKey}\"")
+        // OpenAI Whisper transcription key
+        def openaiKey = (project.findProperty("OPENAI_API_KEY") ?: "").toString().replace("\"", "")
+        buildConfigField("String", "OPENAI_API_KEY", "\"${openaiKey}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -64,6 +67,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.alphacephei:vosk-android:0.3.47")
 

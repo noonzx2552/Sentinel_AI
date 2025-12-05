@@ -12,7 +12,7 @@ class PressureAnalyzer {
         "ด่วน", "เดี๋ยวนี้", "ทันที", "โอน", "ภายใน", "ห้ามวาง", "รอสาย", "รีบ", "แชทนี้ห้ามบอกใคร",
         "otp", "one time password", "verify now", "transfer now", "pay now", "act now", "right now",
         "arrest", "police", "lawsuit", "warrant", "freeze", "account freeze", "bank officer",
-        "ตำรวจ", "หมายจับ", "อายัด", "ศาล", "ผู้พิพากษา", "เจ้าหน้าที่", "สายด่วน"
+        "หมายจับ", "จับกุม", "อายัด", "บัญชี", "ศาล", "ผู้พิพากษา", "เจ้าหน้าที่", "สายด่วน"
     )
 
     fun analyze(text: String): RiskScoring.BehaviorFlags {
@@ -42,11 +42,13 @@ class PressureAnalyzer {
         return upper.toFloat() / letters
     }
 
-    private fun countExclaim(text: String): Int = text.count { it == '!' || it == '!' }
+    private fun countExclaim(text: String): Int = text.count { it == '!' }
 
     private fun hasRepeatCommands(lower: String): Boolean {
         val patterns = listOf("เร็ว", "รีบ", "โอน", "now", "hurry", "quick", "fast")
-        val hits = patterns.count { lower.split(" ").count { w -> w.contains(it) } >= 2 }
+        val hits = patterns.count { pattern ->
+            lower.split(" ").count { word -> word.contains(pattern) } >= 2
+        }
         return hits >= 1
     }
 }

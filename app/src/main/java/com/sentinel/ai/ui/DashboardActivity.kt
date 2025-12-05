@@ -18,6 +18,7 @@ import com.sentinel.ai.ai.WhisperEngine
 import com.sentinel.ai.databinding.ActivityDashboardBinding
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.service.SentinelGuardianService
+import com.sentinel.ai.utils.AllowedAppGate
 import com.sentinel.ai.utils.MicCaptureManager
 import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.PlaybackCaptureController
@@ -45,6 +46,7 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.sentinel.ai.utils.AllowedAppGate.init(applicationContext)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -65,6 +67,9 @@ class DashboardActivity : AppCompatActivity() {
         binding.btnClearEvents.setOnClickListener { viewModel.clearEvents() }
         binding.btnAggressiveListen.setOnClickListener { startAggressiveMic() }
         binding.btnAggressiveStop.setOnClickListener { stopAggressiveMic() }
+        binding.btnSelectApps?.setOnClickListener {
+            startActivity(Intent(this, AppSelectionActivity::class.java))
+        }
 
         viewModel.guardianEnabled.observe(this) { enabled ->
             binding.guardianToggle.isChecked = enabled
@@ -192,6 +197,10 @@ class DashboardActivity : AppCompatActivity() {
     private fun startAggressiveMic(usePlayback: Boolean = true) {
         if (!PermissionUtils.hasMicPermission(this)) {
             PermissionUtils.requestMicPermission(this, REQ_MIC_STT)
+            return
+        }
+        if (!AllowedAppGate.isAllowed()) {
+            binding.tvLiveTranscript.text = "Not allowed in this app."
             return
         }
         if (aggressiveListening) return

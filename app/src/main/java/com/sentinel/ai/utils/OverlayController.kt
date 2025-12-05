@@ -42,7 +42,7 @@ class OverlayController(private val context: Context) {
 
     fun showLiveTranscript(initial: String) {
         if (!Settings.canDrawOverlays(context)) return
-        if (SensitiveAppBypass.isBlocked()) {
+        if (SensitiveAppBypass.isBlocked() || !AllowedAppGate.isAllowed()) {
             dismiss()
             return
         }
@@ -100,7 +100,7 @@ class OverlayController(private val context: Context) {
 
     fun showCallerInfo(name: String, number: String, riskLevel: com.sentinel.ai.model.RiskLevel, reason: String) {
         if (!Settings.canDrawOverlays(context)) return
-        if (SensitiveAppBypass.isBlocked()) {
+        if (SensitiveAppBypass.isBlocked() || !AllowedAppGate.isAllowed()) {
             dismiss()
             return
         }
@@ -138,7 +138,7 @@ class OverlayController(private val context: Context) {
 
     private fun showLayout(layoutId: Int, autoDismissMs: Long) {
         if (!Settings.canDrawOverlays(context)) return
-        if (SensitiveAppBypass.isBlocked()) {
+        if (SensitiveAppBypass.isBlocked() || !AllowedAppGate.isAllowed()) {
             dismiss()
             return
         }
@@ -170,7 +170,7 @@ class OverlayController(private val context: Context) {
     }
 
     fun dismissIfBlocked() {
-        if (SensitiveAppBypass.isBlocked()) {
+        if (SensitiveAppBypass.isBlocked() || !AllowedAppGate.isAllowed()) {
             dismiss()
         }
     }

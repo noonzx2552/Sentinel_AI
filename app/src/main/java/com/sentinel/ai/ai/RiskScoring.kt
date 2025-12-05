@@ -20,9 +20,9 @@ class RiskScoring(private val nlpInference: NLPInference = NLPInference()) {
 
     private val suspiciousKeywords = listOf(
         "otp", "giftcard", "transfer", "urgent", "account", "verify", "password", "reward", "prize",
-        "ด่วน", "เดี๋ยวนี้", "ทันที", "โอน", "บัญชี", "ตำรวจ", "ศาล", "อายัด", "หมายจับ", "เงินฝาก",
+        "ด่วน", "เดี๋ยวนี้", "ทันที", "โอน", "บัญชี", "อายัด", "หมายจับ", "เงินฝาก", "คดี", "เจ้าหน้าที่",
         "arrest", "police", "warrant", "freeze", "transfer now", "pay now", "bank officer",
-        "สายด่วน", "คดี", "หมายศาล", "เจ้าหน้าที่", "ชำระค่าปรับ"
+        "ศาล", "ผู้พิพากษา", "จับกุม", "ข้อมูลส่วนตัว", "ชำระค่าปรับ"
     )
 
     fun score(text: String, behaviorFlags: BehaviorFlags = BehaviorFlags()): RiskResult {

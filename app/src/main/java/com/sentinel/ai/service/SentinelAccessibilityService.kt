@@ -6,6 +6,7 @@ import com.sentinel.ai.ai.RiskScoring
 import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
+import com.sentinel.ai.utils.AllowedAppGate
 import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.SensitiveAppBypass
 
@@ -33,16 +34,19 @@ class SentinelAccessibilityService : AccessibilityService() {
         val pkg = event.packageName?.toString() ?: return
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             SensitiveAppBypass.updateForeground(pkg)
+            AllowedAppGate.updateForeground(pkg)
             overlay.dismissIfBlocked()
         }
         if (!allowedPackages.contains(pkg)) return
         val text = event.text?.joinToString(" ")?.trim().orEmpty()
         if (text.isEmpty()) return
 
+        val lower = text.lowercase()
         val flags = RiskScoring.BehaviorFlags(
-            pressureDetected = text.contains("ด่วน", ignoreCase = true) || text.contains("urgent", ignoreCase = true),
-            interruptionDetected = text.contains("ตอบ") || text.contains("now", ignoreCase = true),
-            logicConflict = text.contains("โอน") && text.contains("เจ้าหน้าที่")
+            pressureDetected = lower.contains("ด่วน") || lower.contains("urgent"),
+            interruptionDetected = lower.contains("เดี๋ยวนี้") || lower.contains("now"),
+            logicConflict = (lower.contains("โอน") && lower.contains("เจ้าหน้าที่")) ||
+                (lower.contains("ตำรวจ") && lower.contains("โอน"))
         )
         val riskResult = riskScoring.score(text, flags)
         val riskLevel = toRiskLevel(riskResult.score)

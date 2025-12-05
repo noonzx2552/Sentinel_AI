@@ -8,12 +8,12 @@ import com.sentinel.ai.ai.WhisperEngine
 import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
-import com.sentinel.ai.utils.OverlayController
+import com.sentinel.ai.ui.CriticalAlertActivity
 import com.sentinel.ai.utils.ContactLookup
 import com.sentinel.ai.utils.KnownNumberRepository
 import com.sentinel.ai.utils.NotificationHelper
+import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.PressureAnalyzer
-import com.sentinel.ai.ui.CriticalAlertActivity
 
 /**
  * Intercepts incoming calls, performs lightweight AI scoring, and can auto-hangup
@@ -60,12 +60,15 @@ class SentinelCallScreeningService : CallScreeningService() {
                 overlay.showCritical()
                 launchCriticalAlert(risk.score, transcript)
                 notifyCaretaker(displayName, number, riskLevel, reason)
-                respondToCall(callDetails, CallResponse.Builder()
-                    .setDisallowCall(true)
-                    .setRejectCall(true)
-                    .setSkipCallLog(true)
-                    .setSkipNotification(true)
-                    .build())
+                respondToCall(
+                    callDetails,
+                    CallResponse.Builder()
+                        .setDisallowCall(true)
+                        .setRejectCall(true)
+                        .setSkipCallLog(true)
+                        .setSkipNotification(true)
+                        .build()
+                )
             }
             RiskLevel.WARNING -> {
                 overlay.showWarning()
@@ -107,7 +110,7 @@ class SentinelCallScreeningService : CallScreeningService() {
             RiskLevel.WARNING -> "Call flagged: WARNING"
             RiskLevel.SAFE -> "Call flagged"
         }
-        val detail = if (reason.isBlank()) "" else " · $reason"
+        val detail = if (reason.isBlank()) "" else " | $reason"
         val body = "$name ($number) has risk level ${riskLevel.name}$detail"
         notificationHelper.sendCaretakerAlert(title, body)
     }
@@ -128,7 +131,7 @@ class SentinelCallScreeningService : CallScreeningService() {
         val behaviorSignals = behaviorSignals(behavior)
         if (behaviorSignals.isNotBlank()) parts.add(behaviorSignals)
         if (parts.isEmpty()) parts.add("Not in contacts")
-        return parts.joinToString(" • ")
+        return parts.joinToString(" | ")
     }
 
     private fun behaviorSignals(flags: RiskScoring.BehaviorFlags): String {

@@ -1,0 +1,114 @@
+[
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\drawable_overlay_transcript_bubble.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\drawable\\overlay_transcript_bubble.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_activity_dashboard.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\activity_dashboard.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\drawable_bg_dashboard_gradient.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\drawable\\bg_dashboard_gradient.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_activity_setup.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\activity_setup.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_view_overlay_caller_info.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\view_overlay_caller_info.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_view_overlay_critical.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\view_overlay_critical.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout-land_activity_dashboard.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout-land\\activity_dashboard.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_view_overlay_warning.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\view_overlay_warning.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\xml_accessibility_service_config.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\xml\\accessibility_service_config.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_dialog_listening_overlay.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\dialog_listening_overlay.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\drawable_overlay_badge_bg.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\drawable\\overlay_badge_bg.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\drawable_overlay_loading_card.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\drawable\\overlay_loading_card.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-debug-40:/layout_activity_dashboard.xml.flat",
+        "source": "com.sentinel.ai.app-main-42:/layout/activity_dashboard.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_activity_alert.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\activity_alert.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\xml_backup_rules.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\xml\\backup_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-debug-40:/layout_item_app_option.xml.flat",
+        "source": "com.sentinel.ai.app-main-42:/layout/item_app_option.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\drawable_bg_card_glass.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\drawable\\bg_card_glass.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\drawable_loading_bar_drawable.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\drawable\\loading_bar_drawable.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-debug-40:/layout_activity_app_selection.xml.flat",
+        "source": "com.sentinel.ai.app-main-42:/layout/activity_app_selection.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_view_overlay_live_transcript.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\view_overlay_live_transcript.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_view_overlay_listening.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\view_overlay_listening.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\xml_data_extraction_rules.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\xml\\data_extraction_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_item_event.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\item_event.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\drawable_overlay_card_bg.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\drawable\\overlay_card_bg.xml"
+    },
+    {
+        "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-debug-40:\\layout_activity_splash.xml.flat",
+        "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\activity_splash.xml"
+    }
+]
