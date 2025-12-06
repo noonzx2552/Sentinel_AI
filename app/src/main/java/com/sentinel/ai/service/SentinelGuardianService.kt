@@ -59,8 +59,7 @@ class SentinelGuardianService : Service() {
 
     private fun startForegroundSafe(notification: Notification, includeProjection: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Limit the FGS type to mic/data-sync to avoid phoneCall restrictions on Android 14.
-            var types = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE or ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            var types = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             if (includeProjection) {
                 types = types or ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
             }

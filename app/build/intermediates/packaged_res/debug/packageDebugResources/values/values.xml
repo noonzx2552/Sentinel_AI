@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <bool name="enable_internal_audio_capture">false</bool>
     <color name="ic_launcher_background">#0F172A</color>
     <color name="permission_done">#0EA5E9</color>
     <color name="permission_pending">@color/sentinel_card</color>

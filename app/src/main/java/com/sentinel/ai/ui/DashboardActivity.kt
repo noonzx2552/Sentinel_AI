@@ -1,345 +1,596 @@
 package com.sentinel.ai.ui
 
+import android.Manifest
+import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.projection.MediaProjection
+import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import android.media.MediaPlayer
 import android.media.projection.MediaProjectionManager
-import android.os.Bundle
+import android.os.Looper
+import android.net.Uri
 import android.os.Build
-import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
+import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.lifecycleScope
 import com.sentinel.ai.R
-import com.sentinel.ai.ai.RiskScoring
-import com.sentinel.ai.ai.WhisperEngine
-import com.sentinel.ai.databinding.ActivityDashboardBinding
-import com.sentinel.ai.model.RiskLevel
-import com.sentinel.ai.service.SentinelGuardianService
-import com.sentinel.ai.utils.AllowedAppGate
-import com.sentinel.ai.utils.MicCaptureManager
-import com.sentinel.ai.utils.OverlayController
-import com.sentinel.ai.utils.PlaybackCaptureController
-import com.sentinel.ai.utils.PermissionUtils
-import com.sentinel.ai.utils.SpeechTestController
+import com.sentinel.ai.ai.OfflineStt
+import com.sentinel.ai.service.InternalAudioCaptureService
+import java.io.ByteArrayOutputStream
+import java.io.File
+import com.sentinel.ai.utils.WavUtil
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DashboardActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityDashboardBinding
-    private val adapter = EventsAdapter()
-    private val viewModel: DashboardViewModel by viewModels()
-    private lateinit var speechTester: SpeechTestController
-    private val whisperFallback by lazy { WhisperEngine(applicationContext) }
-    private val riskScoring = RiskScoring()
-    private val micCapture by lazy { MicCaptureManager(this) }
-    private var playbackCapture: PlaybackCaptureController? = null
-    private var mediaProjection: MediaProjection? = null
-    private var pendingStartInternal = false
-    private lateinit var overlayController: OverlayController
-    private var aggressiveListening = false
-    private var micContinuousActive = false
-    private var loadingDismissed = false
-    private var listeningDialog: AlertDialog? = null
-    private var listeningTextView: android.widget.TextView? = null
+    private lateinit var startCaptureButton: Button
+    private lateinit var stopCaptureButton: Button
+    private lateinit var playRecordingButton: Button
+    private lateinit var transcribeRecordingButton: Button
+    private lateinit var testMicButton: Button
+    private lateinit var systemSttButton: Button
+    private lateinit var clearTranscriptButton: Button
+    private lateinit var transcriptTextView: TextView
+    private lateinit var statusTextView: TextView
+
+    private lateinit var mediaProjectionManager: MediaProjectionManager
+
+    private var isReceiverRegistered = false
+    private var speechRecognizer: SpeechRecognizer? = null
+    private var lastRecordingPath: String? = null
+    private var mediaPlayer: MediaPlayer? = null
+
+    private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
+    } else {
+        arrayOf(Manifest.permission.RECORD_AUDIO)
+    }
+
+    private val permissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        if (permissions.all { it.value }) {
+            continueStartCaptureProcess()
+        } else {
+            Toast.makeText(this, "Audio and Notification permissions are required.", Toast.LENGTH_LONG).show()
+            setStatus("Idle")
+        }
+    }
+
+    private val appEventsReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                InternalAudioCaptureService.ACTION_TRANSCRIPT -> {
+                    val transcript = intent.getStringExtra(InternalAudioCaptureService.EXTRA_TRANSCRIPT_TEXT)
+                    if (!transcript.isNullOrEmpty()) {
+                        val newText = "${transcriptTextView.text}\n$transcript"
+                        transcriptTextView.text = newText
+                    }
+                }
+                InternalAudioCaptureService.ACTION_CAPTURE_STARTED -> {
+                    setStatus("Capturing audio (runs in background)")
+                    startCaptureButton.isEnabled = false
+                    stopCaptureButton.isEnabled = true
+                }
+                InternalAudioCaptureService.ACTION_CAPTURE_SAVED -> {
+                    val path = intent.getStringExtra(InternalAudioCaptureService.EXTRA_RECORDING_PATH)
+                    if (!path.isNullOrBlank()) {
+                        lastRecordingPath = path
+                        Toast.makeText(context, "Recording saved", Toast.LENGTH_SHORT).show()
+                        setStatus("Recording saved")
+                        updatePlayButtonState()
+                    }
+                }
+                InternalAudioCaptureService.ACTION_CAPTURE_ERROR -> {
+                    val errorMessage = intent.getStringExtra(InternalAudioCaptureService.EXTRA_ERROR_MESSAGE)
+                    Toast.makeText(context, "Capture failed: $errorMessage", Toast.LENGTH_LONG).show()
+                    setStatus("Idle")
+                    updateUiState()
+                }
+            }
+        }
+    }
+
+    private val overlayPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (Settings.canDrawOverlays(this)) {
+            startMediaProjectionRequest()
+        } else {
+            Toast.makeText(this, "Overlay permission is required.", Toast.LENGTH_LONG).show()
+            setStatus("Idle")
+        }
+    }
+
+    private val mediaProjectionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            Toast.makeText(this, "MediaProjection permission granted. Starting service...", Toast.LENGTH_SHORT).show()
+            InternalAudioCaptureService.start(this, result.resultCode, result.data!!)
+            setStatus("Starting capture service...")
+            startCaptureButton.isEnabled = false
+            stopCaptureButton.isEnabled = true
+        } else {
+            Toast.makeText(this, "MediaProjection permission was denied.", Toast.LENGTH_SHORT).show()
+            setStatus("Idle")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        com.sentinel.ai.utils.AllowedAppGate.init(applicationContext)
-        binding = ActivityDashboardBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_dashboard)
 
-        SentinelGuardianService.start(this)
-        speechTester = SpeechTestController(this)
-        overlayController = OverlayController(this)
+        mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 
-        binding.recentRecycler.layoutManager = LinearLayoutManager(this)
-        binding.recentRecycler.adapter = adapter
+        startCaptureButton = findViewById(R.id.btnStartCapture)
+        stopCaptureButton = findViewById(R.id.btnStopCapture)
+        playRecordingButton = findViewById(R.id.btnPlayRecording)
+        transcribeRecordingButton = findViewById(R.id.btnTranscribeRecording)
+        testMicButton = findViewById(R.id.btnTestMic)
+        systemSttButton = findViewById(R.id.btnSystemStt)
+        clearTranscriptButton = findViewById(R.id.btnClearTranscript)
+        transcriptTextView = findViewById(R.id.tvTranscript)
+        statusTextView = findViewById(R.id.tvStatus)
 
-        binding.guardianToggle.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setGuardianEnabled(isChecked)
-        }
-
-        binding.btnTestStt.setOnClickListener { startMicTest() }
-        binding.btnMockChat.setOnClickListener { viewModel.runMockChat() }
-        binding.btnMockCall.setOnClickListener { viewModel.runMockCall() }
-        binding.btnClearEvents.setOnClickListener { viewModel.clearEvents() }
-        binding.btnAggressiveListen.setOnClickListener { startAggressiveMic() }
-        binding.btnAggressiveStop.setOnClickListener { stopAggressiveMic() }
-        binding.btnSelectApps?.setOnClickListener {
-            startActivity(Intent(this, AppSelectionActivity::class.java))
-        }
-
-        viewModel.guardianEnabled.observe(this) { enabled ->
-            binding.guardianToggle.isChecked = enabled
-        }
-        viewModel.status.observe(this) { level -> renderStatus(level) }
-        viewModel.events.observe(this) { events ->
-            adapter.submit(events)
-            renderEventSummary(events)
-            if (!loadingDismissed) {
-                loadingDismissed = true
-                binding.loadingOverlay.isVisible = false
-            }
-        }
-
-        // Fallback hide loader after 2 seconds even if no events yet.
-        binding.root.postDelayed({
-            if (!loadingDismissed) {
-                loadingDismissed = true
-                binding.loadingOverlay.isVisible = false
-            }
-        }, 2000)
-    }
-
-    private fun startMicTest() {
-        if (!PermissionUtils.hasMicPermission(this)) {
-            PermissionUtils.requestMicPermission(this, REQ_MIC_STT)
-            return
-        }
-        binding.tvLiveTranscript.text = "Listening..."
-        speechTester.listenOnce(
-            onResult = { text ->
-                runOnUiThread {
-                    binding.tvLiveTranscript.text = "Final: $text"
-                    viewModel.handleTranscript(text)
-                }
-            },
-            onError = { err ->
-                val fallback = whisperFallback.transcribe()
-                runOnUiThread {
-                    binding.tvLiveTranscript.text = "Error: $err\nFallback: $fallback"
-                    viewModel.handleTranscript(fallback)
-                }
-            },
-            onPartial = { partial ->
-                runOnUiThread { binding.tvLiveTranscript.text = "Heard: $partial" }
-            },
-            languageTag = PREFERRED_LANGS
-        )
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQ_MIC_STT && PermissionUtils.hasMicPermission(this)) {
-            startMicTest()
-        }
+        startCaptureButton.setOnClickListener { startCaptureProcess() }
+        stopCaptureButton.setOnClickListener { stopCaptureProcess() }
+        playRecordingButton.setOnClickListener { playLastRecording() }
+        transcribeRecordingButton.setOnClickListener { transcribeLastRecording() }
+        testMicButton.setOnClickListener { runMicTest() }
+        systemSttButton.setOnClickListener { startSystemSpeechToText() }
+        clearTranscriptButton.setOnClickListener { transcriptTextView.text = "" }
+        setStatus("Idle")
+        updatePlayButtonState()
     }
 
     override fun onResume() {
         super.onResume()
-        requestMicIfMissing()
+        registerAppEventsReceiver()
+        updateUiState()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQ_MEDIA_PROJECTION) {
-            if (resultCode == RESULT_OK && data != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                SentinelGuardianService.startProjectionMode(this)
-                val mgr = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-                mediaProjection = mgr.getMediaProjection(resultCode, data)
-                if (pendingStartInternal) {
-                    pendingStartInternal = false
-                    startAggressiveMic(usePlayback = true)
+    override fun onPause() {
+        super.onPause()
+        unregisterAppEventsReceiver()
+    }
+
+    private fun updateUiState() {
+        val isRunning = InternalAudioCaptureService.isServiceRunning
+        startCaptureButton.isEnabled = !isRunning
+        stopCaptureButton.isEnabled = isRunning
+        testMicButton.isEnabled = !isRunning
+        systemSttButton.isEnabled = !isRunning
+        transcribeRecordingButton.isEnabled = !isRunning
+        setStatus(if (isRunning) "Capturing audio (runs in background)" else "Idle")
+        updatePlayButtonState()
+    }
+
+    private fun setStatus(text: String) {
+        statusTextView.text = "Status: $text"
+    }
+
+    private fun startCaptureProcess() {
+        val allPermissionsGranted = requiredPermissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
+        if (allPermissionsGranted) {
+            setStatus("Starting capture...")
+            continueStartCaptureProcess()
+        } else {
+            setStatus("Waiting for permissions...")
+            permissionsLauncher.launch(requiredPermissions)
+        }
+    }
+
+    private fun continueStartCaptureProcess() {
+        if (!Settings.canDrawOverlays(this)) {
+            setStatus("Waiting for overlay permission...")
+            requestOverlayPermission()
+        } else {
+            setStatus("Requesting screen capture...")
+            startMediaProjectionRequest()
+        }
+    }
+
+    private fun stopCaptureProcess() {
+        InternalAudioCaptureService.stop(this)
+        Toast.makeText(this, "Capture service stopped.", Toast.LENGTH_SHORT).show()
+        setStatus("Stopped")
+        updateUiState()
+    }
+
+    private fun requestOverlayPermission() {
+        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+        overlayPermissionLauncher.launch(intent)
+    }
+
+    private fun startMediaProjectionRequest() {
+        val captureIntent = mediaProjectionManager.createScreenCaptureIntent()
+        mediaProjectionLauncher.launch(captureIntent)
+    }
+
+    private fun registerAppEventsReceiver() {
+        if (isReceiverRegistered) return
+        val filter = IntentFilter().apply {
+            addAction(InternalAudioCaptureService.ACTION_TRANSCRIPT)
+            addAction(InternalAudioCaptureService.ACTION_CAPTURE_STARTED)
+            addAction(InternalAudioCaptureService.ACTION_CAPTURE_SAVED)
+            addAction(InternalAudioCaptureService.ACTION_CAPTURE_ERROR)
+        }
+        // Always register as not exported to satisfy runtime broadcast flag requirements
+        ContextCompat.registerReceiver(
+            this,
+            appEventsReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+        isReceiverRegistered = true
+    }
+
+    private fun unregisterAppEventsReceiver() {
+        if (!isReceiverRegistered) return
+        try {
+            unregisterReceiver(appEventsReceiver)
+            isReceiverRegistered = false
+        } catch (e: IllegalArgumentException) { /* Already unregistered */ }
+    }
+
+    private fun updatePlayButtonState() {
+        val applyState = {
+            val exists = lastRecordingPath?.let { File(it).exists() } == true
+            playRecordingButton.isEnabled = exists && !InternalAudioCaptureService.isServiceRunning
+        }
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            applyState()
+        } else {
+            runOnUiThread { applyState() }
+        }
+    }
+
+    private fun playLastRecording() {
+        val path = lastRecordingPath
+        if (path.isNullOrBlank()) {
+            Toast.makeText(this, "No recording available yet.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val file = File(path)
+        if (!file.exists()) {
+            Toast.makeText(this, "Recording file not found.", Toast.LENGTH_SHORT).show()
+            lastRecordingPath = null
+            updatePlayButtonState()
+            return
+        }
+        try {
+            releasePlayer()
+            val player = MediaPlayer()
+            player.setDataSource(path)
+            player.setOnCompletionListener {
+                setStatus("Idle")
+                releasePlayer()
+                updatePlayButtonState()
+            }
+            player.prepare()
+            player.start()
+            mediaPlayer = player
+            setStatus("Playing last recording")
+            updatePlayButtonState()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Cannot play recording: ${e.message}", Toast.LENGTH_LONG).show()
+            releasePlayer()
+            updatePlayButtonState()
+        }
+    }
+
+    private fun transcribeLastRecording() {
+        val path = lastRecordingPath
+        if (path.isNullOrBlank()) {
+            Toast.makeText(this, "No recording available yet.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val file = File(path)
+        if (!file.exists()) {
+            Toast.makeText(this, "Recording file not found.", Toast.LENGTH_SHORT).show()
+            lastRecordingPath = null
+            updatePlayButtonState()
+            return
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (!OfflineStt.ensureModel(this@DashboardActivity)) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@DashboardActivity, "Offline model missing. Check assets/models/vosk-model.zip.", Toast.LENGTH_LONG).show()
                 }
-            } else {
-                pendingStartInternal = false
-                aggressiveListening = false
-                startAggressiveMic(usePlayback = false)
+                return@launch
+            }
+            val data = file.readBytes()
+            if (data.size < 44) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@DashboardActivity, "Recording is too short/invalid.", Toast.LENGTH_SHORT).show()
+                }
+                return@launch
+            }
+            try {
+                val bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN)
+                val channels = bb.getShort(22).toInt()
+                val sampleRate = bb.getInt(24)
+                val bitsPerSample = bb.getShort(34).toInt()
+                val dataStart = 44
+                val pcm = data.copyOfRange(dataStart, data.size)
+                Log.d("DashboardActivity", "Transcribing file sr=$sampleRate ch=$channels bits=$bitsPerSample size=${pcm.size}")
+
+                val transcript = OfflineStt.transcribePcm16(
+                    context = this@DashboardActivity,
+                    audio = pcm,
+                    sampleRate = sampleRate,
+                    isStereo = channels >= 2
+                ).orEmpty()
+
+                withContext(Dispatchers.Main) {
+                    if (transcript.isNotBlank()) {
+                        transcriptTextView.append("\n[File STT] $transcript")
+                        setStatus("File STT: \"$transcript\"")
+                    } else {
+                        setStatus("File STT: no text")
+                        Toast.makeText(this@DashboardActivity, "No text recognized from recording.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@DashboardActivity, "Transcribe failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
 
-    private fun requestMicIfMissing() {
-        if (!PermissionUtils.hasMicPermission(this)) {
-            PermissionUtils.requestMicPermission(this, REQ_MIC_STT)
-        }
+    private fun releasePlayer() {
+        try {
+            mediaPlayer?.stop()
+        } catch (_: Exception) { }
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 
     override fun onDestroy() {
+        speechRecognizer?.destroy()
+        releasePlayer()
         super.onDestroy()
-        speechTester.destroy()
-        micCapture.stop()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            playbackCapture?.destroy()
-            mediaProjection?.stop()
-        }
     }
 
-    private fun renderEventSummary(events: List<com.sentinel.ai.model.GuardianEvent>) {
-        val critical = events.count { it.riskLevel == RiskLevel.CRITICAL }
-        val warning = events.count { it.riskLevel == RiskLevel.WARNING }
-        val safe = events.count { it.riskLevel == RiskLevel.SAFE }
-        binding.tvEventCounts?.text = "Critical $critical | Warning $warning | Safe $safe"
-        val latest = events.firstOrNull()
-        binding.tvLastEvent?.text = latest?.let {
-            "Last: ${it.source} (${it.riskLevel.name}, score ${it.score})"
-        } ?: "Last: none yet"
-    }
-
-    private fun renderStatus(level: RiskLevel) {
-        val text = when (level) {
-            RiskLevel.SAFE -> getString(R.string.status_monitoring)
-            RiskLevel.WARNING -> getString(R.string.status_warning)
-            RiskLevel.CRITICAL -> getString(R.string.status_critical)
-        }
-        val color = when (level) {
-            RiskLevel.SAFE -> R.color.sentinel_on_surface
-            RiskLevel.WARNING -> R.color.sentinel_warning
-            RiskLevel.CRITICAL -> R.color.sentinel_critical
-        }
-        binding.statusValue.text = text
-        binding.statusValue.setTextColor(ContextCompat.getColor(this, color))
-    }
-
-    private fun startAggressiveMic(usePlayback: Boolean = true) {
-        if (!PermissionUtils.hasMicPermission(this)) {
-            PermissionUtils.requestMicPermission(this, REQ_MIC_STT)
+    private fun runMicTest() {
+        if (InternalAudioCaptureService.isServiceRunning) {
+            Toast.makeText(this, "Stop capture before testing mic.", Toast.LENGTH_SHORT).show()
             return
         }
-        if (!AllowedAppGate.isAllowed()) {
-            binding.tvLiveTranscript.text = "Not allowed in this app."
+        val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
+            Toast.makeText(this, "Mic permission required.", Toast.LENGTH_SHORT).show()
+            permissionsLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
             return
         }
-        if (aggressiveListening) return
-        aggressiveListening = true
-        binding.tvLiveTranscript.text = "Aggressive monitor: mic listening..."
-        ensureLiveOverlayVisible("Mic listening... capturing internal audio when allowed.")
-        if (usePlayback && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val projection = mediaProjection
-            if (projection == null) {
-                pendingStartInternal = true
-                val mgr = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-                // Ensure FGS with mediaProjection type is active before requesting capture.
-                SentinelGuardianService.startProjectionMode(this)
-                startActivityForResult(mgr.createScreenCaptureIntent(), REQ_MEDIA_PROJECTION)
-                return
-            } else {
-                SentinelGuardianService.startProjectionMode(this)
-                startPlaybackCapture(projection)
-            }
-            // Also keep mic STT running so we still get transcripts even if playback capture yields no text.
-            startMicContinuous()
-        } else {
-            startMicContinuous()
+        if (!OfflineStt.ensureModel(this)) {
+            Toast.makeText(this, "Offline model missing or failed to load. Check assets/models/vosk-model.zip.", Toast.LENGTH_LONG).show()
+            setStatus("Mic test: model missing")
+            return
         }
-    }
-
-    @androidx.annotation.RequiresApi(Build.VERSION_CODES.Q)
-    private fun startPlaybackCapture(projection: MediaProjection) {
-        playbackCapture?.stop()
-        playbackCapture = PlaybackCaptureController(projection)
-        ensureLiveOverlayVisible("Capturing screen audio... generating captions.")
-        try {
-            playbackCapture?.start(
-                onChunk = { bytes ->
-                    val transcript = whisperFallback.transcribe(bytes)
-                    runOnUiThread {
-                        val display = transcript.ifBlank { "Audio playing..." }
-                        binding.tvLiveTranscript.text = display
-                        updateListeningUi(display)
-                        if (transcript.isNotBlank()) {
-                            viewModel.addRawTranscript(transcript)
-                        }
-                    }
-                },
-                onError = { err ->
-                    runOnUiThread {
-                        binding.tvLiveTranscript.text = "Playback capture error: $err (fallback to mic)"
-                        startMicContinuous()
-                    }
-                }
+        setStatus("Testing mic with offline STT...")
+        testMicButton.isEnabled = false
+        lifecycleScope.launch(Dispatchers.IO) {
+            val sampleRate = 16000
+            val channelConfig = AudioFormat.CHANNEL_IN_MONO
+            val encoding = AudioFormat.ENCODING_PCM_16BIT
+            val minBuf = AudioRecord.getMinBufferSize(sampleRate, channelConfig, encoding)
+            val bufferSize = (minBuf.coerceAtLeast(2048))
+            val audioRecord = AudioRecord(
+                MediaRecorder.AudioSource.VOICE_RECOGNITION,
+                sampleRate,
+                channelConfig,
+                encoding,
+                bufferSize
             )
-        } catch (e: Exception) {
-            runOnUiThread {
-                binding.tvLiveTranscript.text = "Playback capture failed: ${e.message ?: "unknown"} (fallback to mic)"
-                startMicContinuous()
-            }
-        }
-    }
-
-    private fun startMicContinuous() {
-        micContinuousActive = true
-        ensureLiveOverlayVisible("Mic listening for live captions...")
-        speechTester.listenContinuously(
-            onResult = { text ->
-                runOnUiThread {
-                    binding.tvLiveTranscript.text = text
-                    updateListeningUi(text)
-                    viewModel.addRawTranscript(text)
-                }
-            },
-            onError = { err ->
-                runOnUiThread {
-                    binding.tvLiveTranscript.text = "STT error (auto-retrying): $err"
-                    updateListeningUi("STT error: $err")
-                }
-            },
-            onPartial = { partial ->
-                if (partial.isNotBlank() && partial != "...") {
-                    runOnUiThread {
-                        updateListeningUi(partial)
+            val output = ByteArrayOutputStream()
+            try {
+                audioRecord.startRecording()
+                val buffer = ByteArray(bufferSize)
+                val targetDurationMs = 2500
+                var capturedMs = 0
+                val frameMs = bufferSize * 1000 / (sampleRate * 2) // 2 bytes per sample mono
+                while (capturedMs < targetDurationMs) {
+                    val read = audioRecord.read(buffer, 0, buffer.size)
+                    if (read > 0) {
+                        output.write(buffer, 0, read)
+                        capturedMs += frameMs
                     }
                 }
-            },
-            languageTag = PREFERRED_LANGS
-        )
-    }
-
-    private fun stopAggressiveMic() {
-        if (!aggressiveListening) return
-        aggressiveListening = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            playbackCapture?.stop()
-        }
-        if (micContinuousActive) {
-            speechTester.stopContinuous()
-            micContinuousActive = false
-        }
-        binding.tvLiveTranscript.text = "Aggressive monitor stopped."
-        overlayController.dismiss()
-        listeningDialog?.dismiss()
-        listeningDialog = null
-        listeningTextView = null
-        SentinelGuardianService.stopProjectionMode(this)
-    }
-
-    private fun ensureLiveOverlayVisible(initialText: String) {
-        if (PermissionUtils.canDrawOverlays(this)) {
-            overlayController.showLiveTranscript(initialText)
-        } else {
-            showListeningPopup(initialText)
-        }
-    }
-
-    private fun updateListeningUi(text: String) {
-        val safeText = text.ifBlank { "Listening... audio detected" }
-        if (PermissionUtils.canDrawOverlays(this)) {
-            overlayController.updateLiveTranscript(safeText)
-        } else {
-            listeningTextView?.text = safeText
-        }
-    }
-
-    private fun showListeningPopup(initialText: String) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_listening_overlay, null)
-        listeningTextView = dialogView.findViewById(R.id.tvListeningText)
-        listeningTextView?.text = initialText
-        listeningDialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(false)
-            .setNegativeButton("Stop") { d, _ ->
-                stopAggressiveMic()
-                d.dismiss()
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@DashboardActivity, "Mic test failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    setStatus("Idle")
+                    testMicButton.isEnabled = true
+                }
+                audioRecord.release()
+                return@launch
+            } finally {
+                try { audioRecord.stop() } catch (_: Exception) { }
+                audioRecord.release()
             }
-            .show()
+
+            val audioData = output.toByteArray()
+            val normalizedPcm = normalizePcm16(audioData)
+            val rms = computeRms(normalizedPcm)
+            Log.d("DashboardActivity", "Mic test captured bytes=${audioData.size} rms=$rms")
+            val transcript = try {
+                OfflineStt.transcribePcm16(
+                    context = this@DashboardActivity,
+                    audio = normalizedPcm,
+                    sampleRate = sampleRate,
+                    isStereo = false
+                ) ?: ""
+            } catch (e: Exception) {
+                Log.w("DashboardActivity", "Mic test STT failed: ${e.message}", e)
+                ""
+            }
+
+            // Save test audio to a WAV file for replay
+            val wavData = WavUtil.pcmToWav(normalizedPcm, sampleRate, 1, 16)
+            val testFile = File(cacheDir, "mic_test_${System.currentTimeMillis()}.wav")
+            testFile.writeBytes(wavData)
+            val savedPath = testFile.absolutePath
+
+            withContext(Dispatchers.Main) {
+                lastRecordingPath = savedPath
+                if (transcript.isNotBlank()) {
+                    transcriptTextView.append("\n[Test Mic] $transcript")
+                    setStatus("Mic test: \"$transcript\"")
+                } else {
+                    setStatus("Mic test: no text")
+                    Toast.makeText(this@DashboardActivity, "No text recognized (check offline model).", Toast.LENGTH_SHORT).show()
+                }
+                Toast.makeText(this@DashboardActivity, "Test audio saved for playback.", Toast.LENGTH_SHORT).show()
+                updatePlayButtonState()
+                testMicButton.isEnabled = true
+            }
+        }
+    }
+
+    private fun computeRms(buffer: ByteArray): Int {
+        if (buffer.size < 2) return 0
+        var sum = 0L
+        var count = 0
+        var i = 0
+        while (i + 1 < buffer.size) {
+            val sample = ((buffer[i + 1].toInt() shl 8) or (buffer[i].toInt() and 0xFF)).toShort()
+            sum += (sample * sample).toLong()
+            count++
+            i += 2
+        }
+        if (count == 0) return 0
+        val mean = sum / count
+        return kotlin.math.sqrt(mean.toDouble()).toInt()
+    }
+
+    private fun normalizePcm16(input: ByteArray): ByteArray {
+        if (input.size < 2) return input
+        var maxAbs = 0
+        var i = 0
+        while (i + 1 < input.size) {
+            val sample = ((input[i + 1].toInt() shl 8) or (input[i].toInt() and 0xFF)).toShort()
+            val abs = kotlin.math.abs(sample.toInt())
+            if (abs > maxAbs) maxAbs = abs
+            i += 2
+        }
+        if (maxAbs == 0) return input
+        val target = (Short.MAX_VALUE * 0.8).toInt()
+        val gain = target.toFloat() / maxAbs.toFloat()
+        val out = ByteArray(input.size)
+        i = 0
+        while (i + 1 < input.size) {
+            val sample = ((input[i + 1].toInt() shl 8) or (input[i].toInt() and 0xFF)).toShort()
+            val scaled = (sample * gain).toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
+            out[i] = (scaled.toInt() and 0xFF).toByte()
+            out[i + 1] = ((scaled.toInt() shr 8) and 0xFF).toByte()
+            i += 2
+        }
+        return out
+    }
+
+    /**
+     * Long-press "Test Mic" to use the built-in Android speech recognizer (no Vosk).
+     */
+    private fun startSystemSpeechToText(allowRetryOnDisconnect: Boolean = true) {
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            Toast.makeText(this, "Device speech recognition is not available.", Toast.LENGTH_LONG).show()
+            return
+        }
+        val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
+            Toast.makeText(this, "Mic permission required.", Toast.LENGTH_SHORT).show()
+            permissionsLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
+            return
+        }
+
+        speechRecognizer?.destroy()
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        val recognizer = speechRecognizer ?: run {
+            Toast.makeText(this, "Cannot start device STT.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            // Prefer offline if the device has downloaded language packs (Samsung/Google)
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "th-TH")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "th-TH")
+            putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, true)
+        }
+
+        setStatus("Listening with device STT...")
+        systemSttButton.isEnabled = false
+
+        recognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {}
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+
+            override fun onPartialResults(partialResults: Bundle?) {
+                val text = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()
+                if (!text.isNullOrBlank()) {
+                    transcriptTextView.append("\n[Device STT] $text")
+                }
+            }
+
+            override fun onResults(results: Bundle?) {
+                val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull().orEmpty()
+                if (text.isNotBlank()) {
+                    transcriptTextView.append("\n[Device STT] $text")
+                    setStatus("Device STT: \"$text\"")
+                } else {
+                    setStatus("Device STT: no text")
+                }
+                systemSttButton.isEnabled = true
+            }
+
+            override fun onError(error: Int) {
+                Log.w("DashboardActivity", "Device STT error: $error")
+                if (allowRetryOnDisconnect && error == DEVICE_STT_ERROR_SERVER_DISCONNECTED) {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        // Recreate recognizer and retry once to avoid the first-press failure.
+                        speechRecognizer?.destroy()
+                        speechRecognizer = null
+                        setStatus("Reconnecting device STT...")
+                        delay(200)
+                        startSystemSpeechToText(allowRetryOnDisconnect = false)
+                    }
+                    return
+                }
+                Toast.makeText(this@DashboardActivity, "Device STT error: $error", Toast.LENGTH_SHORT).show()
+                setStatus("Idle")
+                systemSttButton.isEnabled = true
+            }
+        })
+
+        recognizer.startListening(intent)
     }
 
     companion object {
-        private const val REQ_MIC_STT = 501
-        private const val REQ_MEDIA_PROJECTION = 502
-        private const val PREFERRED_LANGS = "th-TH"
+        private const val DEVICE_STT_ERROR_SERVER_DISCONNECTED = 11
     }
 }

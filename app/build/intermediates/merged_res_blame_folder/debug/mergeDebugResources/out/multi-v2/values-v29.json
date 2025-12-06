@@ -4,6 +4,16 @@
             "outputFile": "com.sentinel.ai.app-mergeDebugResources-38:/values-v29/values-v29.xml",
             "map": [
                 {
+                    "source": "D:\\scammerdetect\\scammerdetect\\app\\src\\main\\res\\values-v29\\bools.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "58",
+                        "endOffsets": "109"
+                    }
+                },
+                {
                     "source": "C:\\Users\\thammasorn\\.gradle\\caches\\transforms-4\\350d18273de460b87fc4974ac2e7b2a8\\transformed\\core-splashscreen-1.0.1\\res\\values-v29\\values-v29.xml",
                     "from": {
                         "startLines": "2,7",
@@ -12,6 +22,14 @@
                         "endLines": "6,8",
                         "endColumns": "12,12",
                         "endOffsets": "369,464"
+                    },
+                    "to": {
+                        "startLines": "3,8",
+                        "startColumns": "4,4",
+                        "startOffsets": "114,433",
+                        "endLines": "7,9",
+                        "endColumns": "12,12",
+                        "endOffsets": "428,523"
                     }
                 }
             ]

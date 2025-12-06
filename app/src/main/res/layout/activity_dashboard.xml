@@ -1,304 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_dashboard_gradient">
+    tools:context=".ui.DashboardActivity">
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:fillViewport="true">
+    <Button
+        android:id="@+id/btnStartCapture"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Start Capture"
+        app:layout_constraintEnd_toStartOf="@+id/btnStopCapture"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+    <Button
+        android:id="@+id/btnStopCapture"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="Stop Capture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btnStartCapture"
+        app:layout_constraintTop_toTopOf="@+id/btnStartCapture" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Status: Idle"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnStartCapture" />
+
+    <Button
+        android:id="@+id/btnPlayRecording"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Play Last Recording"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvStatus" />
+
+    <Button
+        android:id="@+id/btnTranscribeRecording"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Transcribe Last Recording (Vosk)"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnPlayRecording" />
+
+    <Button
+        android:id="@+id/btnTestMic"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Test Mic (Vosk offline)"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnTranscribeRecording" />
+
+    <Button
+        android:id="@+id/btnSystemStt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Test Mic (Device STT)"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnTestMic" />
+
+    <Button
+        android:id="@+id/btnClearTranscript"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Clear Transcript"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSystemStt" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btnStopCapture"
+        app:layout_constraintStart_toStartOf="@+id/btnStartCapture"
+        app:layout_constraintTop_toBottomOf="@+id/btnClearTranscript">
+
+        <TextView
+            android:id="@+id/tvTranscript"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:padding="8dp"
+            android:text="Transcription will appear here..." />
+    </ScrollView>
 
-            <!-- Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="4dp">
-
-                <TextView
-                    android:id="@+id/header"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/dashboard_title"
-                    android:textColor="@color/sentinel_on_surface"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/guardianToggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/guardian_toggle"
-                    android:textColor="@color/sentinel_on_surface" />
-            </LinearLayout>
-
-            <!-- Status / Summary -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/statusCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@drawable/bg_card_glass">
-
-                    <TextView
-                        android:id="@+id/statusLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_status"
-                        android:textColor="@color/sentinel_on_surface"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/statusValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/status_monitoring"
-                        android:textColor="@color/sentinel_on_surface"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvLastEvent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Last event: none"
-                        android:textColor="@color/sentinel_on_surface" />
-
-                    <TextView
-                        android:id="@+id/tvEventCounts"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Critical 0 | Warning 0 | Safe 0"
-                        android:textColor="@color/sentinel_on_surface" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Controls -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/testCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@drawable/bg_card_glass"
-                    android:showDividers="middle"
-                    android:divider="@android:color/transparent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Test controls"
-                        android:textColor="@color/sentinel_on_surface"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:orientation="vertical"
-                        android:showDividers="middle"
-                        android:divider="@android:color/transparent">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnTestStt"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Test mic (th/en)"
-                            android:textColor="@color/sentinel_on_surface"
-                            app:iconTint="@color/sentinel_on_surface"
-                            app:icon="@android:drawable/ic_btn_speak_now"
-                            app:iconGravity="textStart" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMockChat"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Add chat warning"
-                            android:textColor="@color/sentinel_on_surface"
-                            app:iconTint="@color/sentinel_on_surface"
-                            app:icon="@android:drawable/ic_dialog_email"
-                            app:iconGravity="textStart" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMockCall"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Add call critical"
-                            android:textColor="@color/sentinel_on_surface"
-                            app:iconTint="@color/sentinel_on_surface"
-                            app:icon="@android:drawable/ic_menu_call"
-                            app:iconGravity="textStart" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnClearEvents"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Clear events"
-                            android:textColor="@color/sentinel_on_surface"
-                            app:iconTint="@color/sentinel_on_surface"
-                            app:icon="@android:drawable/ic_menu_delete"
-                            app:iconGravity="textStart" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAggressiveListen"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Start pressure monitor (continuous)"
-                            android:textColor="@color/sentinel_on_surface"
-                            app:iconTint="@color/sentinel_on_surface"
-                            app:icon="@android:drawable/ic_lock_silent_mode_off"
-                            app:iconGravity="textStart" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAggressiveStop"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Stop pressure monitor"
-                            android:textColor="@color/sentinel_on_surface"
-                            app:iconTint="@color/sentinel_on_surface"
-                            app:icon="@android:drawable/ic_menu_close_clear_cancel"
-                            app:iconGravity="textStart" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnSelectApps"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/action_select_apps"
-                            android:textColor="@color/sentinel_on_surface"
-                            app:iconTint="@color/sentinel_on_surface"
-                            app:icon="@android:drawable/ic_menu_manage"
-                            app:iconGravity="textStart" />
-                    </LinearLayout>
-
-                    <!-- Live transcript preview -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
-                        android:padding="12dp"
-                        android:orientation="vertical"
-                        android:background="@drawable/bg_card_glass">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Live transcript"
-                            android:textColor="@color/sentinel_on_surface"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvLiveTranscript"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="Mic: waiting..."
-                            android:textColor="@color/sentinel_on_surface" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Recent events -->
-            <TextView
-                android:id="@+id/recentLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/recent_events"
-                android:textColor="@color/sentinel_on_surface"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recentRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false" />
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Loading overlay -->
-    <FrameLayout
-        android:id="@+id/loadingOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#CC000000"
-        android:visibility="visible">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:gravity="center"
-            android:background="#CC0B1224">
-
-            <TextView
-                android:id="@+id/loadingTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Starting Guardian Mode"
-                android:textColor="@color/sentinel_on_surface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/loadingSubtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Initializing services and checking permissions..."
-                android:textColor="@color/sentinel_on_surface"
-                android:textSize="13sp" />
-
-            <ProgressBar
-                android:id="@+id/loadingBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_marginTop="16dp"
-                android:indeterminate="true"
-                android:progressDrawable="@drawable/loading_bar_drawable" />
-        </LinearLayout>
-    </FrameLayout>
-
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

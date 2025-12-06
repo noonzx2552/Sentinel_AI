@@ -1,5 +1,6 @@
 R_DEF: Internal format may change without notice
 local
+bool enable_internal_audio_capture
 color ic_launcher_background
 color permission_done
 color permission_pending
@@ -29,6 +30,7 @@ id btnAggressiveListen
 id btnAggressiveStop
 id btnCallScreening
 id btnClearEvents
+id btnClearTranscript
 id btnContinue
 id btnDone
 id btnMic
@@ -37,8 +39,14 @@ id btnMockChat
 id btnNotification
 id btnOverlay
 id btnOverlayClose
+id btnPlayRecording
 id btnSelectApps
+id btnStartCapture
+id btnStopCapture
+id btnSystemStt
+id btnTestMic
 id btnTestStt
+id btnTranscribeRecording
 id callerName
 id callerNumber
 id callerReason
@@ -69,6 +77,7 @@ id overlayWarningTitle
 id progress
 id recentLabel
 id recentRecycler
+id scrollView
 id setupSubtitle
 id setupTitle
 id statusCard
@@ -85,8 +94,10 @@ id tvLiveTranscript
 id tvOverlayRisk
 id tvOverlayTitle
 id tvOverlayTranscript
+id tvStatus
 id tvSubtitle
 id tvTitle
+id tvTranscript
 layout activity_alert
 layout activity_app_selection
 layout activity_dashboard
@@ -95,6 +106,7 @@ layout activity_splash
 layout dialog_listening_overlay
 layout item_app_option
 layout item_event
+layout overlay_transcript
 layout view_overlay_caller_info
 layout view_overlay_critical
 layout view_overlay_listening

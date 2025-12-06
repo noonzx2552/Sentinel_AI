@@ -3,24 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sentinel_surface">
+    android:background="@drawable/bg_dashboard_gradient">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:padding="12dp">
+        android:padding="16dp"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="12dp">
+            android:orientation="vertical">
 
+            <!-- Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:padding="4dp">
 
@@ -42,19 +41,21 @@
                     android:textColor="@color/sentinel_on_surface" />
             </LinearLayout>
 
+            <!-- Status / Summary -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/statusCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/sentinel_card"
-                app:cardCornerRadius="12dp">
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:background="@drawable/bg_card_glass">
 
                     <TextView
                         android:id="@+id/statusLabel"
@@ -68,27 +69,45 @@
                         android:id="@+id/statusValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:text="@string/status_monitoring"
                         android:textColor="@color/sentinel_on_surface"
-                        android:textSize="18sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvLastEvent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Last event: none"
+                        android:textColor="@color/sentinel_on_surface" />
+
+                    <TextView
+                        android:id="@+id/tvEventCounts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Critical 0 | Warning 0 | Safe 0"
+                        android:textColor="@color/sentinel_on_surface" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Controls -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/testCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/sentinel_card"
-                app:cardCornerRadius="12dp">
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp"
+                    android:background="@drawable/bg_card_glass"
                     android:showDividers="middle"
                     android:divider="@android:color/transparent">
 
@@ -102,8 +121,10 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:orientation="vertical">
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical"
+                        android:showDividers="middle"
+                        android:divider="@android:color/transparent">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnTestStt"
@@ -111,7 +132,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Test mic (th/en)"
-                            app:icon="@android:drawable/ic_btn_speak_now" />
+                            android:textColor="@color/sentinel_on_surface"
+                            app:iconTint="@color/sentinel_on_surface"
+                            app:icon="@android:drawable/ic_btn_speak_now"
+                            app:iconGravity="textStart" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnMockChat"
@@ -120,7 +144,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="Add chat warning"
-                            app:icon="@android:drawable/ic_dialog_email" />
+                            android:textColor="@color/sentinel_on_surface"
+                            app:iconTint="@color/sentinel_on_surface"
+                            app:icon="@android:drawable/ic_dialog_email"
+                            app:iconGravity="textStart" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnMockCall"
@@ -129,7 +156,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="Add call critical"
-                            app:icon="@android:drawable/ic_menu_call" />
+                            android:textColor="@color/sentinel_on_surface"
+                            app:iconTint="@color/sentinel_on_surface"
+                            app:icon="@android:drawable/ic_menu_call"
+                            app:iconGravity="textStart" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnClearEvents"
@@ -138,7 +168,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="Clear events"
-                            app:icon="@android:drawable/ic_menu_delete" />
+                            android:textColor="@color/sentinel_on_surface"
+                            app:iconTint="@color/sentinel_on_surface"
+                            app:icon="@android:drawable/ic_menu_delete"
+                            app:iconGravity="textStart" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAggressiveListen"
@@ -147,7 +180,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="Start pressure monitor (continuous)"
-                            app:icon="@android:drawable/ic_lock_silent_mode_off" />
+                            android:textColor="@color/sentinel_on_surface"
+                            app:iconTint="@color/sentinel_on_surface"
+                            app:icon="@android:drawable/ic_lock_silent_mode_off"
+                            app:iconGravity="textStart" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAggressiveStop"
@@ -156,24 +192,57 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="Stop pressure monitor"
-                            app:icon="@android:drawable/ic_menu_close_clear_cancel" />
+                            android:textColor="@color/sentinel_on_surface"
+                            app:iconTint="@color/sentinel_on_surface"
+                            app:icon="@android:drawable/ic_menu_close_clear_cancel"
+                            app:iconGravity="textStart" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSelectApps"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/action_select_apps"
+                            android:textColor="@color/sentinel_on_surface"
+                            app:iconTint="@color/sentinel_on_surface"
+                            app:icon="@android:drawable/ic_menu_manage"
+                            app:iconGravity="textStart" />
+                    </LinearLayout>
+
+                    <!-- Live transcript preview -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:padding="12dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_card_glass">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Live transcript"
+                            android:textColor="@color/sentinel_on_surface"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tvLiveTranscript"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
+                            android:layout_marginTop="6dp"
                             android:text="Mic: waiting..."
                             android:textColor="@color/sentinel_on_surface" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Recent events -->
             <TextView
                 android:id="@+id/recentLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:text="@string/recent_events"
                 android:textColor="@color/sentinel_on_surface"
                 android:textStyle="bold" />
@@ -181,13 +250,13 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recentRecycler"
                 android:layout_width="match_parent"
-                android:layout_height="260dp"
-                android:layout_marginTop="6dp"
-                android:nestedScrollingEnabled="true" />
-
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Loading overlay -->
     <FrameLayout
         android:id="@+id/loadingOverlay"
         android:layout_width="match_parent"
@@ -195,49 +264,41 @@
         android:background="#CC000000"
         android:visibility="visible">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="260dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardElevation="0dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center"
+            android:background="#CC0B1224">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/loadingTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Starting Guardian Mode"
+                android:textColor="@color/sentinel_on_surface"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/loadingSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Initializing services and checking permissions..."
+                android:textColor="@color/sentinel_on_surface"
+                android:textSize="13sp" />
+
+            <ProgressBar
+                android:id="@+id/loadingBar"
+                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="20dp"
-                android:background="@drawable/overlay_loading_card">
-
-                <ProgressBar
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="220dp"
-                    android:layout_height="10dp"
-                    android:indeterminate="true"
-                    android:progressDrawable="@drawable/loading_bar_drawable" />
-
-                <TextView
-                    android:id="@+id/loadingTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="กำลังเปิด Guardian Mode"
-                    android:textColor="@color/sentinel_on_surface"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/loadingSubtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="กำลังเชื่อมต่อไมค์และระบบเตือนภัย"
-                    android:textColor="@color/sentinel_on_surface"
-                    android:textSize="13sp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                android:layout_height="10dp"
+                android:layout_marginTop="16dp"
+                android:indeterminate="true"
+                android:progressDrawable="@drawable/loading_bar_drawable" />
+        </LinearLayout>
     </FrameLayout>
 
 </FrameLayout>

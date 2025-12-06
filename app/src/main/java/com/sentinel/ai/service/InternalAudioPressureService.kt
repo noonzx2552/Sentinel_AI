@@ -16,6 +16,7 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -44,17 +45,33 @@ class InternalAudioPressureService : Service(), PressureTranscriptListener {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         if (intent?.action == ACTION_STOP) {
             stopSelf()
             return START_NOT_STICKY
         }
+
+        // Extract projection data FIRST (must be BEFORE ACTION_START)
+        val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_CANCELED)
+            ?: Activity.RESULT_CANCELED
+        val projectionData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableExtra(EXTRA_RESULT_DATA, Intent::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent?.getParcelableExtra(EXTRA_RESULT_DATA)
+        }
+
+        if (intent?.action == ACTION_START) {
+            ensureForeground()
+            startCapture(resultCode, projectionData)
+            return START_STICKY
+        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             stopSelf()
             return START_NOT_STICKY
         }
-        val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_CANCELED)
-            ?: Activity.RESULT_CANCELED
-        val projectionData = intent?.getParcelableExtra<Intent>(EXTRA_RESULT_DATA)
+
         ensureForeground()
         startCapture(resultCode, projectionData)
         return START_STICKY
@@ -103,6 +120,7 @@ class InternalAudioPressureService : Service(), PressureTranscriptListener {
             .addMatchingUsage(AudioAttributes.USAGE_UNKNOWN)
             .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
             .build()
+        Log.d(TAG, "APC config created with usages: MEDIA, GAME, UNKNOWN, VOICE_COMMUNICATION")
 
         val audioFormat = AudioFormat.Builder()
             .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
@@ -121,15 +139,23 @@ class InternalAudioPressureService : Service(), PressureTranscriptListener {
             .setAudioFormat(audioFormat)
             .setBufferSizeInBytes(bufferSize * 2)
             .build()
+        Log.d(
+            TAG,
+            "AudioRecord built for APC sampleRate=$SAMPLE_RATE stereo=true bufferSize=${bufferSize * 2}"
+        )
 
         if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
+            Log.e(TAG, "AudioRecord not initialized; stopping service")
             stopSelf()
             return
         }
 
         try {
             audioRecord?.startRecording()
+            Log.d(TAG, "AudioPlaybackCapture started")
+            sendInternalAudioReadyBroadcast()
         } catch (_: Exception) {
+            Log.e(TAG, "Failed to start AudioRecord for APC; stopping service")
             stopSelf()
             return
         }
@@ -157,6 +183,11 @@ class InternalAudioPressureService : Service(), PressureTranscriptListener {
         audioRecord = null
         mediaProjection?.stop()
         mediaProjection = null
+    }
+
+    private fun sendInternalAudioReadyBroadcast() {
+        val intent = Intent(ACTION_INTERNAL_AUDIO_READY)
+        sendBroadcast(intent)
     }
 
     private fun buildNotification(): Notification {
@@ -197,6 +228,7 @@ class InternalAudioPressureService : Service(), PressureTranscriptListener {
 
     companion object {
         const val ACTION_PRESSURE_TRANSCRIPT = "com.sentinel.ai.ACTION_PRESSURE_TRANSCRIPT"
+        const val ACTION_INTERNAL_AUDIO_READY = "com.sentinel.ai.INTERNAL_AUDIO_READY"
         const val EXTRA_TRANSCRIPT = "extra_pressure_transcript"
         const val ACTION_START = "com.sentinel.ai.action.PRESSURE_START"
         const val ACTION_STOP = "com.sentinel.ai.action.PRESSURE_STOP"
@@ -206,8 +238,13 @@ class InternalAudioPressureService : Service(), PressureTranscriptListener {
         private const val DEFAULT_BUFFER = 8192
         private const val CHANNEL_ID = "pressure_monitor"
         private const val NOTIFICATION_ID = 9001
+        private const val TAG = "InternalAudioPressure"
 
         fun start(context: Context, data: Intent, resultCode: Int) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                Log.w(TAG, "Ignoring internal audio start; requires Android 10+.")
+                return
+            }
             val intent = Intent(context, InternalAudioPressureService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_RESULT_CODE, resultCode)

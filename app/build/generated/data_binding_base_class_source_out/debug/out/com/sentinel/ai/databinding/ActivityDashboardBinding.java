@@ -4,8 +4,10 @@ package com.sentinel.ai.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,27 +18,106 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.sentinel.ai.R;
-import java.lang.NullPointerException;
 import java.lang.Override;
-import java.lang.String;
 
 public final class ActivityDashboardBinding implements ViewBinding {
   @NonNull
-  private final FrameLayout rootView;
+  private final View rootView;
 
-  @NonNull
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
   public final MaterialButton btnAggressiveListen;
 
-  @NonNull
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
   public final MaterialButton btnAggressiveStop;
 
-  @NonNull
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
   public final MaterialButton btnClearEvents;
 
-  @NonNull
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final Button btnClearTranscript;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
   public final MaterialButton btnMockCall;
 
-  @NonNull
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
   public final MaterialButton btnMockChat;
 
   /**
@@ -53,16 +134,23 @@ public final class ActivityDashboardBinding implements ViewBinding {
    * </ul>
    */
   @Nullable
+  public final Button btnPlayRecording;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
   public final MaterialButton btnSelectApps;
-
-  @NonNull
-  public final MaterialButton btnTestStt;
-
-  @NonNull
-  public final SwitchMaterial guardianToggle;
-
-  @NonNull
-  public final TextView header;
 
   /**
    * This binding is not available in all configurations.
@@ -78,34 +166,7 @@ public final class ActivityDashboardBinding implements ViewBinding {
    * </ul>
    */
   @Nullable
-  public final ProgressBar loadingBar;
-
-  @NonNull
-  public final FrameLayout loadingOverlay;
-
-  @NonNull
-  public final TextView loadingSubtitle;
-
-  @NonNull
-  public final TextView loadingTitle;
-
-  @NonNull
-  public final TextView recentLabel;
-
-  @NonNull
-  public final RecyclerView recentRecycler;
-
-  @NonNull
-  public final MaterialCardView statusCard;
-
-  @NonNull
-  public final TextView statusLabel;
-
-  @NonNull
-  public final TextView statusValue;
-
-  @NonNull
-  public final MaterialCardView testCard;
+  public final Button btnStartCapture;
 
   /**
    * This binding is not available in all configurations.
@@ -118,6 +179,294 @@ public final class ActivityDashboardBinding implements ViewBinding {
    * Absent:
    * <ul>
    *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final Button btnStopCapture;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final Button btnSystemStt;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final Button btnTestMic;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final MaterialButton btnTestStt;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final Button btnTranscribeRecording;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final SwitchMaterial guardianToggle;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView header;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final ProgressBar loadingBar;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final FrameLayout loadingOverlay;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView loadingSubtitle;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView loadingTitle;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView recentLabel;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final RecyclerView recentRecycler;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final ScrollView scrollView;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final MaterialCardView statusCard;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView statusLabel;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView statusValue;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final MaterialCardView testCard;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
    * </ul>
    */
   @Nullable
@@ -128,6 +477,38 @@ public final class ActivityDashboardBinding implements ViewBinding {
    * <p>
    * Present:
    * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView tvLastEvent;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView tvLiveTranscript;
+
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
    *   <li>layout/</li>
    * </ul>
    *
@@ -137,31 +518,56 @@ public final class ActivityDashboardBinding implements ViewBinding {
    * </ul>
    */
   @Nullable
-  public final TextView tvLastEvent;
+  public final TextView tvStatus;
 
-  @NonNull
-  public final TextView tvLiveTranscript;
+  /**
+   * This binding is not available in all configurations.
+   * <p>
+   * Present:
+   * <ul>
+   *   <li>layout/</li>
+   * </ul>
+   *
+   * Absent:
+   * <ul>
+   *   <li>layout-land/</li>
+   * </ul>
+   */
+  @Nullable
+  public final TextView tvTranscript;
 
-  private ActivityDashboardBinding(@NonNull FrameLayout rootView,
-      @NonNull MaterialButton btnAggressiveListen, @NonNull MaterialButton btnAggressiveStop,
-      @NonNull MaterialButton btnClearEvents, @NonNull MaterialButton btnMockCall,
-      @NonNull MaterialButton btnMockChat, @Nullable MaterialButton btnSelectApps,
-      @NonNull MaterialButton btnTestStt, @NonNull SwitchMaterial guardianToggle,
-      @NonNull TextView header, @Nullable ProgressBar loadingBar,
-      @NonNull FrameLayout loadingOverlay, @NonNull TextView loadingSubtitle,
-      @NonNull TextView loadingTitle, @NonNull TextView recentLabel,
-      @NonNull RecyclerView recentRecycler, @NonNull MaterialCardView statusCard,
-      @NonNull TextView statusLabel, @NonNull TextView statusValue,
-      @NonNull MaterialCardView testCard, @Nullable TextView tvEventCounts,
-      @Nullable TextView tvLastEvent, @NonNull TextView tvLiveTranscript) {
+  private ActivityDashboardBinding(@NonNull View rootView,
+      @Nullable MaterialButton btnAggressiveListen, @Nullable MaterialButton btnAggressiveStop,
+      @Nullable MaterialButton btnClearEvents, @Nullable Button btnClearTranscript,
+      @Nullable MaterialButton btnMockCall, @Nullable MaterialButton btnMockChat,
+      @Nullable Button btnPlayRecording, @Nullable MaterialButton btnSelectApps,
+      @Nullable Button btnStartCapture, @Nullable Button btnStopCapture,
+      @Nullable Button btnSystemStt, @Nullable Button btnTestMic,
+      @Nullable MaterialButton btnTestStt, @Nullable Button btnTranscribeRecording,
+      @Nullable SwitchMaterial guardianToggle, @Nullable TextView header,
+      @Nullable ProgressBar loadingBar, @Nullable FrameLayout loadingOverlay,
+      @Nullable TextView loadingSubtitle, @Nullable TextView loadingTitle,
+      @Nullable TextView recentLabel, @Nullable RecyclerView recentRecycler,
+      @Nullable ScrollView scrollView, @Nullable MaterialCardView statusCard,
+      @Nullable TextView statusLabel, @Nullable TextView statusValue,
+      @Nullable MaterialCardView testCard, @Nullable TextView tvEventCounts,
+      @Nullable TextView tvLastEvent, @Nullable TextView tvLiveTranscript,
+      @Nullable TextView tvStatus, @Nullable TextView tvTranscript) {
     this.rootView = rootView;
     this.btnAggressiveListen = btnAggressiveListen;
     this.btnAggressiveStop = btnAggressiveStop;
     this.btnClearEvents = btnClearEvents;
+    this.btnClearTranscript = btnClearTranscript;
     this.btnMockCall = btnMockCall;
     this.btnMockChat = btnMockChat;
+    this.btnPlayRecording = btnPlayRecording;
     this.btnSelectApps = btnSelectApps;
+    this.btnStartCapture = btnStartCapture;
+    this.btnStopCapture = btnStopCapture;
+    this.btnSystemStt = btnSystemStt;
+    this.btnTestMic = btnTestMic;
     this.btnTestStt = btnTestStt;
+    this.btnTranscribeRecording = btnTranscribeRecording;
     this.guardianToggle = guardianToggle;
     this.header = header;
     this.loadingBar = loadingBar;
@@ -170,6 +576,7 @@ public final class ActivityDashboardBinding implements ViewBinding {
     this.loadingTitle = loadingTitle;
     this.recentLabel = recentLabel;
     this.recentRecycler = recentRecycler;
+    this.scrollView = scrollView;
     this.statusCard = statusCard;
     this.statusLabel = statusLabel;
     this.statusValue = statusValue;
@@ -177,11 +584,13 @@ public final class ActivityDashboardBinding implements ViewBinding {
     this.tvEventCounts = tvEventCounts;
     this.tvLastEvent = tvLastEvent;
     this.tvLiveTranscript = tvLiveTranscript;
+    this.tvStatus = tvStatus;
+    this.tvTranscript = tvTranscript;
   }
 
   @Override
   @NonNull
-  public FrameLayout getRoot() {
+  public View getRoot() {
     return rootView;
   }
 
@@ -202,137 +611,75 @@ public final class ActivityDashboardBinding implements ViewBinding {
 
   @NonNull
   public static ActivityDashboardBinding bind(@NonNull View rootView) {
-    // The body of this method is generated in a way you would not otherwise write.
-    // This is done to optimize the compiled bytecode for size and performance.
-    int id;
-    missingId: {
-      id = R.id.btnAggressiveListen;
-      MaterialButton btnAggressiveListen = ViewBindings.findChildViewById(rootView, id);
-      if (btnAggressiveListen == null) {
-        break missingId;
-      }
+    MaterialButton btnAggressiveListen = ViewBindings.findChildViewById(rootView, R.id.btnAggressiveListen);
 
-      id = R.id.btnAggressiveStop;
-      MaterialButton btnAggressiveStop = ViewBindings.findChildViewById(rootView, id);
-      if (btnAggressiveStop == null) {
-        break missingId;
-      }
+    MaterialButton btnAggressiveStop = ViewBindings.findChildViewById(rootView, R.id.btnAggressiveStop);
 
-      id = R.id.btnClearEvents;
-      MaterialButton btnClearEvents = ViewBindings.findChildViewById(rootView, id);
-      if (btnClearEvents == null) {
-        break missingId;
-      }
+    MaterialButton btnClearEvents = ViewBindings.findChildViewById(rootView, R.id.btnClearEvents);
 
-      id = R.id.btnMockCall;
-      MaterialButton btnMockCall = ViewBindings.findChildViewById(rootView, id);
-      if (btnMockCall == null) {
-        break missingId;
-      }
+    Button btnClearTranscript = ViewBindings.findChildViewById(rootView, R.id.btnClearTranscript);
 
-      id = R.id.btnMockChat;
-      MaterialButton btnMockChat = ViewBindings.findChildViewById(rootView, id);
-      if (btnMockChat == null) {
-        break missingId;
-      }
+    MaterialButton btnMockCall = ViewBindings.findChildViewById(rootView, R.id.btnMockCall);
 
-      id = R.id.btnSelectApps;
-      MaterialButton btnSelectApps = ViewBindings.findChildViewById(rootView, id);
+    MaterialButton btnMockChat = ViewBindings.findChildViewById(rootView, R.id.btnMockChat);
 
-      id = R.id.btnTestStt;
-      MaterialButton btnTestStt = ViewBindings.findChildViewById(rootView, id);
-      if (btnTestStt == null) {
-        break missingId;
-      }
+    Button btnPlayRecording = ViewBindings.findChildViewById(rootView, R.id.btnPlayRecording);
 
-      id = R.id.guardianToggle;
-      SwitchMaterial guardianToggle = ViewBindings.findChildViewById(rootView, id);
-      if (guardianToggle == null) {
-        break missingId;
-      }
+    MaterialButton btnSelectApps = ViewBindings.findChildViewById(rootView, R.id.btnSelectApps);
 
-      id = R.id.header;
-      TextView header = ViewBindings.findChildViewById(rootView, id);
-      if (header == null) {
-        break missingId;
-      }
+    Button btnStartCapture = ViewBindings.findChildViewById(rootView, R.id.btnStartCapture);
 
-      id = R.id.loadingBar;
-      ProgressBar loadingBar = ViewBindings.findChildViewById(rootView, id);
+    Button btnStopCapture = ViewBindings.findChildViewById(rootView, R.id.btnStopCapture);
 
-      id = R.id.loadingOverlay;
-      FrameLayout loadingOverlay = ViewBindings.findChildViewById(rootView, id);
-      if (loadingOverlay == null) {
-        break missingId;
-      }
+    Button btnSystemStt = ViewBindings.findChildViewById(rootView, R.id.btnSystemStt);
 
-      id = R.id.loadingSubtitle;
-      TextView loadingSubtitle = ViewBindings.findChildViewById(rootView, id);
-      if (loadingSubtitle == null) {
-        break missingId;
-      }
+    Button btnTestMic = ViewBindings.findChildViewById(rootView, R.id.btnTestMic);
 
-      id = R.id.loadingTitle;
-      TextView loadingTitle = ViewBindings.findChildViewById(rootView, id);
-      if (loadingTitle == null) {
-        break missingId;
-      }
+    MaterialButton btnTestStt = ViewBindings.findChildViewById(rootView, R.id.btnTestStt);
 
-      id = R.id.recentLabel;
-      TextView recentLabel = ViewBindings.findChildViewById(rootView, id);
-      if (recentLabel == null) {
-        break missingId;
-      }
+    Button btnTranscribeRecording = ViewBindings.findChildViewById(rootView, R.id.btnTranscribeRecording);
 
-      id = R.id.recentRecycler;
-      RecyclerView recentRecycler = ViewBindings.findChildViewById(rootView, id);
-      if (recentRecycler == null) {
-        break missingId;
-      }
+    SwitchMaterial guardianToggle = ViewBindings.findChildViewById(rootView, R.id.guardianToggle);
 
-      id = R.id.statusCard;
-      MaterialCardView statusCard = ViewBindings.findChildViewById(rootView, id);
-      if (statusCard == null) {
-        break missingId;
-      }
+    TextView header = ViewBindings.findChildViewById(rootView, R.id.header);
 
-      id = R.id.statusLabel;
-      TextView statusLabel = ViewBindings.findChildViewById(rootView, id);
-      if (statusLabel == null) {
-        break missingId;
-      }
+    ProgressBar loadingBar = ViewBindings.findChildViewById(rootView, R.id.loadingBar);
 
-      id = R.id.statusValue;
-      TextView statusValue = ViewBindings.findChildViewById(rootView, id);
-      if (statusValue == null) {
-        break missingId;
-      }
+    FrameLayout loadingOverlay = ViewBindings.findChildViewById(rootView, R.id.loadingOverlay);
 
-      id = R.id.testCard;
-      MaterialCardView testCard = ViewBindings.findChildViewById(rootView, id);
-      if (testCard == null) {
-        break missingId;
-      }
+    TextView loadingSubtitle = ViewBindings.findChildViewById(rootView, R.id.loadingSubtitle);
 
-      id = R.id.tvEventCounts;
-      TextView tvEventCounts = ViewBindings.findChildViewById(rootView, id);
+    TextView loadingTitle = ViewBindings.findChildViewById(rootView, R.id.loadingTitle);
 
-      id = R.id.tvLastEvent;
-      TextView tvLastEvent = ViewBindings.findChildViewById(rootView, id);
+    TextView recentLabel = ViewBindings.findChildViewById(rootView, R.id.recentLabel);
 
-      id = R.id.tvLiveTranscript;
-      TextView tvLiveTranscript = ViewBindings.findChildViewById(rootView, id);
-      if (tvLiveTranscript == null) {
-        break missingId;
-      }
+    RecyclerView recentRecycler = ViewBindings.findChildViewById(rootView, R.id.recentRecycler);
 
-      return new ActivityDashboardBinding((FrameLayout) rootView, btnAggressiveListen,
-          btnAggressiveStop, btnClearEvents, btnMockCall, btnMockChat, btnSelectApps, btnTestStt,
-          guardianToggle, header, loadingBar, loadingOverlay, loadingSubtitle, loadingTitle,
-          recentLabel, recentRecycler, statusCard, statusLabel, statusValue, testCard,
-          tvEventCounts, tvLastEvent, tvLiveTranscript);
-    }
-    String missingId = rootView.getResources().getResourceName(id);
-    throw new NullPointerException("Missing required view with ID: ".concat(missingId));
+    ScrollView scrollView = ViewBindings.findChildViewById(rootView, R.id.scrollView);
+
+    MaterialCardView statusCard = ViewBindings.findChildViewById(rootView, R.id.statusCard);
+
+    TextView statusLabel = ViewBindings.findChildViewById(rootView, R.id.statusLabel);
+
+    TextView statusValue = ViewBindings.findChildViewById(rootView, R.id.statusValue);
+
+    MaterialCardView testCard = ViewBindings.findChildViewById(rootView, R.id.testCard);
+
+    TextView tvEventCounts = ViewBindings.findChildViewById(rootView, R.id.tvEventCounts);
+
+    TextView tvLastEvent = ViewBindings.findChildViewById(rootView, R.id.tvLastEvent);
+
+    TextView tvLiveTranscript = ViewBindings.findChildViewById(rootView, R.id.tvLiveTranscript);
+
+    TextView tvStatus = ViewBindings.findChildViewById(rootView, R.id.tvStatus);
+
+    TextView tvTranscript = ViewBindings.findChildViewById(rootView, R.id.tvTranscript);
+
+    return new ActivityDashboardBinding(rootView, btnAggressiveListen, btnAggressiveStop,
+        btnClearEvents, btnClearTranscript, btnMockCall, btnMockChat, btnPlayRecording,
+        btnSelectApps, btnStartCapture, btnStopCapture, btnSystemStt, btnTestMic, btnTestStt,
+        btnTranscribeRecording, guardianToggle, header, loadingBar, loadingOverlay, loadingSubtitle,
+        loadingTitle, recentLabel, recentRecycler, scrollView, statusCard, statusLabel, statusValue,
+        testCard, tvEventCounts, tvLastEvent, tvLiveTranscript, tvStatus, tvTranscript);
   }
 }

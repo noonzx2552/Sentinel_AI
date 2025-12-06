@@ -1325,6 +1325,7 @@ attr yearStyle
 attr yearTodayStyle
 bool abc_action_bar_embed_tabs
 bool abc_config_actionMenuItemAllCaps
+bool enable_internal_audio_capture
 bool mtrl_btn_textappearance_all_caps
 color abc_background_cache_hint_selector_material_dark
 color abc_background_cache_hint_selector_material_light
@@ -3188,6 +3189,7 @@ id btnAggressiveListen
 id btnAggressiveStop
 id btnCallScreening
 id btnClearEvents
+id btnClearTranscript
 id btnContinue
 id btnDone
 id btnMic
@@ -3196,8 +3198,14 @@ id btnMockChat
 id btnNotification
 id btnOverlay
 id btnOverlayClose
+id btnPlayRecording
 id btnSelectApps
+id btnStartCapture
+id btnStopCapture
+id btnSystemStt
+id btnTestMic
 id btnTestStt
+id btnTranscribeRecording
 id buttonPanel
 id cache_measures
 id callMeasure
@@ -3620,8 +3628,10 @@ id tvLiveTranscript
 id tvOverlayRisk
 id tvOverlayTitle
 id tvOverlayTranscript
+id tvStatus
 id tvSubtitle
 id tvTitle
+id tvTranscript
 id unchecked
 id uniform
 id unlabeled
@@ -3843,6 +3853,7 @@ layout notification_template_custom_big
 layout notification_template_icon_group
 layout notification_template_part_chronometer
 layout notification_template_part_time
+layout overlay_transcript
 layout select_dialog_item_material
 layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material

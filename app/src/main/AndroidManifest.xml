@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sentinel.ai">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <queries>
         <intent>
@@ -9,11 +9,16 @@
         </intent>
     </queries>
 
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -22,7 +27,6 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
 
     <application
         android:allowBackup="true"
@@ -35,6 +39,7 @@
         android:theme="@style/Theme.SentinelAI"
         android:usesCleartextTraffic="false">
 
+        <!-- Boot receiver -->
         <receiver
             android:name=".receiver.BootReceiver"
             android:enabled="true"
@@ -45,17 +50,26 @@
             </intent-filter>
         </receiver>
 
+
+        <!-- Guardian Service -->
         <service
             android:name=".service.SentinelGuardianService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="dataSync|microphone|mediaProjection" />
+            android:stopWithTask="false"
+            android:foregroundServiceType="dataSync|mediaProjection"
+            tools:targetApi="q" />
 
+        <!-- Internal Audio Capture Service -->
         <service
-            android:name=".service.InternalAudioPressureService"
+            android:name=".service.InternalAudioCaptureService"
+            android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="mediaProjection|microphone" />
+            android:stopWithTask="false"
+            android:foregroundServiceType="mediaProjection|microphone"
+            tools:targetApi="q" />
 
+        <!-- Call Screening -->
         <service
             android:name=".service.SentinelCallScreeningService"
             android:enabled="true"
@@ -66,6 +80,7 @@
             </intent-filter>
         </service>
 
+        <!-- Accessibility -->
         <service
             android:name=".service.SentinelAccessibilityService"
             android:enabled="true"
@@ -79,6 +94,7 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+        <!-- Activities -->
         <activity
             android:name=".ui.SplashActivity"
             android:exported="true"
@@ -88,20 +104,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.SetupActivity"
-            android:exported="true" />
-        <activity
-            android:name=".ui.DashboardActivity"
-            android:exported="true" />
-        <activity
-            android:name=".ui.AppSelectionActivity"
-            android:exported="false"
-            android:theme="@style/Theme.SentinelAI" />
-        <activity
-            android:name=".ui.CriticalAlertActivity"
-            android:exported="false"
-            android:theme="@style/Theme.SentinelAI" />
+
+        <activity android:name=".ui.SetupActivity" android:exported="true" />
+        <activity android:name=".ui.DashboardActivity" android:exported="true" />
+        <activity android:name=".ui.AppSelectionActivity" android:exported="false" />
+        <activity android:name=".ui.CriticalAlertActivity" android:exported="false" />
+
     </application>
 
 </manifest>
