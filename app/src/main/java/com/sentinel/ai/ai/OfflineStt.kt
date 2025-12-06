@@ -73,6 +73,11 @@ object OfflineStt {
         }
     }
 
+    /** Drop the shared streaming recognizer (used by long-running capture) */
+    fun resetRecognizer() {
+        try { recognizerRef.getAndSet(null)?.close() } catch (_: Exception) { }
+    }
+
     /**
      * Compatibility helper: transcribe raw PCM bytes (little-endian). Accepts mono or stereo.
      */
@@ -114,18 +119,22 @@ object OfflineStt {
         sampleRate: Int
     ): String? {
         if (size <= 0) return null
-        val rec = recognizer(context)
+        val rec = createRecognizer(context, TARGET_SAMPLE_RATE) ?: return null
         val mono16k = if (sampleRate == TARGET_SAMPLE_RATE) {
             audio.copyOfRange(0, size)
         } else {
             resampleTo16k(audio, size, sampleRate)
         }
         val bytes = shortArrayToLeBytes(mono16k)
-        val ok = rec.acceptWaveForm(bytes, bytes.size)
-        val json = if (ok) rec.result else rec.partialResult
-        val text = parseTranscript(json)
-        Log.d(TAG, "Vosk accept ok=$ok inBytes=${bytes.size} srcSr=$sampleRate ->16k text=${text.orEmpty()}")
-        return text
+        return try {
+            val ok = rec.acceptWaveForm(bytes, bytes.size)
+            val json = if (ok) rec.result else rec.partialResult
+            val text = parseTranscript(json)
+            Log.d(TAG, "Vosk accept ok=$ok inBytes=${bytes.size} srcSr=$sampleRate ->16k text=${text.orEmpty()}")
+            text
+        } finally {
+            try { rec.close() } catch (_: Exception) { }
+        }
     }
 
     /**

@@ -26,6 +26,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -44,7 +47,11 @@ class InternalAudioCaptureService : Service() {
     private var mediaProjection: MediaProjection? = null
     private var audioRecord: AudioRecord? = null
     private var captureJob: Job? = null
+    @Volatile private var isStopping = false
     private val serviceScope = CoroutineScope(Dispatchers.IO)
+    private var recordingFile: File? = null
+    private var recordingStream: FileOutputStream? = null
+    private var totalPcmBytes: Long = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -94,11 +101,11 @@ class InternalAudioCaptureService : Service() {
         if (captureJob?.isActive == true) return
 
         // Warm-load model early to catch errors up front.
-        try {
-            OfflineStt.ensureModel(this)
-        } catch (e: Exception) {
-            Log.e(TAG, "Vosk model load failed: ${e.message}", e)
-            Toast.makeText(applicationContext, "Vosk model failed: ${e.message}", Toast.LENGTH_LONG).show()
+            try {
+                OfflineStt.ensureModel(this)
+            } catch (e: Exception) {
+                Log.e(TAG, "Vosk model load failed: ${e.message}", e)
+                Toast.makeText(applicationContext, "Vosk model failed: ${e.message}", Toast.LENGTH_LONG).show()
             broadcast(ACTION_CAPTURE_ERROR, EXTRA_ERROR_MESSAGE, "Model load failed")
             stopSelf()
             return
@@ -106,6 +113,7 @@ class InternalAudioCaptureService : Service() {
 
         overlayManager.showOverlay()
         overlayManager.updatePlaybackTranscript("Listening...")
+        startRecordingFile()
 
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, projectionData).also { mp ->
             mp.registerCallback(object : MediaProjection.Callback() {
@@ -125,14 +133,14 @@ class InternalAudioCaptureService : Service() {
         val audioFormat = AudioFormat.Builder()
             .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
             .setSampleRate(CAPTURE_SAMPLE_RATE)
-            .setChannelMask(AudioFormat.CHANNEL_IN_STEREO)
+            .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
             .build()
 
         val bufferSize = AudioRecord.getMinBufferSize(
             CAPTURE_SAMPLE_RATE,
-            AudioFormat.CHANNEL_IN_STEREO,
+            AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT
-        ).coerceAtLeast(8192)
+        ).coerceAtLeast(4096)
 
         audioRecord = AudioRecord.Builder()
             .setAudioFormat(audioFormat)
@@ -160,6 +168,8 @@ class InternalAudioCaptureService : Service() {
                     Log.w(TAG, "AudioRecord read returned $read bytes")
                     continue
                 }
+                recordingStream?.write(byteBuffer, 0, read)
+                totalPcmBytes += read.toLong()
 
                 // Convert little-endian bytes -> shorts
                 val shortCount = read / 2
@@ -193,9 +203,15 @@ class InternalAudioCaptureService : Service() {
     }
 
     private fun stopCapture() {
+        if (isStopping) return
+        isStopping = true
         isServiceRunning = false
         captureJob?.cancel()
         captureJob = null
+        try {
+            recordingStream?.flush()
+        } catch (_: Exception) { }
+        recordingStream = null
 
         audioRecord?.apply {
             try {
@@ -205,19 +221,85 @@ class InternalAudioCaptureService : Service() {
         }
         audioRecord = null
 
-        mediaProjection?.stop()
+        try { mediaProjection?.stop() } catch (_: Exception) { }
         mediaProjection = null
 
+        finalizeRecordingFile()
         overlayManager.removeOverlay()
-        stopForeground(true)
+        try { stopForeground(true) } catch (_: Exception) { }
         stopSelf()
+        isStopping = false
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        isStopping = false
         stopCapture()
         super.onDestroy()
+    }
+
+    private fun startRecordingFile() {
+        totalPcmBytes = 0
+        recordingFile = null
+        recordingStream = null
+        try {
+            val dir = externalCacheDir ?: cacheDir
+            val file = File(dir, "capture_${System.currentTimeMillis()}.wav")
+            recordingFile = file
+            val stream = FileOutputStream(file)
+            recordingStream = stream
+            writeWavHeader(stream, CAPTURE_SAMPLE_RATE, 2, 16)
+        } catch (e: Exception) {
+            Log.w(TAG, "startRecordingFile failed: ${e.message}", e)
+        }
+    }
+
+    private fun finalizeRecordingFile() {
+        val file = recordingFile ?: return
+        try {
+            finalizeWavFile(file, totalPcmBytes)
+            broadcast(ACTION_CAPTURE_SAVED, EXTRA_RECORDING_PATH, file.absolutePath)
+        } catch (e: Exception) {
+            Log.w(TAG, "finalizeRecordingFile failed: ${e.message}", e)
+        }
+    }
+
+    private fun writeWavHeader(stream: FileOutputStream, sampleRate: Int, channels: Int, bitDepth: Int) {
+        val byteRate = sampleRate * channels * bitDepth / 8
+        val buffer = ByteBuffer.allocate(44)
+        buffer.order(ByteOrder.LITTLE_ENDIAN)
+        buffer.put("RIFF".toByteArray())
+        buffer.putInt(0) // placeholder for file size
+        buffer.put("WAVE".toByteArray())
+        buffer.put("fmt ".toByteArray())
+        buffer.putInt(16) // Subchunk1Size for PCM
+        buffer.putShort(1.toShort()) // AudioFormat PCM = 1
+        buffer.putShort(channels.toShort())
+        buffer.putInt(sampleRate)
+        buffer.putInt(byteRate)
+        buffer.putShort((channels * bitDepth / 8).toShort()) // Block align
+        buffer.putShort(bitDepth.toShort())
+        buffer.put("data".toByteArray())
+        buffer.putInt(0) // placeholder for data size
+        stream.write(buffer.array())
+    }
+
+    private fun finalizeWavFile(file: File, dataSize: Long) {
+        if (!file.exists()) return
+        RandomAccessFile(file, "rw").use { raf ->
+            raf.seek(4)
+            raf.write(intToLE((dataSize + 36).toInt()))
+            raf.seek(40)
+            raf.write(intToLE(dataSize.toInt()))
+        }
+    }
+
+    private fun intToLE(value: Int): ByteArray {
+        val buffer = ByteBuffer.allocate(4)
+        buffer.order(ByteOrder.LITTLE_ENDIAN)
+        buffer.putInt(value)
+        return buffer.array()
     }
 
     private fun broadcast(action: String, extraKey: String, message: String) {
@@ -267,7 +349,7 @@ class InternalAudioCaptureService : Service() {
         const val ACTION_CAPTURE_SAVED = "com.sentinel.ai.ACTION_CAPTURE_SAVED"
         const val EXTRA_RECORDING_PATH = "extra_recording_path"
 
-        private const val CAPTURE_SAMPLE_RATE = 48000
+        private const val CAPTURE_SAMPLE_RATE = 16000
 
         private const val ACTION_START = "com.sentinel.ai.service.action.START_CAPTURE"
         private const val ACTION_STOP = "com.sentinel.ai.service.action.STOP_CAPTURE"

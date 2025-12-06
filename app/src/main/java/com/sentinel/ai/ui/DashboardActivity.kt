@@ -41,6 +41,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.sqrt
 import org.vosk.Recognizer
 
 class DashboardActivity : AppCompatActivity() {
@@ -68,6 +69,11 @@ class DashboardActivity : AppCompatActivity() {
     private var systemSttRecordingJob: kotlinx.coroutines.Job? = null
     @Volatile private var isSystemSttRecording: Boolean = false
     private var systemSttBuffer: java.io.ByteArrayOutputStream? = null
+    private var stableListenJob: kotlinx.coroutines.Job? = null
+    private var stableRecorder: AudioRecord? = null
+    private var stableRecognizer: Recognizer? = null
+    @Volatile private var stableLastAudioMs: Long = 0
+    @Volatile private var stableEmptyStreak: Int = 0
 
     private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
@@ -323,6 +329,7 @@ class DashboardActivity : AppCompatActivity() {
             return
         }
         lifecycleScope.launch(Dispatchers.IO) {
+            OfflineStt.resetRecognizer()
             if (!OfflineStt.ensureModel(this@DashboardActivity)) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@DashboardActivity, "Offline model missing. Check assets/models/vosk-model.zip.", Toast.LENGTH_LONG).show()
@@ -404,6 +411,7 @@ class DashboardActivity : AppCompatActivity() {
             permissionsLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
             return
         }
+        OfflineStt.resetRecognizer()
         if (!OfflineStt.ensureModel(this)) {
             Toast.makeText(this, "Offline model missing or failed to load. Check assets/models/vosk-model.zip.", Toast.LENGTH_LONG).show()
             setStatus("Live STT: model missing")
@@ -550,6 +558,7 @@ class DashboardActivity : AppCompatActivity() {
             val rms = computeRms(normalizedPcm)
             Log.d("DashboardActivity", "Mic test captured bytes=${audioData.size} rms=$rms")
             val transcript = try {
+                OfflineStt.resetRecognizer()
                 OfflineStt.transcribePcm16(
                     context = this@DashboardActivity,
                     audio = normalizedPcm,
@@ -596,7 +605,7 @@ class DashboardActivity : AppCompatActivity() {
         }
         if (count == 0) return 0
         val mean = sum / count
-        return kotlin.math.sqrt(mean.toDouble()).toInt()
+        return sqrt(mean.toDouble()).toInt()
     }
 
     private fun normalizePcm16(input: ByteArray): ByteArray {
@@ -714,10 +723,20 @@ class DashboardActivity : AppCompatActivity() {
 
     companion object {
         private const val DEVICE_STT_ERROR_SERVER_DISCONNECTED = 11
+        private const val STABLE_SAMPLE_RATE = 16000
+        private const val STABLE_NOISE_GATE = 500
+        private const val STABLE_WATCHDOG_MS = 5000L
+        private const val STABLE_EMPTY_MAX = 10
     }
 
     private fun startSystemSttRecording() {
         stopSystemSttRecording(saveAudio = false)
+        val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
+            Toast.makeText(this, "Mic permission required to save device audio.", Toast.LENGTH_SHORT).show()
+            permissionsLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
+            return
+        }
         val sampleRate = 16000
         val bufferSize = AudioRecord.getMinBufferSize(
             sampleRate,
@@ -733,6 +752,11 @@ class DashboardActivity : AppCompatActivity() {
         )
         try {
             recorder.startRecording()
+        } catch (e: SecurityException) {
+            Log.w("DashboardActivity", "System STT mic permission denied: ${e.message}", e)
+            recorder.release()
+            Toast.makeText(this, "Mic permission denied for device audio capture.", Toast.LENGTH_SHORT).show()
+            return
         } catch (e: Exception) {
             Log.w("DashboardActivity", "System STT mic start failed: ${e.message}", e)
             recorder.release()
@@ -774,5 +798,118 @@ class DashboardActivity : AppCompatActivity() {
                 updatePlayButtonState()
             }
         }
+    }
+
+    /**
+     * Stable offline listening loop with noise gate, watchdog, and recognizer restart.
+     * Call stableStartListening() to begin, stableStopListening() to end.
+     */
+    fun stableStartListening() {
+        if (stableListenJob?.isActive == true) return
+        val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
+            Toast.makeText(this, "Mic permission required.", Toast.LENGTH_SHORT).show()
+            permissionsLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
+            return
+        }
+        if (!OfflineStt.ensureModel(this)) {
+            Toast.makeText(this, "Offline model missing. Check assets/models/vosk-model.zip.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val minBuf = AudioRecord.getMinBufferSize(
+            STABLE_SAMPLE_RATE,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT
+        )
+        val bufferSize = (minBuf * 2).coerceAtLeast(4096)
+        val recorder = AudioRecord(
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
+            STABLE_SAMPLE_RATE,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT,
+            bufferSize
+        )
+
+        val recognizer = OfflineStt.createRecognizer(this, STABLE_SAMPLE_RATE)
+        if (recognizer == null) {
+            Toast.makeText(this, "Cannot create Vosk recognizer.", Toast.LENGTH_SHORT).show()
+            recorder.release()
+            return
+        }
+
+        try {
+            recorder.startRecording()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Mic start failed: ${e.message}", Toast.LENGTH_LONG).show()
+            recorder.release()
+            recognizer.close()
+            return
+        }
+
+        stableRecorder = recorder
+        stableRecognizer = recognizer
+        stableLastAudioMs = System.currentTimeMillis()
+        stableEmptyStreak = 0
+
+        stableListenJob = lifecycleScope.launch(Dispatchers.IO) {
+            val buffer = ByteArray(bufferSize)
+            while (isActive) {
+                val read = try { recorder.read(buffer, 0, buffer.size) } catch (_: Exception) { 0 }
+                if (read <= 0) continue
+
+                val rms = computeRms(buffer.copyOf(read))
+                val now = System.currentTimeMillis()
+                if (rms < STABLE_NOISE_GATE) {
+                    if (now - stableLastAudioMs > STABLE_WATCHDOG_MS) {
+                        Log.d("DashboardActivity", "Watchdog: no audio, restarting recognizer")
+                        restartStableRecognizer()
+                        stableLastAudioMs = now
+                    }
+                    continue
+                }
+
+                stableLastAudioMs = now
+                try {
+                    val ok = recognizer.acceptWaveForm(buffer, read)
+                    val json = if (ok) recognizer.result else recognizer.partialResult
+                    val text = parseVoskText(json)
+                    if (!text.isNullOrBlank()) {
+                        stableEmptyStreak = 0
+                        withContext(Dispatchers.Main) {
+                            transcriptTextView.append("\n[Stable Vosk] $text")
+                            setStatus("Listening: $text")
+                        }
+                    } else {
+                        stableEmptyStreak++
+                        if (stableEmptyStreak >= STABLE_EMPTY_MAX) {
+                            Log.d("DashboardActivity", "Empty streak reached, restarting recognizer")
+                            restartStableRecognizer()
+                            stableEmptyStreak = 0
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w("DashboardActivity", "Stable recognizer error: ${e.message}", e)
+                    restartStableRecognizer()
+                }
+            }
+        }
+    }
+
+    fun stableStopListening() {
+        stableListenJob?.cancel()
+        stableListenJob = null
+        try { stableRecorder?.stop() } catch (_: Exception) { }
+        stableRecorder?.release()
+        stableRecorder = null
+        try { stableRecognizer?.close() } catch (_: Exception) { }
+        stableRecognizer = null
+        stableEmptyStreak = 0
+        setStatus("Idle")
+    }
+
+    private fun restartStableRecognizer() {
+        try { stableRecognizer?.close() } catch (_: Exception) { }
+        stableRecognizer = OfflineStt.createRecognizer(this, STABLE_SAMPLE_RATE)
     }
 }

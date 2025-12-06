@@ -1,0 +1,28 @@
+# Android/Gradle
+.gradle/
+/build/
+local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+
+# App builds
+app/build/
+
+# NDK/LLDB
+.cxx/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Log/coverage
+*.log
+*.hprof
+*.orig
+
+# Vosk models (keep only the asset zip)
+filesDir/
