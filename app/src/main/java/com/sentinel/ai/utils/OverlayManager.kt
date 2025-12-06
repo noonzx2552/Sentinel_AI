@@ -15,7 +15,8 @@ class OverlayManager(private val context: Context) {
     private var overlayView: View? = null
     private var windowManager: WindowManager? = null
     private var layoutParams: WindowManager.LayoutParams? = null
-    private var transcriptView: TextView? = null
+    private var playbackView: TextView? = null
+    private var micView: TextView? = null
 
     init {
         windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -26,7 +27,8 @@ class OverlayManager(private val context: Context) {
 
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         overlayView = inflater.inflate(R.layout.overlay_transcript, null)
-        transcriptView = overlayView?.findViewById(R.id.tvOverlayTranscript)
+        playbackView = overlayView?.findViewById(R.id.tvOverlayPlayback)
+        micView = overlayView?.findViewById(R.id.tvOverlayMic)
 
         val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -54,8 +56,12 @@ class OverlayManager(private val context: Context) {
         }
     }
 
-    fun updateTranscript(text: String) {
-        transcriptView?.text = text
+    fun updatePlaybackTranscript(text: String) {
+        playbackView?.text = "Playback: $text"
+    }
+
+    fun updateMicTranscript(text: String) {
+        micView?.text = "Mic: $text"
     }
 
     fun removeOverlay() {

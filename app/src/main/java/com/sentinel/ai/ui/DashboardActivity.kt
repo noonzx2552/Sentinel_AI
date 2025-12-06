@@ -38,8 +38,10 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.vosk.Recognizer
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -59,6 +61,13 @@ class DashboardActivity : AppCompatActivity() {
     private var speechRecognizer: SpeechRecognizer? = null
     private var lastRecordingPath: String? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var offlineLiveJob: kotlinx.coroutines.Job? = null
+    private var offlineLiveRecord: AudioRecord? = null
+    private var offlineLiveRecognizer: Recognizer? = null
+    private var systemSttRecord: AudioRecord? = null
+    private var systemSttRecordingJob: kotlinx.coroutines.Job? = null
+    @Volatile private var isSystemSttRecording: Boolean = false
+    private var systemSttBuffer: java.io.ByteArrayOutputStream? = null
 
     private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
@@ -152,6 +161,10 @@ class DashboardActivity : AppCompatActivity() {
         playRecordingButton.setOnClickListener { playLastRecording() }
         transcribeRecordingButton.setOnClickListener { transcribeLastRecording() }
         testMicButton.setOnClickListener { runMicTest() }
+        testMicButton.setOnLongClickListener {
+            toggleLiveOfflineStt()
+            true
+        }
         systemSttButton.setOnClickListener { startSystemSpeechToText() }
         clearTranscriptButton.setOnClickListener { transcriptTextView.text = "" }
         setStatus("Idle")
@@ -367,7 +380,111 @@ class DashboardActivity : AppCompatActivity() {
     override fun onDestroy() {
         speechRecognizer?.destroy()
         releasePlayer()
+        stopLiveOfflineStt()
+        stopSystemSttRecording(saveAudio = false)
         super.onDestroy()
+    }
+
+    private fun toggleLiveOfflineStt() {
+        if (offlineLiveJob?.isActive == true) {
+            stopLiveOfflineStt()
+        } else {
+            startLiveOfflineStt()
+        }
+    }
+
+    private fun startLiveOfflineStt() {
+        if (InternalAudioCaptureService.isServiceRunning) {
+            Toast.makeText(this, "Stop capture before testing mic.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
+            Toast.makeText(this, "Mic permission required.", Toast.LENGTH_SHORT).show()
+            permissionsLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
+            return
+        }
+        if (!OfflineStt.ensureModel(this)) {
+            Toast.makeText(this, "Offline model missing or failed to load. Check assets/models/vosk-model.zip.", Toast.LENGTH_LONG).show()
+            setStatus("Live STT: model missing")
+            return
+        }
+        stopLiveOfflineStt()
+        val sampleRate = 16000
+        val bufferSize = AudioRecord.getMinBufferSize(
+            sampleRate,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT
+        ).coerceAtLeast(2048)
+        offlineLiveRecord = AudioRecord(
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
+            sampleRate,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT,
+            bufferSize
+        )
+        val rec = OfflineStt.createRecognizer(this, sampleRate)
+        if (rec == null) {
+            Toast.makeText(this, "Cannot create recognizer.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        offlineLiveRecognizer = rec
+        try {
+            offlineLiveRecord?.startRecording()
+        } catch (e: Exception) {
+            Log.w("DashboardActivity", "Live STT mic start failed: ${e.message}", e)
+            Toast.makeText(this, "Cannot start mic: ${e.message}", Toast.LENGTH_LONG).show()
+            stopLiveOfflineStt()
+            return
+        }
+        testMicButton.text = "Stop Live STT"
+        setStatus("Live offline STT running...")
+        offlineLiveJob = lifecycleScope.launch(Dispatchers.IO) {
+            val buffer = ByteArray(bufferSize)
+            while (isActive) {
+                val read = try { offlineLiveRecord?.read(buffer, 0, buffer.size) ?: 0 } catch (_: Exception) { 0 }
+                if (read > 0) {
+                    val ok = rec.acceptWaveForm(buffer, read)
+                    val json = if (ok) rec.result else rec.partialResult
+                    val text = parseVoskText(json)
+                    if (!text.isNullOrBlank()) {
+                        withContext(Dispatchers.Main) {
+                            transcriptTextView.append("\n[Offline Live] $text")
+                            setStatus("Live offline STT: \"$text\"")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun stopLiveOfflineStt() {
+        offlineLiveJob?.cancel()
+        offlineLiveJob = null
+        try { offlineLiveRecord?.stop() } catch (_: Exception) { }
+        offlineLiveRecord?.release()
+        offlineLiveRecord = null
+        try { offlineLiveRecognizer?.close() } catch (_: Exception) { }
+        offlineLiveRecognizer = null
+        testMicButton.text = "Test Mic (Vosk offline)"
+        if (!InternalAudioCaptureService.isServiceRunning) setStatus("Idle")
+    }
+
+    private fun parseVoskText(json: String?): String {
+        if (json.isNullOrBlank()) return ""
+        return try {
+            val key = if (json.contains("\"text\"")) "\"text\"" else "\"partial\""
+            val idx = json.indexOf(key)
+            if (idx == -1) return ""
+            val start = json.indexOf(':', idx) + 1
+            val end = json.indexOf('"', start + 1)
+            val firstQuote = json.indexOf('"', start)
+            if (firstQuote == -1 || end == -1 || end <= firstQuote) return ""
+            json.substring(firstQuote + 1, end)
+        } catch (e: Exception) {
+            Log.w("DashboardActivity", "parseVoskText failed: ${e.message}", e)
+            ""
+        }
     }
 
     private fun runMicTest() {
@@ -529,6 +646,9 @@ class DashboardActivity : AppCompatActivity() {
             return
         }
 
+        // Start parallel mic capture so we can save audio and replay/test with Vosk later.
+        startSystemSttRecording()
+
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
@@ -566,6 +686,7 @@ class DashboardActivity : AppCompatActivity() {
                     setStatus("Device STT: no text")
                 }
                 systemSttButton.isEnabled = true
+                stopSystemSttRecording(saveAudio = true)
             }
 
             override fun onError(error: Int) {
@@ -584,6 +705,7 @@ class DashboardActivity : AppCompatActivity() {
                 Toast.makeText(this@DashboardActivity, "Device STT error: $error", Toast.LENGTH_SHORT).show()
                 setStatus("Idle")
                 systemSttButton.isEnabled = true
+                stopSystemSttRecording(saveAudio = true)
             }
         })
 
@@ -592,5 +714,65 @@ class DashboardActivity : AppCompatActivity() {
 
     companion object {
         private const val DEVICE_STT_ERROR_SERVER_DISCONNECTED = 11
+    }
+
+    private fun startSystemSttRecording() {
+        stopSystemSttRecording(saveAudio = false)
+        val sampleRate = 16000
+        val bufferSize = AudioRecord.getMinBufferSize(
+            sampleRate,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT
+        ).coerceAtLeast(4096)
+        val recorder = AudioRecord(
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
+            sampleRate,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT,
+            bufferSize
+        )
+        try {
+            recorder.startRecording()
+        } catch (e: Exception) {
+            Log.w("DashboardActivity", "System STT mic start failed: ${e.message}", e)
+            recorder.release()
+            return
+        }
+        systemSttRecord = recorder
+        systemSttBuffer = ByteArrayOutputStream()
+        isSystemSttRecording = true
+        systemSttRecordingJob = lifecycleScope.launch(Dispatchers.IO) {
+            val buffer = ByteArray(bufferSize)
+            while (isActive && isSystemSttRecording) {
+                val read = try { recorder.read(buffer, 0, buffer.size) } catch (_: Exception) { 0 }
+                if (read > 0) {
+                    systemSttBuffer?.write(buffer, 0, read)
+                }
+            }
+        }
+    }
+
+    private fun stopSystemSttRecording(saveAudio: Boolean) {
+        isSystemSttRecording = false
+        systemSttRecordingJob?.cancel()
+        systemSttRecordingJob = null
+        try { systemSttRecord?.stop() } catch (_: Exception) { }
+        systemSttRecord?.release()
+        systemSttRecord = null
+
+        val data = systemSttBuffer?.toByteArray()
+        systemSttBuffer = null
+        if (!saveAudio || data == null || data.isEmpty()) return
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val wav = WavUtil.pcmToWav(data, 16000, 1, 16)
+            val file = File(cacheDir, "device_stt_${System.currentTimeMillis()}.wav")
+            file.writeBytes(wav)
+            lastRecordingPath = file.absolutePath
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@DashboardActivity, "Saved device STT audio for Vosk replay.", Toast.LENGTH_SHORT).show()
+                updatePlayButtonState()
+            }
+        }
     }
 }

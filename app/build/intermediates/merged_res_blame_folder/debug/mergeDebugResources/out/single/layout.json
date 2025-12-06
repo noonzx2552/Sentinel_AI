@@ -4,12 +4,12 @@
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\view_overlay_critical.xml"
     },
     {
-        "merged": "com.sentinel.ai.app-mergeDebugResources-39:/layout/activity_dashboard.xml",
-        "source": "com.sentinel.ai.app-main-42:/layout/activity_dashboard.xml"
-    },
-    {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-39:\\layout\\view_overlay_caller_info.xml",
         "source": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-main-42:\\layout\\view_overlay_caller_info.xml"
+    },
+    {
+        "merged": "com.sentinel.ai.app-mergeDebugResources-39:/layout/overlay_transcript.xml",
+        "source": "com.sentinel.ai.app-main-42:/layout/overlay_transcript.xml"
     },
     {
         "merged": "C:\\Users\\thammasorn\\.gradle\\daemon\\8.6\\com.sentinel.ai.app-mergeDebugResources-39:\\layout\\dialog_listening_overlay.xml",

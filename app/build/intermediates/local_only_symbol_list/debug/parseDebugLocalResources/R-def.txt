@@ -91,6 +91,8 @@ id tvLastEvent
 id tvListeningText
 id tvListeningTitle
 id tvLiveTranscript
+id tvOverlayMic
+id tvOverlayPlayback
 id tvOverlayRisk
 id tvOverlayTitle
 id tvOverlayTranscript

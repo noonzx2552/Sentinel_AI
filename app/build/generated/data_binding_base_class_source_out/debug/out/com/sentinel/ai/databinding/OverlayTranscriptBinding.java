@@ -20,12 +20,20 @@ public final class OverlayTranscriptBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
-  public final TextView tvOverlayTranscript;
+  public final TextView tvOverlayMic;
 
-  private OverlayTranscriptBinding(@NonNull LinearLayout rootView,
-      @NonNull TextView tvOverlayTranscript) {
+  @NonNull
+  public final TextView tvOverlayPlayback;
+
+  @NonNull
+  public final TextView tvOverlayTitle;
+
+  private OverlayTranscriptBinding(@NonNull LinearLayout rootView, @NonNull TextView tvOverlayMic,
+      @NonNull TextView tvOverlayPlayback, @NonNull TextView tvOverlayTitle) {
     this.rootView = rootView;
-    this.tvOverlayTranscript = tvOverlayTranscript;
+    this.tvOverlayMic = tvOverlayMic;
+    this.tvOverlayPlayback = tvOverlayPlayback;
+    this.tvOverlayTitle = tvOverlayTitle;
   }
 
   @Override
@@ -55,13 +63,26 @@ public final class OverlayTranscriptBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.tvOverlayTranscript;
-      TextView tvOverlayTranscript = ViewBindings.findChildViewById(rootView, id);
-      if (tvOverlayTranscript == null) {
+      id = R.id.tvOverlayMic;
+      TextView tvOverlayMic = ViewBindings.findChildViewById(rootView, id);
+      if (tvOverlayMic == null) {
         break missingId;
       }
 
-      return new OverlayTranscriptBinding((LinearLayout) rootView, tvOverlayTranscript);
+      id = R.id.tvOverlayPlayback;
+      TextView tvOverlayPlayback = ViewBindings.findChildViewById(rootView, id);
+      if (tvOverlayPlayback == null) {
+        break missingId;
+      }
+
+      id = R.id.tvOverlayTitle;
+      TextView tvOverlayTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvOverlayTitle == null) {
+        break missingId;
+      }
+
+      return new OverlayTranscriptBinding((LinearLayout) rootView, tvOverlayMic, tvOverlayPlayback,
+          tvOverlayTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

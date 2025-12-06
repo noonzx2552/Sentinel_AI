@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import org.vosk.Model
 import org.vosk.Recognizer
-import org.vosk.android.StorageService
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -13,29 +12,34 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.zip.ZipInputStream
 
 /**
- * Offline STT using Vosk. Expects a model directory present on device.
- * Place a model at filesDir/vosk-model or add an asset zip at assets/models/vosk-model.zip.
+ * Offline STT helper for Vosk.
+ *
+ * - Unpacks assets/models/vosk-model.zip into filesDir/vosk-model on first use.
+ * - Provides a reusable Recognizer at 16 kHz for streaming audio.
  */
 object OfflineStt {
     private const val TAG = "OfflineStt"
     private const val DEFAULT_MODEL_DIR = "vosk-model"
     private const val DEFAULT_ASSET_ZIP = "models/vosk-model.zip"
     private const val TARGET_SAMPLE_RATE = 16000
+
     private val modelRef = AtomicReference<Model?>()
+    private val recognizerRef = AtomicReference<Recognizer?>()
     private val failed = AtomicBoolean(false)
 
+    /**
+     * Ensure model exists on disk (unpack if needed) and return it.
+     */
     fun ensureModel(context: Context): Boolean {
-        if (modelRef.get() != null) return true
+        modelRef.get()?.let { return true }
         if (failed.get()) return false
+
         synchronized(this) {
-            if (modelRef.get() != null) return true
+            modelRef.get()?.let { return true }
             val modelDir = File(context.filesDir, DEFAULT_MODEL_DIR)
             if (!modelDir.exists()) {
-                // Try unpack from asset zip if present.
-                Log.d(TAG, "Model dir missing, attempting unpack from assets/${DEFAULT_ASSET_ZIP}")
-                val unpacked = unpackAssetZip(context, DEFAULT_ASSET_ZIP, modelDir)
-                if (!unpacked) {
-                    Log.w(TAG, "Offline STT model missing. Put model at ${modelDir.absolutePath} or assets/$DEFAULT_ASSET_ZIP")
+                Log.d(TAG, "Model dir missing, unpacking assets/$DEFAULT_ASSET_ZIP -> ${modelDir.absolutePath}")
+                if (!unpackAssetZip(context, DEFAULT_ASSET_ZIP, modelDir)) {
                     failed.set(true)
                     return false
                 }
@@ -45,8 +49,8 @@ object OfflineStt {
                 Log.d(TAG, "Loading Vosk model from ${actualDir.absolutePath}")
                 modelRef.set(Model(actualDir.absolutePath))
             } catch (e: Exception) {
-                Log.w(TAG, "Failed to load Vosk model: ${e.message}")
                 failed.set(true)
+                Log.e(TAG, "Failed to load Vosk model: ${e.message}", e)
                 return false
             }
         }
@@ -54,148 +58,146 @@ object OfflineStt {
     }
 
     /**
-     * Transcribe PCM 16-bit little-endian audio. Supports mono or stereo input; stereo is down-mixed.
+     * Lazily create/reuse a Recognizer at the target sample rate.
+     */
+    fun recognizer(context: Context): Recognizer {
+        recognizerRef.get()?.let { return it }
+        synchronized(this) {
+            recognizerRef.get()?.let { return it }
+            if (!ensureModel(context)) throw IllegalStateException("Model not ready")
+            val model = modelRef.get() ?: throw IllegalStateException("Model missing after load")
+            val rec = Recognizer(model, TARGET_SAMPLE_RATE.toFloat())
+            recognizerRef.set(rec)
+            Log.d(TAG, "Recognizer created at $TARGET_SAMPLE_RATE Hz")
+            return rec
+        }
+    }
+
+    /**
+     * Compatibility helper: transcribe raw PCM bytes (little-endian). Accepts mono or stereo.
      */
     fun transcribePcm16(
         context: Context,
         audio: ByteArray,
-        sampleRate: Int = 16000,
+        sampleRate: Int = TARGET_SAMPLE_RATE,
         isStereo: Boolean = true
     ): String? {
+        if (audio.isEmpty()) return null
         if (!ensureModel(context)) return null
-        val model = modelRef.get() ?: return null
-        val mono = if (isStereo) downmixStereoToMono(audio) else audio
-        val processed = if (sampleRate != TARGET_SAMPLE_RATE) {
-            resampleTo16k(mono, sampleRate)
-        } else {
-            mono
-        }
+        val monoBytes = if (isStereo) downmixStereoToMono(audio) else audio
+        val shortCount = monoBytes.size / 2
+        val shorts = ShortArray(shortCount)
+        ByteBuffer.wrap(monoBytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts)
+        return recognizePcm16(context, shorts, shortCount, sampleRate)
+    }
+
+    fun createRecognizer(context: Context, sampleRate: Int = TARGET_SAMPLE_RATE): Recognizer? {
         return try {
-            Recognizer(model, TARGET_SAMPLE_RATE.toFloat()).use { rec ->
-                val ok = rec.acceptWaveForm(processed, processed.size)
-                val resultJson = if (ok) rec.result else rec.partialResult
-                val transcript = parseTranscript(resultJson)
-                Log.d(TAG, "STT ok=$ok bytes=${processed.size} sr=$sampleRate->${TARGET_SAMPLE_RATE} transcript=${transcript ?: ""}")
-                transcript
-            }
+            if (!ensureModel(context)) return null
+            val model = modelRef.get() ?: return null
+            Recognizer(model, sampleRate.toFloat())
         } catch (e: Exception) {
-            Log.w(TAG, "Offline STT failed: ${e.message}")
+            Log.w(TAG, "createRecognizer failed: ${e.message}", e)
             null
         }
     }
 
     /**
-     * Streaming recognizer holder so callers can feed multiple audio chunks without
-     * recreating the native Recognizer each time (which tends to return empty results
-     * on short buffers).
+     * Feed PCM 16-bit little-endian audio into Vosk.
+     * If sampleRate != 16k, audio is downsampled.
+     * Returns partial/final transcript (no punctuation) or null.
      */
-    class StreamingSession internal constructor(
-        private val recognizer: Recognizer,
-        private val sourceSampleRate: Int,
-        private val isStereoInput: Boolean
-    ) {
-        fun accept(audio: ByteArray, size: Int = audio.size): String? {
-            if (size <= 0) return null
-            val chunk = if (size == audio.size) audio else audio.copyOf(size)
-            val mono = if (isStereoInput) downmixStereoToMono(chunk) else chunk
-            val processed = if (sourceSampleRate != TARGET_SAMPLE_RATE) {
-                resampleTo16k(mono, sourceSampleRate)
-            } else {
-                mono
-            }
-            val ok = recognizer.acceptWaveForm(processed, processed.size)
-            val resultJson = if (ok) recognizer.result else recognizer.partialResult
-            return parseTranscript(resultJson)
+    fun recognizePcm16(
+        context: Context,
+        audio: ShortArray,
+        size: Int,
+        sampleRate: Int
+    ): String? {
+        if (size <= 0) return null
+        val rec = recognizer(context)
+        val mono16k = if (sampleRate == TARGET_SAMPLE_RATE) {
+            audio.copyOfRange(0, size)
+        } else {
+            resampleTo16k(audio, size, sampleRate)
         }
-
-        fun close() {
-            try {
-                recognizer.close()
-            } catch (_: Exception) { }
-        }
+        val bytes = shortArrayToLeBytes(mono16k)
+        val ok = rec.acceptWaveForm(bytes, bytes.size)
+        val json = if (ok) rec.result else rec.partialResult
+        val text = parseTranscript(json)
+        Log.d(TAG, "Vosk accept ok=$ok inBytes=${bytes.size} srcSr=$sampleRate ->16k text=${text.orEmpty()}")
+        return text
     }
 
-    fun createStreamingSession(
-        context: Context,
-        sourceSampleRate: Int = TARGET_SAMPLE_RATE,
-        isStereo: Boolean = true
-    ): StreamingSession? {
-        if (!ensureModel(context)) return null
-        val model = modelRef.get() ?: return null
-        return try {
-            StreamingSession(
-                recognizer = Recognizer(model, TARGET_SAMPLE_RATE.toFloat()),
-                sourceSampleRate = sourceSampleRate,
-                isStereoInput = isStereo
-            )
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to create streaming recognizer: ${e.message}")
-            null
-        }
+    /**
+     * Optional cleanup.
+     */
+    fun reset() {
+        try { recognizerRef.getAndSet(null)?.close() } catch (_: Exception) { }
+        try { modelRef.getAndSet(null)?.close() } catch (_: Exception) { }
+        failed.set(false)
     }
 
     private fun parseTranscript(json: String?): String? {
         if (json.isNullOrBlank()) return null
-        // Vosk result JSON: {"text":"..."} or partial {"partial":"..."}
         return try {
             val key = if (json.contains("\"text\"")) "\"text\"" else "\"partial\""
-            val idx = json.indexOf(key)
-            if (idx == -1) return null
-            val start = json.indexOf(':', idx) + 1
-            val end = json.indexOf('"', start + 1)
-            val firstQuote = json.indexOf('"', start)
-            if (firstQuote == -1 || end == -1 || end <= firstQuote) return null
-            json.substring(firstQuote + 1, end)
-        } catch (_: Exception) {
+            val keyPos = json.indexOf(key)
+            if (keyPos == -1) return null
+            val startQuote = json.indexOf('"', keyPos + key.length)
+            val endQuote = json.indexOf('"', startQuote + 1)
+            if (startQuote == -1 || endQuote == -1 || endQuote <= startQuote) return null
+            json.substring(startQuote + 1, endQuote)
+        } catch (e: Exception) {
+            Log.w(TAG, "parseTranscript failed: ${e.message}", e)
             null
         }
     }
 
+    private fun resampleTo16k(input: ShortArray, size: Int, srcRate: Int): ShortArray {
+        if (srcRate <= 0 || srcRate == TARGET_SAMPLE_RATE) return input.copyOfRange(0, size)
+        val inSize = size.coerceAtMost(input.size)
+        val outLen = (inSize.toLong() * TARGET_SAMPLE_RATE / srcRate).toInt().coerceAtLeast(1)
+        val out = ShortArray(outLen)
+        val step = srcRate.toDouble() / TARGET_SAMPLE_RATE.toDouble()
+        var pos = 0.0
+        for (i in 0 until outLen) {
+            val idx = pos.toInt().coerceIn(0, inSize - 1)
+            val nextIdx = (idx + 1).coerceAtMost(inSize - 1)
+            val frac = pos - idx
+            val sample = input[idx] * (1 - frac) + input[nextIdx] * frac
+            out[i] = sample.toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
+            pos += step
+        }
+        return out
+    }
+
+    private fun shortArrayToLeBytes(data: ShortArray): ByteArray {
+        val out = ByteArray(data.size * 2)
+        ByteBuffer.wrap(out).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(data)
+        return out
+    }
+
     private fun downmixStereoToMono(stereo: ByteArray): ByteArray {
-        val bb = ByteBuffer.wrap(stereo).order(ByteOrder.LITTLE_ENDIAN)
-        val samples = bb.asShortBuffer()
-        val out = ByteArray(stereo.size / 2) // half size for mono
-        val outBuf = ByteBuffer.wrap(out).order(ByteOrder.LITTLE_ENDIAN)
-        val totalSamples = samples.remaining() / 2
-        for (i in 0 until totalSamples) {
-            val l = samples.get().toInt()
-            val r = samples.get().toInt()
+        if (stereo.size < 4) return stereo
+        val frames = stereo.size / 4 // 2 shorts per frame
+        val out = ByteArray(frames * 2) // mono: 1 short per frame
+        val inBb = ByteBuffer.wrap(stereo).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer()
+        val outBb = ByteBuffer.wrap(out).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer()
+        repeat(frames) {
+            val l = inBb.get().toInt()
+            val r = inBb.get().toInt()
             val mixed = ((l + r) / 2).toShort()
-            outBuf.putShort(mixed)
+            outBb.put(mixed)
         }
         return out
     }
 
     private fun resolveModelDir(root: File): File {
-        // Some zips contain a top-level "model" folder; handle that gracefully.
         val nestedModel = File(root, "model")
         if (nestedModel.exists()) return nestedModel
         val dirs = root.listFiles()?.filter { it.isDirectory } ?: emptyList()
-        Log.d(TAG, "resolveModelDir inspecting ${root.absolutePath}, dirs=${dirs.joinToString { it.name }}")
-        if (dirs.size == 1) return dirs.first()
-        return root
-    }
-
-    private fun resampleTo16k(mono: ByteArray, srcRate: Int): ByteArray {
-        if (srcRate == 16000) return mono
-        if (srcRate <= 0) return mono
-        val shortIn = ShortArray(mono.size / 2)
-        ByteBuffer.wrap(mono).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortIn)
-        val outLen = (shortIn.size.toLong() * 16000L / srcRate).toInt().coerceAtLeast(1)
-        val outShort = ShortArray(outLen)
-        val step = srcRate.toDouble() / 16000.0
-        var pos = 0.0
-        for (i in 0 until outLen) {
-            val idx = pos.toInt().coerceIn(0, shortIn.lastIndex)
-            val nextIdx = (idx + 1).coerceAtMost(shortIn.lastIndex)
-            val frac = pos - idx
-            val sample = shortIn[idx] * (1 - frac) + shortIn[nextIdx] * frac
-            outShort[i] = sample.toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
-            pos += step
-        }
-        val outBytes = ByteArray(outShort.size * 2)
-        ByteBuffer.wrap(outBytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(outShort)
-        return outBytes
+        Log.d(TAG, "resolveModelDir root=${root.absolutePath} dirs=${dirs.joinToString { it.name }}")
+        return if (dirs.size == 1) dirs.first() else root
     }
 
     private fun unpackAssetZip(context: Context, assetName: String, targetDir: File): Boolean {
@@ -221,7 +223,7 @@ object OfflineStt {
             }
             true
         } catch (e: Exception) {
-            Log.w(TAG, "Could not unpack asset $assetName: ${e.message}")
+            Log.w(TAG, "unpackAssetZip failed for $assetName -> ${targetDir.absolutePath}: ${e.message}", e)
             false
         }
     }
