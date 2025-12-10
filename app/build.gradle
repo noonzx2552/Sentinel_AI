@@ -20,6 +20,9 @@ android {
         // OpenAI Whisper transcription key
         def openaiKey = (project.findProperty("OPENAI_API_KEY") ?: "").toString().replace("\"", "")
         buildConfigField("String", "OPENAI_API_KEY", "\"${openaiKey}\"")
+        // Self-hosted Whisper.cpp API key (X-API-Key header). Override with -PWHISPER_CPP_API_KEY or in gradle.properties/local.properties
+        def whisperCppKey = (project.findProperty("WHISPER_CPP_API_KEY") ?: "D0yoUkn0wwho@mI%cAtCHm31fUcan").toString().replace("\"", "")
+        buildConfigField("String", "WHISPER_CPP_API_KEY", "\"${whisperCppKey}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -30,7 +30,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.sentinel.ai.R
 import com.sentinel.ai.ai.OfflineStt
+import com.sentinel.ai.ai.WhisperCppSttClient
 import com.sentinel.ai.service.InternalAudioCaptureService
+import com.sentinel.ai.utils.MicCaptureManager
+import com.sentinel.ai.utils.NetworkUtils
 import java.io.ByteArrayOutputStream
 import java.io.File
 import com.sentinel.ai.utils.WavUtil
@@ -41,7 +44,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlin.math.sqrt
+import kotlin.math.min
 import org.vosk.Recognizer
 
 class DashboardActivity : AppCompatActivity() {
@@ -69,6 +75,9 @@ class DashboardActivity : AppCompatActivity() {
     private var systemSttRecordingJob: kotlinx.coroutines.Job? = null
     @Volatile private var isSystemSttRecording: Boolean = false
     private var systemSttBuffer: java.io.ByteArrayOutputStream? = null
+    private var hybridMic: MicCaptureManager? = null
+    private var hybridChannel: Channel<ByteArray>? = null
+    private var hybridJob: kotlinx.coroutines.Job? = null
     private var stableListenJob: kotlinx.coroutines.Job? = null
     private var stableRecorder: AudioRecord? = null
     private var stableRecognizer: Recognizer? = null
@@ -168,7 +177,7 @@ class DashboardActivity : AppCompatActivity() {
         transcribeRecordingButton.setOnClickListener { transcribeLastRecording() }
         testMicButton.setOnClickListener { runMicTest() }
         testMicButton.setOnLongClickListener {
-            toggleLiveOfflineStt()
+            toggleHybridLiveStt()
             true
         }
         systemSttButton.setOnClickListener { startSystemSpeechToText() }
@@ -352,17 +361,38 @@ class DashboardActivity : AppCompatActivity() {
                 val pcm = data.copyOfRange(dataStart, data.size)
                 Log.d("DashboardActivity", "Transcribing file sr=$sampleRate ch=$channels bits=$bitsPerSample size=${pcm.size}")
 
-                val transcript = OfflineStt.transcribePcm16(
+                val onlineStart = System.currentTimeMillis()
+                val onlineTranscript = if (shouldUseOnlineStt()) {
+                    transcribeOnlineInChunks(
+                        pcm = pcm,
+                        sampleRate = sampleRate,
+                        channels = channels
+                    )
+                } else null
+                if (!onlineTranscript.isNullOrBlank()) {
+                    Log.d("DashboardActivity", "Online file STT ok in ${System.currentTimeMillis() - onlineStart}ms len=${onlineTranscript.length}")
+                } else {
+                    Log.d("DashboardActivity", "Online file STT empty/null after ${System.currentTimeMillis() - onlineStart}ms, using offline fallback")
+                }
+
+                val offlineStart = System.currentTimeMillis()
+                val offlineTranscript = OfflineStt.transcribePcm16(
                     context = this@DashboardActivity,
                     audio = pcm,
                     sampleRate = sampleRate,
                     isStereo = channels >= 2
                 ).orEmpty()
+                if (offlineTranscript.isNotBlank()) {
+                    Log.d("DashboardActivity", "Offline file STT ok in ${System.currentTimeMillis() - offlineStart}ms len=${offlineTranscript.length}")
+                }
+
+                val transcript = onlineTranscript?.takeIf { it.isNotBlank() } ?: offlineTranscript
+                val sourceTag = if (!onlineTranscript.isNullOrBlank()) "Online File STT" else "File STT"
 
                 withContext(Dispatchers.Main) {
                     if (transcript.isNotBlank()) {
-                        transcriptTextView.append("\n[File STT] $transcript")
-                        setStatus("File STT: \"$transcript\"")
+                        transcriptTextView.append("\n[$sourceTag] $transcript")
+                        setStatus("$sourceTag: \"$transcript\"")
                     } else {
                         setStatus("File STT: no text")
                         Toast.makeText(this@DashboardActivity, "No text recognized from recording.", Toast.LENGTH_SHORT).show()
@@ -387,9 +417,143 @@ class DashboardActivity : AppCompatActivity() {
     override fun onDestroy() {
         speechRecognizer?.destroy()
         releasePlayer()
+        stopHybridLiveStt()
         stopLiveOfflineStt()
         stopSystemSttRecording(saveAudio = false)
         super.onDestroy()
+    }
+
+    private fun toggleHybridLiveStt() {
+        if (hybridJob?.isActive == true) {
+            stopHybridLiveStt()
+        } else {
+            startHybridLiveStt()
+        }
+    }
+
+    private fun startHybridLiveStt() {
+        if (InternalAudioCaptureService.isServiceRunning) {
+            Toast.makeText(this, "Stop capture before testing mic.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
+            Toast.makeText(this, "Mic permission required.", Toast.LENGTH_SHORT).show()
+            permissionsLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
+            return
+        }
+        // Ensure offline model is ready for fallback
+        if (!OfflineStt.ensureModel(this)) {
+            Toast.makeText(this, "Offline model missing or failed to load. Check assets/models/vosk-model.zip.", Toast.LENGTH_LONG).show()
+            setStatus("Live STT: model missing")
+            return
+        }
+        stopLiveOfflineStt()
+        stopHybridLiveStt()
+
+        val channel = Channel<ByteArray>(capacity = 2, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+        hybridChannel = channel
+        hybridJob = lifecycleScope.launch(Dispatchers.IO) {
+            for (chunk in channel) {
+                val (text, source) = try {
+                    transcribeHybridChunk(chunk, HYBRID_SAMPLE_RATE)
+                } catch (e: Exception) {
+                    Log.w("DashboardActivity", "Hybrid STT chunk failed: ${e.message}", e)
+                    Pair<String?, String>("", "")
+                }
+                if (!text.isNullOrBlank()) {
+                    withContext(Dispatchers.Main) {
+                        val tag = if (source.isNotBlank()) source else "Live STT"
+                        transcriptTextView.append("\n[$tag] $text")
+                        setStatus("$tag: \"$text\"")
+                    }
+                }
+            }
+        }
+
+        val mic = MicCaptureManager(this)
+        hybridMic = mic
+        mic.start(
+            onChunk = { chunk -> hybridChannel?.trySend(chunk) },
+            onError = { msg ->
+                lifecycleScope.launch(Dispatchers.Main) {
+                    Toast.makeText(this@DashboardActivity, "Mic error: $msg", Toast.LENGTH_SHORT).show()
+                    stopHybridLiveStt()
+                }
+            },
+            chunkMs = 1000 // send smaller chunks so online STT fires faster
+        )
+
+        testMicButton.text = "Stop Live STT"
+        setStatus("Live STT (online preferred)")
+    }
+
+    private fun stopHybridLiveStt() {
+        hybridMic?.stop()
+        hybridMic = null
+        try { hybridChannel?.close() } catch (_: Exception) { }
+        hybridChannel = null
+        hybridJob?.cancel()
+        hybridJob = null
+        testMicButton.text = "Test Mic (Hybrid STT)"
+        if (!InternalAudioCaptureService.isServiceRunning) setStatus("Idle")
+    }
+
+    private suspend fun transcribeHybridChunk(chunk: ByteArray, sampleRate: Int): Pair<String?, String> {
+        var attemptedOnline = false
+        if (shouldUseOnlineStt()) {
+            attemptedOnline = true
+            WhisperCppSttClient.transcribePcm16(chunk, sampleRate, 1)?.let {
+                return it to "Online STT"
+            }
+        }
+        val offline = OfflineStt.transcribePcm16(
+            context = this,
+            audio = chunk,
+            sampleRate = sampleRate,
+            isStereo = false
+        )
+        val source = if (attemptedOnline) "Offline fallback" else "Offline STT"
+        return offline to source
+    }
+
+    /**
+     * Send a recorded file to online STT in multiple smaller requests to reduce timeout risk
+     * and to allow the server to return text incrementally.
+     */
+    private fun transcribeOnlineInChunks(
+        pcm: ByteArray,
+        sampleRate: Int,
+        channels: Int,
+        chunkMs: Int = ONLINE_FILE_CHUNK_MS
+    ): String? {
+        if (pcm.isEmpty()) return null
+        val bytesPerMs = (sampleRate * channels * 2) / 1000 // 16-bit PCM -> 2 bytes per sample
+        if (bytesPerMs <= 0) return null
+        val sb = StringBuilder()
+        var offset = 0
+        var idx = 0
+        while (offset < pcm.size) {
+            val end = min(pcm.size, offset + bytesPerMs * chunkMs)
+            val chunk = pcm.copyOfRange(offset, end)
+            val chunkStart = System.currentTimeMillis()
+            Log.d("DashboardActivity", "Online chunk ${++idx}: bytes=${chunk.size} sr=$sampleRate ch=$channels start=$chunkStart")
+            WhisperCppSttClient.transcribePcm16(chunk, sampleRate, channels)?.let { piece ->
+                Log.d("DashboardActivity", "Online chunk $idx done in ${System.currentTimeMillis() - chunkStart}ms text='${piece.take(40)}'")
+                if (piece.isNotBlank()) {
+                    if (sb.isNotEmpty()) sb.append(' ')
+                    sb.append(piece.trim())
+                }
+            } ?: run {
+                Log.d("DashboardActivity", "Online chunk $idx done in ${System.currentTimeMillis() - chunkStart}ms text=null")
+            }
+            offset = end
+        }
+        return sb.toString().ifBlank { null }
+    }
+
+    private fun shouldUseOnlineStt(): Boolean {
+        return WhisperCppSttClient.isConfigured() && NetworkUtils.isOnline(this)
     }
 
     private fun toggleLiveOfflineStt() {
@@ -723,6 +887,8 @@ class DashboardActivity : AppCompatActivity() {
 
     companion object {
         private const val DEVICE_STT_ERROR_SERVER_DISCONNECTED = 11
+        private const val HYBRID_SAMPLE_RATE = 16000
+        private const val ONLINE_FILE_CHUNK_MS = 3000 // ~3s per request to reduce timeout risk
         private const val STABLE_SAMPLE_RATE = 16000
         private const val STABLE_NOISE_GATE = 500
         private const val STABLE_WATCHDOG_MS = 5000L

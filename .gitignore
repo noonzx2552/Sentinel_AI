@@ -12,6 +12,17 @@ local.properties
 # App builds
 app/build/
 
+# Signing keys / secrets
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.crt
+keystore.properties
+app/keystore.properties
+
 # NDK/LLDB
 .cxx/
 

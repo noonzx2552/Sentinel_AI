@@ -249,7 +249,7 @@ class InternalAudioCaptureService : Service() {
             recordingFile = file
             val stream = FileOutputStream(file)
             recordingStream = stream
-            writeWavHeader(stream, CAPTURE_SAMPLE_RATE, 2, 16)
+            writeWavHeader(stream, CAPTURE_SAMPLE_RATE, 1, 16)
         } catch (e: Exception) {
             Log.w(TAG, "startRecordingFile failed: ${e.message}", e)
         }
