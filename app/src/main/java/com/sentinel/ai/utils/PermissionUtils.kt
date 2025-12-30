@@ -23,6 +23,12 @@ object PermissionUtils {
     fun hasReadContacts(context: Context): Boolean =
         ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
 
+    fun hasCallLogPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
+
+    fun hasSmsPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+
     fun requestMicPermission(activity: Activity, requestCode: Int) {
         ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.RECORD_AUDIO), requestCode)
     }
@@ -91,12 +97,22 @@ object PermissionUtils {
         ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_CONTACTS), requestCode)
     }
 
+    fun requestCallLogAndSms(activity: Activity, requestCode: Int) {
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_SMS),
+            requestCode
+        )
+    }
+
     fun allEssentialGranted(context: Context): Boolean {
         return hasMicPermission(context) &&
             canDrawOverlays(context) &&
             isCallScreeningRoleGranted(context) &&
             isNotificationPermissionGranted(context) &&
             isAccessibilityEnabled(context) &&
-            hasPhoneStatePermission(context)
+            hasPhoneStatePermission(context) &&
+            hasCallLogPermission(context) &&
+            hasSmsPermission(context)
     }
 }

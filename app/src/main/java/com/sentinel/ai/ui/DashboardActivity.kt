@@ -7,6 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -17,8 +20,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.provider.CallLog
+import android.provider.Telephony
+import android.text.format.DateUtils
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.speech.RecognitionListener
@@ -46,11 +55,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
+import java.util.Locale
 import kotlin.math.sqrt
 import kotlin.math.min
+import kotlin.math.roundToInt
 import org.vosk.Recognizer
 
-class DashboardActivity : AppCompatActivity() {
+open class DashboardActivity : AppCompatActivity() {
 
     private lateinit var startCaptureButton: Button
     private lateinit var stopCaptureButton: Button
@@ -83,12 +94,19 @@ class DashboardActivity : AppCompatActivity() {
     private var stableRecognizer: Recognizer? = null
     @Volatile private var stableLastAudioMs: Long = 0
     @Volatile private var stableEmptyStreak: Int = 0
+    private lateinit var callLogContainer: LinearLayout
+    private lateinit var smsRiskContainer: LinearLayout
 
     private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
     } else {
         arrayOf(Manifest.permission.RECORD_AUDIO)
     }
+
+    private val callSmsPermissions = arrayOf(
+        Manifest.permission.READ_CALL_LOG,
+        Manifest.permission.READ_SMS
+    )
 
     private val permissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         if (permissions.all { it.value }) {
@@ -97,6 +115,10 @@ class DashboardActivity : AppCompatActivity() {
             Toast.makeText(this, "Audio and Notification permissions are required.", Toast.LENGTH_LONG).show()
             setStatus("Idle")
         }
+    }
+
+    private val callSmsPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        refreshRiskPanels()
     }
 
     private val appEventsReceiver = object : BroadcastReceiver() {
@@ -170,6 +192,8 @@ class DashboardActivity : AppCompatActivity() {
         clearTranscriptButton = findViewById(R.id.btnClearTranscript)
         transcriptTextView = findViewById(R.id.tvTranscript)
         statusTextView = findViewById(R.id.tvStatus)
+        callLogContainer = findViewById(R.id.callLogContainer)
+        smsRiskContainer = findViewById(R.id.smsRiskContainer)
 
         startCaptureButton.setOnClickListener { startCaptureProcess() }
         stopCaptureButton.setOnClickListener { stopCaptureProcess() }
@@ -184,12 +208,14 @@ class DashboardActivity : AppCompatActivity() {
         clearTranscriptButton.setOnClickListener { transcriptTextView.text = "" }
         setStatus("Idle")
         updatePlayButtonState()
+        refreshRiskPanels()
     }
 
     override fun onResume() {
         super.onResume()
         registerAppEventsReceiver()
         updateUiState()
+        refreshRiskPanels()
     }
 
     override fun onPause() {
@@ -795,6 +821,350 @@ class DashboardActivity : AppCompatActivity() {
             i += 2
         }
         return out
+    }
+
+    private fun refreshRiskPanels() {
+        if (!hasCallSmsPermissions()) {
+            renderPermissionCta(
+                container = callLogContainer,
+                message = "ต้องการสิทธิ์อ่านประวัติการโทรเพื่อแสดงรายการล่าสุด"
+            )
+            renderPermissionCta(
+                container = smsRiskContainer,
+                message = "ต้องการสิทธิ์อ่าน SMS เพื่อสแกนข้อความเสี่ยง"
+            )
+            return
+        }
+        loadCallLog()
+        loadSmsRisks()
+    }
+
+    private fun hasCallSmsPermissions(): Boolean = callSmsPermissions.all { hasPermission(it) }
+
+    private fun hasPermission(permission: String): Boolean =
+        ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+
+    private fun renderPermissionCta(container: LinearLayout, message: String) {
+        container.removeAllViews()
+        val info = buildInfoText(message)
+        val action = Button(this).apply {
+            text = "อนุญาตตอนนี้"
+            setOnClickListener { callSmsPermissionLauncher.launch(callSmsPermissions) }
+        }
+        container.addView(info)
+        container.addView(action)
+    }
+
+    private fun loadCallLog(maxItems: Int = 10) {
+        callLogContainer.removeAllViews()
+        val projection = arrayOf(
+            CallLog.Calls.NUMBER,
+            CallLog.Calls.TYPE,
+            CallLog.Calls.DATE,
+            CallLog.Calls.DURATION,
+            CallLog.Calls.CACHED_NAME
+        )
+        try {
+            contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                projection,
+                null,
+                null,
+                "${CallLog.Calls.DATE} DESC"
+            )?.use { cursor ->
+                var count = 0
+                while (cursor.moveToNext() && count < maxItems) {
+                    val number = cursor.getString(0).orEmpty()
+                    val type = cursor.getInt(1)
+                    val date = cursor.getLong(2)
+                    val duration = cursor.getLong(3)
+                    val name = cursor.getString(4)
+                    val entry = CallLogEntry(
+                        name = name,
+                        number = number,
+                        type = type,
+                        durationSec = duration,
+                        timestamp = date
+                    )
+                    val (riskLabel, riskColor) = computeCallRisk(entry)
+                    addCallRow(entry, riskLabel, riskColor)
+                    count++
+                }
+            }
+        } catch (e: SecurityException) {
+            renderPermissionCta(
+                container = callLogContainer,
+                message = "ไม่สามารถอ่านประวัติการโทร: ${e.message}"
+            )
+            return
+        }
+        if (callLogContainer.childCount == 0) {
+            callLogContainer.addView(buildInfoText("ไม่พบประวัติการโทรล่าสุด"))
+        }
+    }
+
+    private fun addCallRow(entry: CallLogEntry, riskLabel: String, riskColor: Int) {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = buildRowBackground()
+            val lp = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            lp.setMargins(0, dp(8), 0, 0)
+            layoutParams = lp
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+        }
+
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        val title = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            text = entry.displayName
+            setTextColor(Color.WHITE)
+            setTypeface(typeface, Typeface.BOLD)
+            textSize = 15f
+        }
+        val badge = createBadge(riskLabel, riskColor)
+        header.addView(title)
+        header.addView(badge)
+
+        val meta = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            text = "${formatCallType(entry.type)} • ${formatDuration(entry.durationSec)} • ${
+                DateUtils.getRelativeTimeSpanString(
+                    entry.timestamp,
+                    System.currentTimeMillis(),
+                    DateUtils.MINUTE_IN_MILLIS
+                )
+            }"
+            setTextColor(Color.parseColor("#A4B4C8"))
+            textSize = 13f
+        }
+
+        row.addView(header)
+        row.addView(meta)
+        callLogContainer.addView(row)
+    }
+
+    private fun computeCallRisk(entry: CallLogEntry): Pair<String, Int> {
+        var score = 0
+        val unknownCaller = entry.name.isNullOrBlank() && entry.number.isBlank()
+        if (unknownCaller) score += 1
+        if (entry.durationSec in 1..10 && entry.type == CallLog.Calls.INCOMING_TYPE) score += 1
+        if (entry.type == CallLog.Calls.MISSED_TYPE && entry.durationSec == 0L) {
+            return "ไม่ได้วัด (สายไม่ได้รับ)" to Color.parseColor("#8AA0B5")
+        }
+        return when {
+            score >= 2 -> "สูง (สายไม่รู้จัก/คุยสั้น)" to Color.parseColor("#FF6B6B")
+            score == 1 -> "กลาง (ต้องตรวจสอบ)" to Color.parseColor("#FFC857")
+            else -> "ไม่ได้วัด (ข้อมูลไม่พอ)" to Color.parseColor("#8AA0B5")
+        }
+    }
+
+    private fun formatCallType(type: Int): String = when (type) {
+        CallLog.Calls.OUTGOING_TYPE -> "โทรออก"
+        CallLog.Calls.INCOMING_TYPE -> "โทรเข้า"
+        CallLog.Calls.MISSED_TYPE -> "สายไม่ได้รับ"
+        CallLog.Calls.REJECTED_TYPE -> "ปฏิเสธสาย"
+        else -> "ไม่ทราบชนิด"
+    }
+
+    private fun formatDuration(seconds: Long): String {
+        if (seconds <= 0) return "0s"
+        val minutes = seconds / 60
+        val sec = seconds % 60
+        return if (minutes > 0) "${minutes}m ${sec}s" else "${sec}s"
+    }
+
+    private fun loadSmsRisks(maxItems: Int = 40) {
+        smsRiskContainer.removeAllViews()
+        var checked = 0
+        var flagged = 0
+        val projection = arrayOf(
+            Telephony.Sms.ADDRESS,
+            Telephony.Sms.BODY,
+            Telephony.Sms.DATE
+        )
+        try {
+            contentResolver.query(
+                Telephony.Sms.Inbox.CONTENT_URI,
+                projection,
+                null,
+                null,
+                "${Telephony.Sms.DATE} DESC"
+            )?.use { cursor ->
+                val addressIdx = cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
+                val bodyIdx = cursor.getColumnIndexOrThrow(Telephony.Sms.BODY)
+                val dateIdx = cursor.getColumnIndexOrThrow(Telephony.Sms.DATE)
+                while (cursor.moveToNext() && checked < maxItems) {
+                    val address = cursor.getString(addressIdx).orEmpty()
+                    val body = cursor.getString(bodyIdx).orEmpty()
+                    val date = cursor.getLong(dateIdx)
+                    val score = scoreSms(body)
+                    if (score >= 2) {
+                        val (label, color) = smsRiskLabel(score)
+                        addSmsRow(address, body, date, label, color)
+                        flagged++
+                    }
+                    checked++
+                }
+            }
+        } catch (e: SecurityException) {
+            renderPermissionCta(
+                container = smsRiskContainer,
+                message = "ไม่สามารถอ่าน SMS: ${e.message}"
+            )
+            return
+        }
+
+        if (flagged == 0) {
+            smsRiskContainer.addView(buildInfoText("ไม่พบข้อความเสี่ยงใน $maxItems ข้อความล่าสุด"))
+        }
+    }
+
+    private fun scoreSms(body: String): Int {
+        val lower = body.lowercase(Locale.getDefault())
+        var score = 0
+        val highRiskKeywords = listOf(
+            "otp",
+            "one time password",
+            "transfer",
+            "โอน",
+            "ระงับ",
+            "เร่งด่วน",
+            "ยืนยันตัวตน",
+            "รีบทำ",
+            "ลิงก์",
+            "คลิกลิงก์",
+            "police",
+            "lawsuit",
+            "freeze",
+            "บัญชีถูกปิด"
+        )
+        if (highRiskKeywords.any { lower.contains(it) }) score += 2
+        if (lower.contains("http://") || lower.contains("https://") || lower.contains("bit.ly") || lower.contains("tinyurl")) score += 2
+        if (Regex("\\b\\d{6}\\b").containsMatchIn(lower) && lower.contains("otp")) score += 1
+        if (lower.count { it == '!' } >= 2) score += 1
+        return score
+    }
+
+    private fun smsRiskLabel(score: Int): Pair<String, Int> = when {
+        score >= 4 -> "สูง" to Color.parseColor("#FF6B6B")
+        score >= 2 -> "กลาง" to Color.parseColor("#FFC857")
+        else -> "ต่ำ" to Color.parseColor("#6DD3A6")
+    }
+
+    private fun addSmsRow(address: String, body: String, date: Long, riskLabel: String, riskColor: Int) {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = buildRowBackground()
+            val lp = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            lp.setMargins(0, dp(8), 0, 0)
+            layoutParams = lp
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+        }
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        val from = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            text = address.ifBlank { "ผู้ส่งไม่ระบุ" }
+            setTextColor(Color.WHITE)
+            setTypeface(typeface, Typeface.BOLD)
+            textSize = 15f
+        }
+        val badge = createBadge("SMS $riskLabel", riskColor)
+        header.addView(from)
+        header.addView(badge)
+
+        val snippet = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            text = body.take(140).trim().ifBlank { "(ข้อความว่าง)" }
+            setTextColor(Color.parseColor("#E2E8F0"))
+            textSize = 13f
+        }
+
+        val meta = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            text = DateUtils.getRelativeTimeSpanString(
+                date,
+                System.currentTimeMillis(),
+                DateUtils.MINUTE_IN_MILLIS
+            )
+            setTextColor(Color.parseColor("#A4B4C8"))
+            textSize = 12f
+        }
+
+        row.addView(header)
+        row.addView(snippet)
+        row.addView(meta)
+        smsRiskContainer.addView(row)
+    }
+
+    private fun buildRowBackground(): GradientDrawable = GradientDrawable().apply {
+        cornerRadius = dp(10).toFloat()
+        setColor(Color.parseColor("#141a24"))
+        setStroke(1, Color.parseColor("#223956"))
+    }
+
+    private fun createBadge(text: String, color: Int): TextView = TextView(this).apply {
+        val badgePadding = dp(8)
+        setPadding(badgePadding, dp(4), badgePadding, dp(4))
+        setTextColor(Color.WHITE)
+        setTypeface(typeface, Typeface.BOLD)
+        textSize = 12f
+        this.text = text
+        background = GradientDrawable().apply {
+            cornerRadius = dp(16).toFloat()
+            setColor(color)
+        }
+    }
+
+    private fun buildInfoText(text: String): TextView = TextView(this).apply {
+        this.text = text
+        setTextColor(Color.parseColor("#B3FFFFFF"))
+        textSize = 13f
+    }
+
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).roundToInt()
+
+    private data class CallLogEntry(
+        val name: String?,
+        val number: String,
+        val type: Int,
+        val durationSec: Long,
+        val timestamp: Long
+    ) {
+        val displayName: String
+            get() = when {
+                !name.isNullOrBlank() && number.isNotBlank() -> "$name • $number"
+                !name.isNullOrBlank() -> name
+                number.isNotBlank() -> number
+                else -> "ไม่ระบุผู้โทร"
+            }
     }
 
     /**

@@ -1,242 +1,462 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sentinel_surface">
+    android:background="@color/splash_bg">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <TextView
-            android:id="@+id/setupTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/setup_title"
-            android:textColor="@color/sentinel_on_surface"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/setupSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/setup_permissions"
-            android:textColor="@color/sentinel_on_surface" />
+    <ScrollView
+        android:id="@+id/setupScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/setupBottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:divider="@android:color/transparent"
-            android:showDividers="middle">
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="44dp"
+            android:paddingBottom="24dp">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardAccessibility"
+            <FrameLayout
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:background="@drawable/permission_header_bg"
+                android:foregroundGravity="center">
+
+                <ImageView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/intro_icon_shield"
+                    android:tint="@color/splash_logo_bg" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/setupTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/setup_title"
+                android:textColor="@color/splash_title"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/setupSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:maxWidth="300dp"
+                android:text="@string/setup_permissions"
+                android:textColor="@color/permission_body"
+                android:textSize="16sp"
+                android:lineSpacingExtra="4dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/intro_icon_shield"
+                    android:tint="@color/permission_subtle" />
+
+                <TextView
+                    android:id="@+id/setupBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/setup_data_stays"
+                    android:textAllCaps="true"
+                    android:textColor="@color/permission_subtle"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.1" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/sentinel_card"
-                app:cardCornerRadius="12dp">
+                android:layout_marginTop="28dp"
+                android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/cardAccessibility"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_accessibility" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Accessibility"
-                        android:textColor="@color/sentinel_on_surface"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Read chat text for on-device analysis."
-                        android:textColor="@color/sentinel_on_surface" />
-                    <com.google.android.material.button.MaterialButton
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_accessibility_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/permission_accessibility_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="3dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/btnAccessibility"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/action_enable"
-                        app:strokeColor="@color/sentinel_accent"
-                        app:icon="@android:drawable/ic_menu_view" />
+                        android:checked="false"
+                        android:layout_gravity="center"
+                        android:text=""
+                        app:trackTint="@color/permission_switch_track"
+                        app:thumbTint="@color/permission_switch_thumb" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardMic"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/sentinel_card"
-                app:cardCornerRadius="12dp">
 
                 <LinearLayout
+                    android:id="@+id/cardMic"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_mic" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Microphone &amp; STT"
-                        android:textColor="@color/sentinel_on_surface"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Local speech recognition (Whisper mock)."
-                        android:textColor="@color/sentinel_on_surface" />
-                    <com.google.android.material.button.MaterialButton
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_mic_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/permission_mic_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="3dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/btnMic"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/action_enable"
-                        app:strokeColor="@color/sentinel_accent"
-                        app:icon="@android:drawable/ic_btn_speak_now" />
+                        android:layout_gravity="center"
+                        android:text=""
+                        app:trackTint="@color/permission_switch_track"
+                        app:thumbTint="@color/permission_switch_thumb" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardOverlay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/sentinel_card"
-                app:cardCornerRadius="12dp">
 
                 <LinearLayout
+                    android:id="@+id/cardOverlay"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_overlay" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Overlay Alerts"
-                        android:textColor="@color/sentinel_on_surface"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Draw warning banners over chats and calls."
-                        android:textColor="@color/sentinel_on_surface" />
-                    <com.google.android.material.button.MaterialButton
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_overlay_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/permission_overlay_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="3dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/btnOverlay"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/action_enable"
-                        app:strokeColor="@color/sentinel_accent"
-                        app:icon="@android:drawable/ic_dialog_alert" />
+                        android:layout_gravity="center"
+                        android:text=""
+                        app:trackTint="@color/permission_switch_track"
+                        app:thumbTint="@color/permission_switch_thumb" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardCall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/sentinel_card"
-                app:cardCornerRadius="12dp">
 
                 <LinearLayout
+                    android:id="@+id/cardCall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_call" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Call Screening"
-                        android:textColor="@color/sentinel_on_surface"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Intercept and classify incoming calls."
-                        android:textColor="@color/sentinel_on_surface" />
-                    <com.google.android.material.button.MaterialButton
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_call_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/permission_call_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="3dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/btnCallScreening"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/action_enable"
-                        app:strokeColor="@color/sentinel_accent"
-                        app:icon="@android:drawable/ic_menu_call" />
+                        android:layout_gravity="center"
+                        android:text=""
+                        app:trackTint="@color/permission_switch_track"
+                        app:thumbTint="@color/permission_switch_thumb" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardNotification"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/sentinel_card"
-                app:cardCornerRadius="12dp">
 
                 <LinearLayout
+                    android:id="@+id/cardNotification"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:background="@drawable/permission_card_bg"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_notification" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Notifications &amp; Foreground service"
-                        android:textColor="@color/sentinel_on_surface"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Keeps Guardian alive and visible."
-                        android:textColor="@color/sentinel_on_surface" />
-                    <com.google.android.material.button.MaterialButton
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_notification_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/permission_notification_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="3dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/btnNotification"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/action_enable"
-                        app:strokeColor="@color/sentinel_accent"
-                        app:icon="@android:drawable/ic_menu_info_details" />
+                        android:layout_gravity="center"
+                        android:text=""
+                        app:trackTint="@color/permission_switch_track"
+                        app:thumbTint="@color/permission_switch_thumb" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:id="@+id/cardCallLogSms"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_call" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_calllog_sms_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/permission_calllog_sms_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="3dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/btnCallLogSms"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text=""
+                        app:trackTint="@color/permission_switch_track"
+                        app:thumbTint="@color/permission_switch_thumb" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/setupBottom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="24dp"
+        android:paddingTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnContinue"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_height="60dp"
             android:text="@string/action_continue"
             android:textAllCaps="false"
-            app:cornerRadius="12dp"
-            app:icon="@android:drawable/ic_media_play"
-            app:backgroundTint="@color/sentinel_accent" />
-
+            android:textColor="@color/splash_logo_icon"
+            android:textSize="17sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:backgroundTint="@color/splash_logo_bg"
+            android:elevation="8dp"
+            app:cornerRadius="26dp" />
     </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

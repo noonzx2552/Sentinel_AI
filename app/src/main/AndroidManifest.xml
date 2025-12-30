@@ -25,6 +25,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -106,8 +107,47 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.SetupActivity" android:exported="true" />
-        <activity android:name=".ui.DashboardActivity" android:exported="true" />
+        <activity
+            android:name=".ui.IntroActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity
+            android:name=".ui.PrivacyActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity
+            android:name=".ui.HomeActivity"
+            android:exported="true"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity
+            android:name=".ui.CheckLinkActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity
+            android:name=".ui.CheckNumberActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity
+            android:name=".ui.CallLogScanActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity
+            android:name=".ui.ActivityLogActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity
+            android:name=".ui.ScanOptionsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity
+            android:name=".ui.ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI" />
+        <activity
+            android:name=".ui.SetupActivity"
+            android:exported="true"
+            android:theme="@style/Theme.SentinelAI.Intro" />
+        <activity android:name=".ui.DashboardActivity" android:exported="false" />
         <activity android:name=".ui.AppSelectionActivity" android:exported="false" />
         <activity android:name=".ui.CriticalAlertActivity" android:exported="false" />
 

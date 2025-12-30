@@ -23,7 +23,7 @@ class CriticalAlertActivity : AppCompatActivity() {
         binding.alertScore.text = "Risk score: $score"
         binding.alertDetail.text = detail
         binding.alertDismiss.setOnClickListener {
-            startActivity(Intent(this, DashboardActivity::class.java))
+            startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }
     }

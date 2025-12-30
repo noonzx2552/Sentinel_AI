@@ -1,13 +1,10 @@
 package com.sentinel.ai.ui
 
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.sentinel.ai.R
 import com.sentinel.ai.databinding.ActivitySetupBinding
 import com.sentinel.ai.service.SentinelGuardianService
@@ -26,23 +23,56 @@ class SetupActivity : AppCompatActivity() {
         ModelInitializer.initialize(this)
 
         binding.btnAccessibility.setOnClickListener {
-            PermissionUtils.openAccessibilitySettings(this)
+            handlePermissionSwitch(
+                binding.btnAccessibility,
+                PermissionUtils.isAccessibilityEnabled(this)
+            ) {
+                PermissionUtils.openAccessibilitySettings(this)
+            }
         }
         binding.btnMic.setOnClickListener {
-            PermissionUtils.requestMicPermission(this, REQ_MIC)
+            handlePermissionSwitch(
+                binding.btnMic,
+                PermissionUtils.hasMicPermission(this)
+            ) {
+                PermissionUtils.requestMicPermission(this, REQ_MIC)
+            }
         }
         binding.btnOverlay.setOnClickListener {
-            PermissionUtils.requestOverlayPermission(this)
+            handlePermissionSwitch(
+                binding.btnOverlay,
+                PermissionUtils.canDrawOverlays(this)
+            ) {
+                PermissionUtils.requestOverlayPermission(this)
+            }
         }
         binding.btnCallScreening.setOnClickListener {
-            if (!PermissionUtils.hasPhoneStatePermission(this)) {
-                PermissionUtils.requestPhoneStatePermission(this, REQ_PHONE)
-            } else {
-                PermissionUtils.requestCallScreeningRole(this, REQ_ROLE)
+            handlePermissionSwitch(
+                binding.btnCallScreening,
+                PermissionUtils.isCallScreeningRoleGranted(this) && PermissionUtils.hasPhoneStatePermission(this)
+            ) {
+                if (!PermissionUtils.hasPhoneStatePermission(this)) {
+                    PermissionUtils.requestPhoneStatePermission(this, REQ_PHONE)
+                } else {
+                    PermissionUtils.requestCallScreeningRole(this, REQ_ROLE)
+                }
             }
         }
         binding.btnNotification.setOnClickListener {
-            PermissionUtils.requestNotificationPermission(this, REQ_NOTIFICATIONS)
+            handlePermissionSwitch(
+                binding.btnNotification,
+                PermissionUtils.isNotificationPermissionGranted(this)
+            ) {
+                PermissionUtils.requestNotificationPermission(this, REQ_NOTIFICATIONS)
+            }
+        }
+        binding.btnCallLogSms.setOnClickListener {
+            handlePermissionSwitch(
+                binding.btnCallLogSms,
+                PermissionUtils.hasCallLogPermission(this) && PermissionUtils.hasSmsPermission(this)
+            ) {
+                PermissionUtils.requestCallLogAndSms(this, REQ_CALLLOG_SMS)
+            }
         }
         binding.btnContinue.setOnClickListener {
             if (!PermissionUtils.allEssentialGranted(this)) {
@@ -50,56 +80,26 @@ class SetupActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             SentinelGuardianService.start(this)
-            startActivity(Intent(this, DashboardActivity::class.java))
+            startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (!PermissionUtils.hasMicPermission(this)) {
-            PermissionUtils.requestMicPermission(this, REQ_MIC)
-        }
-        if (PermissionUtils.allEssentialGranted(this)) {
-            SentinelGuardianService.start(this)
-            startActivity(Intent(this, DashboardActivity::class.java))
-            finish()
-            return
-        }
         updateButtons()
     }
 
     private fun updateButtons() {
-        binding.btnAccessibility.isEnabled = !PermissionUtils.isAccessibilityEnabled(this)
-        binding.btnMic.isEnabled = !PermissionUtils.hasMicPermission(this)
-        binding.btnOverlay.isEnabled = !PermissionUtils.canDrawOverlays(this)
-        binding.btnCallScreening.isEnabled = !PermissionUtils.isCallScreeningRoleGranted(this) || !PermissionUtils.hasPhoneStatePermission(this)
-        binding.btnNotification.isEnabled = !PermissionUtils.isNotificationPermissionGranted(this)
-
-        applyPermissionState(
-            binding.cardAccessibility,
-            binding.btnAccessibility,
-            PermissionUtils.isAccessibilityEnabled(this)
-        )
-        applyPermissionState(
-            binding.cardMic,
-            binding.btnMic,
-            PermissionUtils.hasMicPermission(this)
-        )
-        applyPermissionState(
-            binding.cardOverlay,
-            binding.btnOverlay,
-            PermissionUtils.canDrawOverlays(this)
-        )
-        applyPermissionState(
-            binding.cardCall,
-            binding.btnCallScreening,
+        binding.btnAccessibility.applySwitchState(PermissionUtils.isAccessibilityEnabled(this))
+        binding.btnMic.applySwitchState(PermissionUtils.hasMicPermission(this))
+        binding.btnOverlay.applySwitchState(PermissionUtils.canDrawOverlays(this))
+        binding.btnCallScreening.applySwitchState(
             PermissionUtils.isCallScreeningRoleGranted(this) && PermissionUtils.hasPhoneStatePermission(this)
         )
-        applyPermissionState(
-            binding.cardNotification,
-            binding.btnNotification,
-            PermissionUtils.isNotificationPermissionGranted(this)
+        binding.btnNotification.applySwitchState(PermissionUtils.isNotificationPermissionGranted(this))
+        binding.btnCallLogSms.applySwitchState(
+            PermissionUtils.hasCallLogPermission(this) && PermissionUtils.hasSmsPermission(this)
         )
 
         val allGranted = PermissionUtils.allEssentialGranted(this)
@@ -107,24 +107,27 @@ class SetupActivity : AppCompatActivity() {
         binding.btnContinue.alpha = if (allGranted) 1f else 0.6f
     }
 
-    private fun applyPermissionState(card: MaterialCardView, button: MaterialButton, granted: Boolean) {
-        val ctx = card.context
-        val doneColor = ContextCompat.getColor(ctx, R.color.permission_done)
-        val pendingColor = ContextCompat.getColor(ctx, R.color.permission_pending)
-        card.setCardBackgroundColor(if (granted) doneColor else pendingColor)
+    private fun SwitchMaterial.applySwitchState(granted: Boolean) {
+        isChecked = granted
+        isEnabled = !granted
+    }
 
-        button.text = if (granted) getString(R.string.action_enabled) else getString(R.string.action_enable)
-        button.isEnabled = !granted
-        val btnTint = if (granted) doneColor else ContextCompat.getColor(ctx, R.color.sentinel_accent)
-        button.setBackgroundTintList(ColorStateList.valueOf(btnTint))
-        button.strokeColor = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.sentinel_accent))
-        button.setTextColor(ContextCompat.getColor(ctx, R.color.sentinel_on_surface))
-        button.iconTint = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.sentinel_on_surface))
+    private fun handlePermissionSwitch(
+        switchView: SwitchMaterial,
+        granted: Boolean,
+        requestAction: () -> Unit
+    ) {
+        if (granted) {
+            switchView.isChecked = true
+            return
+        }
+        switchView.isChecked = false
+        requestAction()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQ_MIC || requestCode == REQ_NOTIFICATIONS || requestCode == REQ_PHONE) {
+        if (requestCode == REQ_MIC || requestCode == REQ_NOTIFICATIONS || requestCode == REQ_PHONE || requestCode == REQ_CALLLOG_SMS) {
             updateButtons()
             if (requestCode == REQ_PHONE && PermissionUtils.hasPhoneStatePermission(this)) {
                 PermissionUtils.requestCallScreeningRole(this, REQ_ROLE)
@@ -144,5 +147,6 @@ class SetupActivity : AppCompatActivity() {
         private const val REQ_NOTIFICATIONS = 101
         private const val REQ_ROLE = 102
         private const val REQ_PHONE = 103
+        private const val REQ_CALLLOG_SMS = 104
     }
 }

@@ -32,6 +32,8 @@ class PressureSpeechEngine(
 
     @Volatile
     private var uploading = false
+    @Volatile
+    private var lastUploadAt = System.currentTimeMillis()
 
     fun submitPcmChunk(chunk: ByteArray) {
         scope.launch {
@@ -60,9 +62,14 @@ class PressureSpeechEngine(
             return
         }
         if (uploading) return
+        val now = System.currentTimeMillis()
         val payload = mutex.withLock {
-            if (buffer.size() >= TARGET_BYTES) {
+            val size = buffer.size()
+            val shouldFlushBySize = size >= TARGET_BYTES
+            val shouldFlushByTime = size >= MIN_FLUSH_BYTES && now - lastUploadAt >= MAX_LATENCY_MS
+            if (shouldFlushBySize || shouldFlushByTime) {
                 uploading = true
+                lastUploadAt = now
                 val bytes = buffer.toByteArray()
                 buffer.reset()
                 bytes
@@ -141,9 +148,13 @@ class PressureSpeechEngine(
         private const val SAMPLE_RATE = 44100
         private const val CHANNEL_COUNT = 2
         private const val BYTES_PER_SAMPLE = 2
-        private const val CHUNK_DURATION_MS = 4000
+        private const val CHUNK_DURATION_MS = 1500 // shorter chunks to cut server latency
+        private const val MIN_FLUSH_DURATION_MS = 750
+        private const val MAX_LATENCY_MS = 1500L
         private const val WHISPER_URL = "https://api.openai.com/v1/audio/transcriptions"
         private val WAV_MEDIA_TYPE = "audio/wav".toMediaType()
         private val TARGET_BYTES = (SAMPLE_RATE * CHANNEL_COUNT * BYTES_PER_SAMPLE * CHUNK_DURATION_MS) / 1000
+        private val MIN_FLUSH_BYTES =
+            (SAMPLE_RATE * CHANNEL_COUNT * BYTES_PER_SAMPLE * MIN_FLUSH_DURATION_MS) / 1000
     }
 }

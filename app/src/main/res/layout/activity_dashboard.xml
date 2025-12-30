@@ -1,122 +1,225 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#0f1115"
+    android:padding="16dp"
     tools:context=".ui.DashboardActivity">
 
-    <Button
-        android:id="@+id/btnStartCapture"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Start Capture"
-        app:layout_constraintEnd_toStartOf="@+id/btnStopCapture"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:divider="@drawable/divider_vertical"
+        android:showDividers="middle">
 
-    <Button
-        android:id="@+id/btnStopCapture"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="Stop Capture"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btnStartCapture"
-        app:layout_constraintTop_toTopOf="@+id/btnStartCapture" />
-
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Status: Idle"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnStartCapture" />
-
-    <Button
-        android:id="@+id/btnPlayRecording"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="Play Last Recording"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvStatus" />
-
-    <Button
-        android:id="@+id/btnTranscribeRecording"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="Transcribe Last Recording (Vosk)"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnPlayRecording" />
-
-    <Button
-        android:id="@+id/btnTestMic"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="Test Mic (Vosk offline)"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnTranscribeRecording" />
-
-    <Button
-        android:id="@+id/btnSystemStt"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="Test Mic (Device STT)"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnTestMic" />
-
-    <Button
-        android:id="@+id/btnClearTranscript"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="Clear Transcript"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSystemStt" />
-
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/btnStopCapture"
-        app:layout_constraintStart_toStartOf="@+id/btnStartCapture"
-        app:layout_constraintTop_toBottomOf="@+id/btnClearTranscript">
-
-        <TextView
-            android:id="@+id/tvTranscript"
+        <!-- Status + primary controls -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Transcription will appear here..." />
-    </ScrollView>
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status: Idle"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="ควบคุมการจับเสียงและวิเคราะห์ความเสี่ยง"
+                android:textColor="#B3FFFFFF"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:weightSum="2">
+
+                <Button
+                    android:id="@+id/btnStartCapture"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Start Capture" />
+
+                <Space
+                    android:layout_width="8dp"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/btnStopCapture"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Stop Capture" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Quick actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="การบันทึกและถอดเสียง"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp">
+
+                <Button
+                    android:id="@+id/btnPlayRecording"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Play Last Recording" />
+
+                <Button
+                    android:id="@+id/btnTranscribeRecording"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Transcribe Last Recording (Vosk)" />
+
+                <Button
+                    android:id="@+id/btnTestMic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Test Mic (Vosk offline)" />
+
+                <Button
+                    android:id="@+id/btnSystemStt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Test Mic (Device STT)" />
+
+                <Button
+                    android:id="@+id/btnClearTranscript"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Clear Transcript" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Call log -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="บันทึกการโทร + ความเสี่ยง"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="ดึงสายโทรเข้า/โทรออกล่าสุด พร้อมสรุปความเสี่ยงเบื้องต้น"
+                android:textColor="#B3FFFFFF"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/callLogContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- SMS risk -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SMS Scam Watch"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="จับข้อความที่มีคำ/พฤติกรรมเข้าข่ายหลอกลวง"
+                android:textColor="#B3FFFFFF"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/smsRiskContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- Transcript -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="บันทึกข้อความเสียง"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvTranscript"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:padding="8dp"
+                android:background="#12151b"
+                android:text="Transcription will appear here..."
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

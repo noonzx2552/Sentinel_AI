@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/home_bg"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <ScrollView
+        android:id="@+id/checkLinkScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/checkLinkNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/checklink_title"
+                        android:textColor="@color/splash_title"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/checklink_subtitle"
+                        android:textColor="@color/home_muted"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/home_icon_button_bg">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@android:drawable/ic_lock_idle_alarm"
+                        android:tint="@color/home_muted" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/home_card_bg"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="2dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@color/home_card_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/checklink_input_label"
+                        android:textColor="@color/permission_subtle"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.12" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/checklink_input_bg"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/checklink_icon_link"
+                            android:tint="@color/home_muted" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="@string/checklink_input_value"
+                            android:textColor="@color/splash_title"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/checklink_chip_bg"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
+                            android:text="@string/checklink_paste"
+                            android:textColor="@color/home_muted"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnScan"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="14dp"
+                        android:text="@string/checklink_scan"
+                        android:textAllCaps="false"
+                        android:textColor="@color/splash_logo_icon"
+                        android:textSize="15sp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:backgroundTint="@color/splash_logo_bg"
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/checklink_icon_scan"
+                        app:iconPadding="8dp"
+                        app:iconTint="@color/splash_logo_icon" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                app:cardBackgroundColor="@color/home_card_bg"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@color/home_card_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/home_badge_green_bg">
+
+                        <ImageView
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/intro_icon_shield"
+                            android:tint="@color/splash_logo_bg" />
+
+                        <FrameLayout
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="bottom|end"
+                            android:layout_marginBottom="6dp"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/checklink_badge_check_bg">
+
+                            <ImageView
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/checklink_icon_check"
+                                android:tint="@color/splash_logo_icon" />
+                        </FrameLayout>
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/checklink_safe_title"
+                        android:textColor="@color/splash_title"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/checklink_score_bg"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="@string/checklink_safe_score"
+                        android:textColor="@color/splash_logo_bg"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp">
+
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/home_badge_blue_bg">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/checklink_icon_domain"
+                                    android:tint="@color/home_accent_blue" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/checklink_item_domain"
+                                    android:textColor="@color/splash_title"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="@string/checklink_item_domain_body"
+                                    android:textColor="@color/home_muted"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp">
+
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/home_badge_purple_bg">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/checklink_icon_lock"
+                                    android:tint="@color/home_accent_purple" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/checklink_item_ssl"
+                                    android:textColor="@color/splash_title"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="@string/checklink_item_ssl_body"
+                                    android:textColor="@color/home_muted"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp">
+
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/home_badge_green_bg">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/checklink_icon_history"
+                                    android:tint="@color/splash_logo_bg" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/checklink_item_history"
+                                    android:textColor="@color/splash_title"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="@string/checklink_item_history_body"
+                                    android:textColor="@color/home_muted"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/checkLinkNav"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:background="@drawable/home_nav_bg"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:minHeight="64dp"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/navHome"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_view"
+                android:tint="@color/permission_subtle" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/home_nav_home"
+                android:textColor="@color/permission_subtle"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navActivity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_agenda"
+                android:tint="@color/permission_subtle" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/home_nav_activity"
+                android:textColor="@color/permission_subtle"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navScan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/checklink_icon_scan"
+                android:tint="@color/permission_subtle" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/home_nav_scan"
+                android:textColor="@color/splash_logo_bg"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navProfile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_manage"
+                android:tint="@color/permission_subtle" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/home_nav_profile"
+                android:textColor="@color/permission_subtle"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/checkLinkActiveOverlay"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:background="@drawable/home_nav_active_bg"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="24dp"
+        android:translationY="-20dp"
+        android:translationZ="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.625">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:src="@drawable/checklink_icon_scan"
+            android:tint="@color/splash_logo_icon" />
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
