@@ -34,7 +34,7 @@
             android:layout_gravity="center"
             android:contentDescription="@string/app_name"
             android:src="@drawable/ic_launcher_foreground"
-            android:tint="@color/splash_logo_icon" />
+            app:tint="@color/splash_logo_icon" />
     </FrameLayout>
 
     <TextView

@@ -36,7 +36,7 @@
                     android:layout_height="44dp"
                     android:layout_gravity="center"
                     android:src="@drawable/intro_icon_shield"
-                    android:tint="@color/splash_logo_bg" />
+                    app:tint="@color/splash_logo_bg" />
             </FrameLayout>
 
             <TextView
@@ -73,7 +73,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/intro_icon_shield"
-                    android:tint="@color/permission_subtle" />
+                    app:tint="@color/permission_subtle" />
 
                 <TextView
                     android:id="@+id/setupBadge"

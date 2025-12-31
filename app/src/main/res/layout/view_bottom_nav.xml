@@ -1,0 +1,251 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <FrameLayout
+        android:id="@+id/bottomNavRoot"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/bottomNavContainer"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="0dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="0dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:clipToOutline="false"
+            app:cardBackgroundColor="@color/bottom_nav_bg"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="12dp"
+            app:cardUseCompatPadding="false" />
+
+        <LinearLayout
+            android:id="@+id/bottomNavTabs"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:gravity="center"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:elevation="16dp"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
+
+            <LinearLayout
+                android:id="@+id/tabHome"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <FrameLayout
+                    android:id="@+id/tabHomeIconWrapper"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <FrameLayout
+                        android:id="@+id/tabHomeIndicator"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_gravity="center"
+                        android:elevation="12dp"
+                        android:translationY="-20dp">
+
+                        <ImageView
+                            android:id="@+id/tabHomeIndicatorIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center" />
+                    </FrameLayout>
+
+                    <ImageView
+                        android:id="@+id/tabHomeIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/home_nav_home"
+                        android:src="@drawable/ic_nav_home"
+                        app:tint="@color/bottom_nav_inactive" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tabHomeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_nav_home"
+                    android:textColor="@color/bottom_nav_inactive"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tabActivity"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <FrameLayout
+                    android:id="@+id/tabActivityIconWrapper"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <FrameLayout
+                        android:id="@+id/tabActivityIndicator"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_gravity="center"
+                        android:elevation="12dp"
+                        android:translationY="-20dp">
+
+                        <ImageView
+                            android:id="@+id/tabActivityIndicatorIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center" />
+                    </FrameLayout>
+
+                    <ImageView
+                        android:id="@+id/tabActivityIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/home_nav_activity"
+                        android:src="@drawable/ic_nav_activity"
+                        app:tint="@color/bottom_nav_inactive" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tabActivityLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_nav_activity"
+                    android:textColor="@color/bottom_nav_inactive"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tabScan"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <FrameLayout
+                    android:id="@+id/tabScanIconWrapper"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <FrameLayout
+                        android:id="@+id/tabScanIndicator"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_gravity="center"
+                        android:elevation="12dp"
+                        android:translationY="-20dp">
+
+                        <ImageView
+                            android:id="@+id/tabScanIndicatorIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center" />
+                    </FrameLayout>
+
+                    <ImageView
+                        android:id="@+id/tabScanIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/home_nav_scan"
+                        android:src="@drawable/ic_nav_scan"
+                        app:tint="@color/bottom_nav_inactive" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tabScanLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_nav_scan"
+                    android:textColor="@color/bottom_nav_inactive"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tabProfile"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <FrameLayout
+                    android:id="@+id/tabProfileIconWrapper"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <FrameLayout
+                        android:id="@+id/tabProfileIndicator"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_gravity="center"
+                        android:elevation="12dp"
+                        android:translationY="-20dp">
+
+                        <ImageView
+                            android:id="@+id/tabProfileIndicatorIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center" />
+                    </FrameLayout>
+
+                    <ImageView
+                        android:id="@+id/tabProfileIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/home_nav_profile"
+                        android:src="@drawable/ic_nav_profile"
+                        app:tint="@color/bottom_nav_inactive" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tabProfileLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_nav_profile"
+                    android:textColor="@color/bottom_nav_inactive"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</merge>

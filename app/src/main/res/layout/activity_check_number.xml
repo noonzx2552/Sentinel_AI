@@ -20,7 +20,7 @@
             android:layout_height="0dp"
             android:fillViewport="true"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/checkNumberNavContainer"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -74,7 +74,7 @@
                             android:layout_height="18dp"
                             android:layout_gravity="center"
                             android:src="@android:drawable/ic_dialog_info"
-                            android:tint="@color/home_muted" />
+                            app:tint="@color/home_muted" />
                     </FrameLayout>
                 </LinearLayout>
 
@@ -145,7 +145,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/checknumber_icon_call"
-                            android:tint="@color/home_muted" />
+                            app:tint="@color/home_muted" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -160,7 +160,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/checknumber_icon_backspace"
-                            android:tint="@color/home_muted" />
+                            app:tint="@color/home_muted" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -259,7 +259,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/checknumber_icon_verified"
-                                android:tint="@color/splash_logo_bg" />
+                                app:tint="@color/splash_logo_bg" />
                         </FrameLayout>
                     </LinearLayout>
 
@@ -457,7 +457,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/checknumber_icon_warning"
-                                android:tint="@color/home_accent_red" />
+                                app:tint="@color/home_accent_red" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -527,7 +527,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/checknumber_icon_warning"
-                                android:tint="@color/home_accent_yellow" />
+                                app:tint="@color/home_accent_yellow" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -570,147 +570,16 @@
             </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </ScrollView>
-
-        <FrameLayout
-            android:id="@+id/checkNumberNavContainer"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:id="@+id/checkNumberNav"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="@drawable/home_nav_bg"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:elevation="8dp"
-            android:gravity="center"
-            android:minHeight="64dp"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
-            <LinearLayout
-                android:id="@+id/navHome"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_view"
-                    android:tint="@color/permission_subtle" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/home_nav_home"
-                    android:textColor="@color/permission_subtle"
-                    android:textSize="10sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navActivity"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_agenda"
-                    android:tint="@color/permission_subtle" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/home_nav_activity"
-                    android:textColor="@color/permission_subtle"
-                    android:textSize="10sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navScan"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/checknumber_icon_search"
-                    android:tint="@color/permission_subtle" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/home_nav_scan"
-                    android:textColor="@color/permission_subtle"
-                    android:textSize="10sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/navProfile"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_manage"
-                    android:tint="@color/permission_subtle" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/home_nav_profile"
-                    android:textColor="@color/permission_subtle"
-                    android:textSize="10sp" />
-            </LinearLayout>
-            </LinearLayout>
-        </FrameLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <FrameLayout
-        android:id="@+id/checkNumberActiveOverlay"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:background="@drawable/home_nav_active_bg"
+    <com.sentinel.ai.ui.navigation.BottomNavView
+        android:id="@+id/bottomNavView"
+        android:layout_width="0dp"
+        android:layout_height="72dp"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:elevation="24dp"
-        android:layout_gravity="bottom|start"
-        android:layout_marginStart="32dp"
-        android:layout_marginBottom="12dp"
-        android:translationY="-20dp"
-        android:translationZ="24dp">
-
-        <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:layout_gravity="center"
-            android:src="@drawable/checknumber_icon_search"
-            android:tint="@color/splash_logo_icon" />
-    </FrameLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
+
+

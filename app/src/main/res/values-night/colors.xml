@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bottom_nav_bg">#151E32</color>
+    <color name="bottom_nav_inactive">#94A3B8</color>
+    <color name="bottom_nav_active_green">#10B981</color>
+    <color name="bottom_nav_active_blue">#2563EB</color>
+    <color name="bottom_nav_active_red">#EF4444</color>
+    <color name="profile_bg">#0B1121</color>
+    <color name="profile_card_bg">#162032</color>
+    <color name="profile_card_border">#223047</color>
+    <color name="profile_text_primary">#F8FAFC</color>
+    <color name="profile_text_secondary">#94A3B8</color>
+    <color name="profile_section_label">#64748B</color>
+    <color name="profile_header_start">#1F2A44</color>
+    <color name="profile_header_end">#1C3556</color>
+    <color name="profile_avatar_ring">#162032</color>
+    <color name="profile_avatar_bg">#334155</color>
+    <color name="profile_icon_tint">#CBD5E1</color>
+    <color name="profile_icon_bg_gray">#1F2937</color>
+    <color name="profile_icon_bg_blue">#1E3A8A</color>
+    <color name="profile_icon_bg_yellow">#3F2E0B</color>
+    <color name="profile_icon_bg_green">#064E3B</color>
+    <color name="profile_icon_blue">#60A5FA</color>
+    <color name="profile_icon_yellow">#FBBF24</color>
+    <color name="profile_icon_green">#34D399</color>
+    <color name="profile_icon_gray">#94A3B8</color>
+    <color name="profile_logout_red">#F87171</color>
+    <color name="profile_version_text">#475569</color>
+    <color name="profile_toggle_track">#334155</color>
+    <color name="profile_toggle_thumb">#E2E8F0</color>
+</resources>

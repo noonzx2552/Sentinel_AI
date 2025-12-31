@@ -216,4 +216,26 @@
     <string name="scan_recent_item2_body">Malware Detected • 2h ago</string>
     <string name="scan_recent_item3_title">+1 (202) 555-0192</string>
     <string name="scan_recent_item3_body">Potential Spam • 5h ago</string>
+    <string name="profile_title">Profile</string>
+    <string name="profile_subtitle">Manage your account &amp; preferences</string>
+    <string name="profile_notifications">Notifications</string>
+    <string name="profile_avatar">Profile avatar</string>
+    <string name="profile_name">Alex Morgan</string>
+    <string name="profile_email">alex.morgan@example.com</string>
+    <string name="profile_section_account">Account Settings</string>
+    <string name="profile_personal_info">Personal Information</string>
+    <string name="profile_personal_info_subtitle">Update name, email, phone</string>
+    <string name="profile_security_privacy">Security &amp; Privacy</string>
+    <string name="profile_security_privacy_subtitle">Password, 2FA, Block List</string>
+    <string name="profile_subscription">Subscription</string>
+    <string name="profile_subscription_subtitle">Manage plan &amp; billing</string>
+    <string name="profile_section_preferences">App Preferences</string>
+    <string name="profile_push_notifications">Push Notifications</string>
+    <string name="profile_push_notifications_subtitle">Alerts for threats &amp; updates</string>
+    <string name="profile_dark_mode">Dark Mode</string>
+    <string name="profile_dark_mode_subtitle">Adjust appearance</string>
+    <string name="profile_help_support">Help &amp; Support</string>
+    <string name="profile_log_out">Log Out</string>
+    <string name="profile_version">Sentinel AI v2.5.0 (Build 342)</string>
+    <string name="profile_debug_mode">Debug Mode</string>
 </resources>
