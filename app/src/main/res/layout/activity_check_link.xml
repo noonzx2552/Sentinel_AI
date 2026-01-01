@@ -112,16 +112,23 @@
                             android:src="@drawable/checklink_icon_link"
                             app:tint="@color/home_muted" />
 
-                        <TextView
+                        <EditText
+                            android:id="@+id/inputUrl"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
-                            android:text="@string/checklink_input_value"
+                            android:background="@android:color/transparent"
+                            android:hint="@string/checklink_input_value"
+                            android:importantForAutofill="yes"
+                            android:inputType="textUri"
+                            android:maxLines="2"
                             android:textColor="@color/splash_title"
+                            android:textColorHint="@color/home_muted"
                             android:textSize="13sp" />
 
                         <TextView
+                            android:id="@+id/btnPaste"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/checklink_chip_bg"
@@ -172,10 +179,12 @@
                     android:padding="18dp">
 
                     <FrameLayout
-                        android:layout_width="80dp"
-                        android:layout_height="104dp"
+                        android:layout_width="96dp"
+                        android:layout_height="96dp"
                         android:layout_gravity="center_horizontal"
-                        android:background="@drawable/home_badge_green_bg">
+                        android:background="@drawable/home_badge_green_bg"
+                        android:clipChildren="false"
+                        android:clipToPadding="false">
 
                         <ImageView
                             android:layout_width="34dp"
@@ -202,6 +211,7 @@
                     </FrameLayout>
 
                     <TextView
+                        android:id="@+id/txtLinkStatusTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
@@ -212,6 +222,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/txtLinkScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -260,21 +271,23 @@
                                 android:layout_weight="1"
                                 android:orientation="vertical">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/checklink_item_domain"
-                                    android:textColor="@color/splash_title"
-                                    android:textSize="13sp"
-                                    android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/txtDomainTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/checklink_item_domain"
+                                android:textColor="@color/splash_title"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="@string/checklink_item_domain_body"
-                                    android:textColor="@color/home_muted"
-                                    android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/txtDomainBody"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/checklink_item_domain_body"
+                                android:textColor="@color/home_muted"
+                                android:textSize="12sp" />
                             </LinearLayout>
                         </LinearLayout>
 
@@ -306,21 +319,23 @@
                                 android:layout_weight="1"
                                 android:orientation="vertical">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/checklink_item_ssl"
-                                    android:textColor="@color/splash_title"
-                                    android:textSize="13sp"
-                                    android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/txtSslTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/checklink_item_ssl"
+                                android:textColor="@color/splash_title"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="@string/checklink_item_ssl_body"
-                                    android:textColor="@color/home_muted"
-                                    android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/txtSslBody"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/checklink_item_ssl_body"
+                                android:textColor="@color/home_muted"
+                                android:textSize="12sp" />
                             </LinearLayout>
                         </LinearLayout>
 
@@ -352,19 +367,68 @@
                                 android:layout_weight="1"
                                 android:orientation="vertical">
 
+                            <TextView
+                                android:id="@+id/txtHistoryTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/checklink_item_history"
+                                android:textColor="@color/splash_title"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/txtHistoryBody"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/checklink_item_history_body"
+                                android:textColor="@color/home_muted"
+                                android:textSize="12sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp">
+
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/home_badge_yellow_bg">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/checklink_icon_history"
+                                    app:tint="@color/home_accent_yellow" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/checklink_item_history"
+                                    android:text="@string/checklink_deductions_title"
                                     android:textColor="@color/splash_title"
                                     android:textSize="13sp"
                                     android:textStyle="bold" />
 
                                 <TextView
+                                    android:id="@+id/txtDeductions"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:text="@string/checklink_item_history_body"
+                                    android:text="@string/checklink_no_deductions"
                                     android:textColor="@color/home_muted"
                                     android:textSize="12sp" />
                             </LinearLayout>

@@ -10,14 +10,14 @@
     <color name="ic_launcher_background">#0F172A</color>
     <color name="permission_done">#0EA5E9</color>
     <color name="permission_pending">@color/sentinel_card</color>
-    <color name="splash_bg">#F7FBF8</color>
+    <color name="splash_bg">#FFFFFF</color>
     <color name="splash_title">#0F172A</color>
     <color name="splash_subtitle">#2DBE60</color>
     <color name="splash_version">#9CA3AF</color>
     <color name="splash_logo_bg">#2DBE60</color>
     <color name="splash_logo_icon">#FFFFFF</color>
-    <color name="splash_glow_center">#A6EFC1</color>
-    <color name="splash_glow_edge">#00A6EFC1</color>
+    <color name="splash_glow_center">#FFFFFFFF</color>
+    <color name="splash_glow_edge">#00FFFFFF</color>
     <color name="splash_bar_bg">#E5EEE9</color>
     <color name="splash_bar_start">#7ADFA0</color>
     <color name="splash_bar_end">#2DBE60</color>
@@ -39,7 +39,7 @@
     <color name="home_accent_yellow">#F59E0B</color>
     <color name="home_accent_purple">#8B5CF6</color>
     <color name="bottom_nav_bg">#FFFFFF</color>
-    <color name="bottom_nav_inactive">#9CA3AF</color>
+    <color name="bottom_nav_inactive">#111827</color>
     <color name="bottom_nav_active_green">#10B981</color>
     <color name="bottom_nav_active_blue">#2563EB</color>
     <color name="bottom_nav_active_red">#EF4444</color>

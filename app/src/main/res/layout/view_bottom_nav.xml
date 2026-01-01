@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -22,7 +23,7 @@
             android:clipToOutline="false"
             app:cardBackgroundColor="@color/bottom_nav_bg"
             app:cardCornerRadius="0dp"
-            app:cardElevation="12dp"
+            app:cardElevation="4dp"
             app:cardUseCompatPadding="false" />
 
         <LinearLayout
@@ -37,7 +38,7 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:paddingTop="6dp"
-            android:paddingBottom="6dp">
+            android:paddingBottom="12dp">
 
             <LinearLayout
                 android:id="@+id/tabHome"
@@ -51,31 +52,54 @@
 
                 <FrameLayout
                     android:id="@+id/tabHomeIconWrapper"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="64dp"
+                    android:layout_height="32dp"
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
-                    <FrameLayout
-                        android:id="@+id/tabHomeIndicator"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="center"
-                        android:elevation="12dp"
-                        android:translationY="-20dp">
+                    <View
+                        android:id="@+id/tabHomeShadow"
+                        android:layout_width="76dp"
+                        android:layout_height="76dp"
+                        android:layout_gravity="center_horizontal"
+                        android:translationY="-28dp"
+                        android:background="@drawable/bottom_nav_indicator_shadow" />
 
-                        <ImageView
-                            android:id="@+id/tabHomeIndicatorIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center" />
-                    </FrameLayout>
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tabHomeIndicator"
+                        android:layout_width="58dp"
+                        android:layout_height="58dp"
+                        android:layout_gravity="center_horizontal"
+                        android:translationY="-28dp"
+                        android:visibility="invisible"
+                        app:cardBackgroundColor="@android:color/white"
+                        app:cardCornerRadius="29dp"
+                        app:cardElevation="0dp"
+                        app:cardUseCompatPadding="false">
+
+                        <FrameLayout
+                            android:id="@+id/tabHomeIndicatorInner"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bottom_nav_indicator_inner"
+                            android:clipChildren="false"
+                            android:clipToPadding="false">
+
+                            <ImageView
+                                android:id="@+id/tabHomeIndicatorIcon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <ImageView
                         android:id="@+id/tabHomeIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:layout_gravity="center"
+                        android:layout_gravity="bottom|center_horizontal"
                         android:contentDescription="@string/home_nav_home"
                         android:src="@drawable/ic_nav_home"
                         app:tint="@color/bottom_nav_inactive" />
@@ -85,10 +109,13 @@
                     android:id="@+id/tabHomeLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
                     android:text="@string/home_nav_home"
                     android:textColor="@color/bottom_nav_inactive"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:gravity="center" />
             </LinearLayout>
 
             <LinearLayout
@@ -103,31 +130,54 @@
 
                 <FrameLayout
                     android:id="@+id/tabActivityIconWrapper"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="64dp"
+                    android:layout_height="32dp"
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
-                    <FrameLayout
-                        android:id="@+id/tabActivityIndicator"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="center"
-                        android:elevation="12dp"
-                        android:translationY="-20dp">
+                    <View
+                        android:id="@+id/tabActivityShadow"
+                        android:layout_width="76dp"
+                        android:layout_height="76dp"
+                        android:layout_gravity="center_horizontal"
+                        android:translationY="-28dp"
+                        android:background="@drawable/bottom_nav_indicator_shadow" />
 
-                        <ImageView
-                            android:id="@+id/tabActivityIndicatorIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center" />
-                    </FrameLayout>
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tabActivityIndicator"
+                        android:layout_width="58dp"
+                        android:layout_height="58dp"
+                        android:layout_gravity="center_horizontal"
+                        android:translationY="-28dp"
+                        android:visibility="invisible"
+                        app:cardBackgroundColor="@android:color/white"
+                        app:cardCornerRadius="29dp"
+                        app:cardElevation="0dp"
+                        app:cardUseCompatPadding="false">
+
+                        <FrameLayout
+                            android:id="@+id/tabActivityIndicatorInner"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bottom_nav_indicator_inner"
+                            android:clipChildren="false"
+                            android:clipToPadding="false">
+
+                            <ImageView
+                                android:id="@+id/tabActivityIndicatorIcon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <ImageView
                         android:id="@+id/tabActivityIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:layout_gravity="center"
+                        android:layout_gravity="bottom|center_horizontal"
                         android:contentDescription="@string/home_nav_activity"
                         android:src="@drawable/ic_nav_activity"
                         app:tint="@color/bottom_nav_inactive" />
@@ -137,10 +187,13 @@
                     android:id="@+id/tabActivityLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
                     android:text="@string/home_nav_activity"
                     android:textColor="@color/bottom_nav_inactive"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:gravity="center" />
             </LinearLayout>
 
             <LinearLayout
@@ -155,31 +208,54 @@
 
                 <FrameLayout
                     android:id="@+id/tabScanIconWrapper"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="64dp"
+                    android:layout_height="32dp"
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
-                    <FrameLayout
-                        android:id="@+id/tabScanIndicator"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="center"
-                        android:elevation="12dp"
-                        android:translationY="-20dp">
+                    <View
+                        android:id="@+id/tabScanShadow"
+                        android:layout_width="76dp"
+                        android:layout_height="76dp"
+                        android:layout_gravity="center_horizontal"
+                        android:translationY="-28dp"
+                        android:background="@drawable/bottom_nav_indicator_shadow" />
 
-                        <ImageView
-                            android:id="@+id/tabScanIndicatorIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center" />
-                    </FrameLayout>
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tabScanIndicator"
+                        android:layout_width="58dp"
+                        android:layout_height="58dp"
+                        android:layout_gravity="center_horizontal"
+                        android:translationY="-28dp"
+                        android:visibility="invisible"
+                        app:cardBackgroundColor="@android:color/white"
+                        app:cardCornerRadius="29dp"
+                        app:cardElevation="0dp"
+                        app:cardUseCompatPadding="false">
+
+                        <FrameLayout
+                            android:id="@+id/tabScanIndicatorInner"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bottom_nav_indicator_inner"
+                            android:clipChildren="false"
+                            android:clipToPadding="false">
+
+                            <ImageView
+                                android:id="@+id/tabScanIndicatorIcon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <ImageView
                         android:id="@+id/tabScanIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:layout_gravity="center"
+                        android:layout_gravity="bottom|center_horizontal"
                         android:contentDescription="@string/home_nav_scan"
                         android:src="@drawable/ic_nav_scan"
                         app:tint="@color/bottom_nav_inactive" />
@@ -189,10 +265,13 @@
                     android:id="@+id/tabScanLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
                     android:text="@string/home_nav_scan"
                     android:textColor="@color/bottom_nav_inactive"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:gravity="center" />
             </LinearLayout>
 
             <LinearLayout
@@ -207,31 +286,54 @@
 
                 <FrameLayout
                     android:id="@+id/tabProfileIconWrapper"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="64dp"
+                    android:layout_height="32dp"
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
-                    <FrameLayout
-                        android:id="@+id/tabProfileIndicator"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="center"
-                        android:elevation="12dp"
-                        android:translationY="-20dp">
+                    <View
+                        android:id="@+id/tabProfileShadow"
+                        android:layout_width="76dp"
+                        android:layout_height="76dp"
+                        android:layout_gravity="center_horizontal"
+                        android:translationY="-28dp"
+                        android:background="@drawable/bottom_nav_indicator_shadow" />
 
-                        <ImageView
-                            android:id="@+id/tabProfileIndicatorIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center" />
-                    </FrameLayout>
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tabProfileIndicator"
+                        android:layout_width="58dp"
+                        android:layout_height="58dp"
+                        android:layout_gravity="center_horizontal"
+                        android:translationY="-28dp"
+                        android:visibility="invisible"
+                        app:cardBackgroundColor="@android:color/white"
+                        app:cardCornerRadius="29dp"
+                        app:cardElevation="0dp"
+                        app:cardUseCompatPadding="false">
+
+                        <FrameLayout
+                            android:id="@+id/tabProfileIndicatorInner"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bottom_nav_indicator_inner"
+                            android:clipChildren="false"
+                            android:clipToPadding="false">
+
+                            <ImageView
+                                android:id="@+id/tabProfileIndicatorIcon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                app:tint="@android:color/white" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <ImageView
                         android:id="@+id/tabProfileIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:layout_gravity="center"
+                        android:layout_gravity="bottom|center_horizontal"
                         android:contentDescription="@string/home_nav_profile"
                         android:src="@drawable/ic_nav_profile"
                         app:tint="@color/bottom_nav_inactive" />
@@ -241,10 +343,13 @@
                     android:id="@+id/tabProfileLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
                     android:text="@string/home_nav_profile"
                     android:textColor="@color/bottom_nav_inactive"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:gravity="center" />
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>

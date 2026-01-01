@@ -142,7 +142,7 @@
         <activity
             android:name=".ui.ProfileActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI" />
+            android:theme="@style/Theme.SentinelAI.Intro" />
         <activity
             android:name=".ui.SetupActivity"
             android:exported="true"

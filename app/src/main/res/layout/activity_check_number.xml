@@ -74,7 +74,7 @@
                             android:layout_height="18dp"
                             android:layout_gravity="center"
                             android:src="@android:drawable/ic_dialog_info"
-                            app:tint="@color/home_muted" />
+                            android:tint="@color/home_muted" />
                     </FrameLayout>
                 </LinearLayout>
 
@@ -145,22 +145,29 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/checknumber_icon_call"
-                            app:tint="@color/home_muted" />
+                            android:tint="@color/home_muted" />
 
-                        <TextView
+                        <EditText
+                            android:id="@+id/inputNumber"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
-                            android:text="@string/checknumber_input_value"
+                            android:background="@android:color/transparent"
+                            android:hint="@string/checknumber_input_value"
+                            android:importantForAutofill="yes"
+                            android:inputType="phone"
+                            android:maxLines="1"
                             android:textColor="@color/splash_title"
+                            android:textColorHint="@color/home_muted"
                             android:textSize="14sp" />
 
                         <ImageView
+                            android:id="@+id/btnClearNumber"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/checknumber_icon_backspace"
-                            app:tint="@color/home_muted" />
+                            android:tint="@color/home_muted" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -201,6 +208,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/txtResultTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/checknumber_results_time"
@@ -232,6 +240,7 @@
                         android:orientation="horizontal">
 
                         <TextView
+                            android:id="@+id/txtNumberStatusTag"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/checknumber_safe_tag_bg"
@@ -259,11 +268,12 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/checknumber_icon_verified"
-                                app:tint="@color/splash_logo_bg" />
+                                android:tint="@color/splash_logo_bg" />
                         </FrameLayout>
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/txtResultNumber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -292,6 +302,7 @@
                                 android:textSize="11sp" />
 
                             <TextView
+                                android:id="@+id/txtRatingValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/checknumber_rating_value"
@@ -301,12 +312,14 @@
                         </LinearLayout>
 
                         <FrameLayout
+                            android:id="@+id/ratingBarContainer"
                             android:layout_width="match_parent"
                             android:layout_height="8dp"
                             android:layout_marginTop="6dp"
                             android:background="@drawable/checknumber_bar_bg">
 
                             <View
+                                android:id="@+id/ratingBarFill"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_marginEnd="24dp"
@@ -314,6 +327,7 @@
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/txtRatingNote"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
@@ -347,6 +361,7 @@
                                 android:textSize="10sp" />
 
                             <TextView
+                                android:id="@+id/txtCarrierValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
@@ -377,6 +392,7 @@
                                 android:textSize="10sp" />
 
                             <TextView
+                                android:id="@+id/txtLocationValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
@@ -407,6 +423,7 @@
                                 android:textSize="10sp" />
 
                             <TextView
+                                android:id="@+id/txtReportsValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
@@ -457,7 +474,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/checknumber_icon_warning"
-                                app:tint="@color/home_accent_red" />
+                                android:tint="@color/home_accent_red" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -527,7 +544,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/checknumber_icon_warning"
-                                app:tint="@color/home_accent_yellow" />
+                                android:tint="@color/home_accent_yellow" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -570,16 +587,15 @@
             </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </ScrollView>
-    <com.sentinel.ai.ui.navigation.BottomNavView
-        android:id="@+id/bottomNavView"
-        android:layout_width="0dp"
-        android:layout_height="72dp"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.sentinel.ai.ui.navigation.BottomNavView
+            android:id="@+id/bottomNavView"
+            android:layout_width="0dp"
+            android:layout_height="72dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
-
-

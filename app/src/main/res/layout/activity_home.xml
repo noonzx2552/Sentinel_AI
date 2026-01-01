@@ -35,7 +35,7 @@
                 android:paddingBottom="12dp">
 
                 <LinearLayout
-                    android:id="@+id/quickCheckLink"
+                    android:id="@+id/homeHeader"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -380,7 +380,7 @@
                 android:weightSum="3">
 
                 <LinearLayout
-                    android:id="@+id/quickCheckNumber"
+                    android:id="@+id/quickCheckLink"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -417,7 +417,7 @@
                     android:layout_height="wrap_content" />
 
                 <LinearLayout
-                    android:id="@+id/quickCallLog"
+                    android:id="@+id/quickCheckNumber"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -454,6 +454,7 @@
                     android:layout_height="wrap_content" />
 
                 <LinearLayout
+                    android:id="@+id/quickCallLog"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
