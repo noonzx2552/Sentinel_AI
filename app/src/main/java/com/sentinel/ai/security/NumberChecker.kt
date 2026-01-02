@@ -1,9 +1,14 @@
 package com.sentinel.ai.security
 
 import android.content.Context
+import com.sentinel.ai.BuildConfig
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.URLEncoder
 import java.util.Locale
 
 data class NumberCheckResult(
@@ -12,6 +17,8 @@ data class NumberCheckResult(
     val displayNumber: String,
     val region: String?,
     val carrier: String?,
+    val countryName: String?,
+    val externalLineType: String?,
     val numberType: PhoneNumberUtil.PhoneNumberType,
     val score: Int,
     val status: SafetyLevel,
@@ -21,6 +28,7 @@ data class NumberCheckResult(
 class NumberChecker(context: Context) {
 
     private val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.createInstance(context)
+    private val httpClient = OkHttpClient()
 
     suspend fun check(raw: String): NumberCheckResult = withContext(Dispatchers.Default) {
         val cleaned = raw.trim()
@@ -33,9 +41,13 @@ class NumberChecker(context: Context) {
         val valid = phoneNumberUtil.isValidNumber(number)
         val region = phoneNumberUtil.getRegionCodeForNumber(number)
         val type = phoneNumberUtil.getNumberType(number)
+        val formattedE164 = phoneNumberUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.E164)
 
         var score = 55
         val notes = mutableListOf<String>()
+        var carrier: String? = null
+        var countryName: String? = null
+        var externalLineType: String? = null
 
         if (valid) {
             score += 15
@@ -61,6 +73,32 @@ class NumberChecker(context: Context) {
             else -> {}
         }
 
+        val external = fetchExternalInfo(formattedE164)
+        external?.let { info ->
+            carrier = info.carrier ?: carrier
+            countryName = info.countryName ?: countryName
+            externalLineType = info.lineType ?: externalLineType
+            if (info.valid == false) {
+                score -= 25
+                notes.add("External validation: number is invalid")
+            }
+            when (info.lineType?.lowercase(Locale.getDefault())) {
+                "premium rate" -> {
+                    score -= 25
+                    notes.add("External check: premium-rate number")
+                }
+                "toll-free" -> {
+                    score -= 5
+                    notes.add("External check: toll-free number")
+                }
+                "voip" -> {
+                    score -= 6
+                    notes.add("External check: VOIP number")
+                }
+                else -> {}
+            }
+        }
+
         val finalScore = score.coerceIn(0, 100)
         val status = when {
             finalScore >= 75 -> SafetyLevel.SAFE
@@ -70,14 +108,46 @@ class NumberChecker(context: Context) {
 
         NumberCheckResult(
             rawInput = cleaned,
-            formattedE164 = phoneNumberUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.E164),
+            formattedE164 = formattedE164,
             displayNumber = phoneNumberUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.NATIONAL),
-            region = region,
-            carrier = null,
+            region = countryName ?: region,
+            carrier = carrier,
+            countryName = countryName,
+            externalLineType = externalLineType,
             numberType = type,
             score = finalScore,
             status = status,
             issues = notes
         )
     }
+
+    private fun fetchExternalInfo(formattedE164: String): ExternalNumberInfo? {
+        val apiKey = BuildConfig.PHONE_REP_API_KEY
+        if (apiKey.isBlank()) return null
+        val encoded = URLEncoder.encode(formattedE164, "UTF-8")
+        val url = "https://phonevalidation.abstractapi.com/v1/?api_key=$apiKey&phone=$encoded"
+        val request = Request.Builder().url(url).get().build()
+        return runCatching {
+            httpClient.newCall(request).execute().use { resp ->
+                val body = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful || body.isBlank()) return null
+                val json = JSONObject(body)
+                ExternalNumberInfo(
+                    valid = json.optBoolean("valid", false),
+                    carrier = json.optString("carrier").takeIf { it.isNotBlank() },
+                    countryName = json.optJSONObject("country")?.optString("name").takeIf { !it.isNullOrBlank() },
+                    countryCode = json.optJSONObject("country")?.optString("code").takeIf { !it.isNullOrBlank() },
+                    lineType = json.optString("line_type").takeIf { it.isNotBlank() }
+                )
+            }
+        }.getOrNull()
+    }
 }
+
+private data class ExternalNumberInfo(
+    val valid: Boolean?,
+    val carrier: String?,
+    val countryName: String?,
+    val countryCode: String?,
+    val lineType: String?
+)

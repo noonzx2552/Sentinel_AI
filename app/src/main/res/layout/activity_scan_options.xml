@@ -74,7 +74,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="22dp"
                 app:cardElevation="2dp"
@@ -184,7 +184,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.card.MaterialCardView
@@ -295,7 +295,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -320,7 +320,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"
@@ -383,7 +383,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"
@@ -446,7 +446,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"

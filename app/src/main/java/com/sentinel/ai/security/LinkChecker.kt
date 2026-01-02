@@ -4,29 +4,30 @@ import android.util.Log
 import com.sentinel.ai.ui.DebugSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.Inet4Address
 import java.net.IDN
-import java.net.URI
 import java.net.InetAddress
+import java.net.URI
+import java.security.MessageDigest
 import java.security.cert.X509Certificate
-import java.security.cert.CertificateParsingException
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import javax.net.ssl.HostnameVerifier
 
 data class LinkCheckResult(
     val normalizedUrl: String,
     val domain: String,
+    val resolvedIp: String?,
     val score: Int,
     val status: SafetyLevel,
     val https: Boolean,
     val domainAgeDays: Long?,
+    val registrationDate: String?,
     val country: String?,
     val issues: List<String>,
     val tlsVersion: String?,
@@ -34,10 +35,45 @@ data class LinkCheckResult(
     val certIssuer: String?,
     val certNotBefore: Long?,
     val certNotAfter: Long?,
+    val certFingerprint: String?,
+    val certError: CertErrorReason?,
+    val certErrorDetail: String?,
     val deductions: List<Deduction>
 )
 
 enum class SafetyLevel { SAFE, CAUTION, DANGER }
+
+enum class CertErrorReason {
+    TLS_HANDSHAKE_FAILED,
+    REDIRECTED_TO_HTTP,
+    TIMEOUT,
+    DNS_FAIL
+}
+
+data class Deduction(
+    val reason: String,
+    val points: Int
+)
+
+data class CertInfo(
+    val subject: String?,
+    val issuer: String?,
+    val notBefore: Long?,
+    val notAfter: Long?,
+    val tlsVersion: String?,
+    val hosts: List<String>,
+    val fingerprintSha256: String?
+)
+
+private data class HeadResult(
+    val usedUrl: String,
+    val finalUrl: String,
+    val code: Int?,
+    val handshake: Boolean,
+    val bodySnippet: String,
+    val isPlaceholder: Boolean,
+    val certInfo: CertInfo?
+)
 
 class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
 
@@ -50,6 +86,8 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
         val host = uri.host ?: throw IllegalArgumentException("Missing host")
         val normalizedHost = IDN.toASCII(host)
         val domain = normalizedHost.removePrefix("www.")
+        val resolvedIp = resolveIpAddress(normalizedHost)
+        val registrationDate = runCatching { DomainAnalyzer.getDomainRegistrationDate(domain).getOrNull() }.getOrNull()
 
         var score = 60
         val notes = mutableListOf<String>()
@@ -86,7 +124,9 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
         if (hadHandshake) score += 5 else if (!https) score -= 5
         if (code in 200..399) score += 5 else if (code != null) score -= 5
 
-        val ageDays = fetchDomainAgeDays(domain)
+        val ageDays = runCatching { registrationDate?.let { Instant.parse(it).until(Instant.now(), ChronoUnit.DAYS) } }
+            .getOrNull()
+            ?: fetchDomainAgeDays(domain)
         if (ageDays != null) {
             when {
                 ageDays > 365 -> score += 15
@@ -120,12 +160,23 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
             deductions.add(Deduction("Unusual characters in URL", 5))
         }
 
-        val certInfo = headResult?.certInfo ?: initialResult?.certInfo
+        var certInfo = headResult?.certInfo ?: initialResult?.certInfo
+        var certError: CertErrorReason? = null
+        var certErrorDetail: String? = null
+
         if (https && certInfo == null) {
-            score -= 20
-            notes.add("No TLS certificate presented")
-            deductions.add(Deduction("No TLS certificate presented", 20))
+            debugLog("Fallback CertProbe started for $domain")
+            val probeResult = CertProbeClient.probe(domain)
+            if (probeResult.certInfo != null) {
+                certInfo = probeResult.certInfo
+                debugLog("CertProbe handshake success tls=${probeResult.certInfo.tlsVersion}")
+            } else {
+                certError = probeResult.errorReason ?: CertErrorReason.TLS_HANDSHAKE_FAILED
+                certErrorDetail = probeResult.errorMessage
+                debugLog("CertProbe failed: ${certError?.name} detail=$certErrorDetail")
+            }
         }
+
         if (certInfo != null) {
             val now = System.currentTimeMillis()
             certInfo.notAfter?.let {
@@ -160,10 +211,12 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
         LinkCheckResult(
             normalizedUrl = normalized,
             domain = domain,
+            resolvedIp = resolvedIp,
             score = finalScore,
             status = status,
             https = https,
             domainAgeDays = ageDays,
+            registrationDate = registrationDate,
             country = country,
             issues = notes,
             tlsVersion = certInfo?.tlsVersion,
@@ -171,6 +224,9 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
             certIssuer = certInfo?.issuer,
             certNotBefore = certInfo?.notBefore,
             certNotAfter = certInfo?.notAfter,
+            certFingerprint = certInfo?.fingerprintSha256,
+            certError = certError,
+            certErrorDetail = certErrorDetail,
             deductions = deductions
         )
     }
@@ -185,7 +241,7 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
         }
     }
 
-private fun performHead(urls: List<String>): HeadResult? {
+    private fun performHead(urls: List<String>): HeadResult? {
         urls.forEach { url ->
             val request = Request.Builder()
                 .url(url)
@@ -206,8 +262,14 @@ private fun performHead(urls: List<String>): HeadResult? {
                         notBefore = c.notBefore?.time,
                         notAfter = c.notAfter?.time,
                         tlsVersion = handshake.tlsVersion?.javaName,
-                        hosts = hosts
+                        hosts = hosts,
+                        fingerprintSha256 = fingerprintSha256(c)
                     )
+                }
+                if (handshake == null) {
+                    debugLog("performHead no handshake url=$url code=${it.code}")
+                } else {
+                    debugLog("performHead handshake ok tls=${handshake.tlsVersion} cipher=${handshake.cipherSuite}")
                 }
                 return HeadResult(
                     usedUrl = url,
@@ -304,26 +366,7 @@ private fun performHead(urls: List<String>): HeadResult? {
     }
 }
 
-private data class HeadResult(
-    val usedUrl: String,
-    val finalUrl: String,
-    val code: Int?,
-    val handshake: Boolean,
-    val bodySnippet: String,
-    val isPlaceholder: Boolean,
-    val certInfo: CertInfo?
-)
-
-private data class CertInfo(
-    val subject: String?,
-    val issuer: String?,
-    val notBefore: Long?,
-    val notAfter: Long?,
-    val tlsVersion: String?,
-    val hosts: List<String>
-)
-
-private fun extractCn(dn: String?): String? {
+fun extractCn(dn: String?): String? {
     dn ?: return null
     return dn.split(",")
         .map { it.trim() }
@@ -331,12 +374,7 @@ private fun extractCn(dn: String?): String? {
         ?.substringAfter("=")
 }
 
-data class Deduction(
-    val reason: String,
-    val points: Int
-)
-
-private fun extractHosts(cert: X509Certificate): List<String> {
+fun extractHosts(cert: X509Certificate): List<String> {
     val sans = runCatching { cert.subjectAlternativeNames }.getOrNull().orEmpty()
     val sanHosts = sans.mapNotNull { entry ->
         if (entry.size >= 2 && entry[0] == 2) entry[1]?.toString() else null
@@ -391,7 +429,7 @@ private fun extractCountryFromEntities(entities: JSONArray): String? {
 
 private fun fetchCountryFromSite24x7(domain: String, client: OkHttpClient): String? {
     // JSON endpoint
-    val jsonBody = FormBody.Builder()
+    val jsonBody = okhttp3.FormBody.Builder()
         .add("hostname", domain)
         .add("fromTab", "false")
         .build()
@@ -422,7 +460,7 @@ private fun fetchCountryFromSite24x7(domain: String, client: OkHttpClient): Stri
     if (!jsonCountry.isNullOrBlank()) return jsonCountry
 
     // Fallback HTML scrape
-    val formBody = FormBody.Builder()
+    val formBody = okhttp3.FormBody.Builder()
         .add("hostName", domain)
         .build()
     val request = Request.Builder()
@@ -450,10 +488,15 @@ private fun fetchCountryFromSite24x7(domain: String, client: OkHttpClient): Stri
     return country
 }
 
-private fun debugLog(msg: String) {
-    if (DebugSettings.isDebugEnabled.value) {
-        Log.d("LinkChecker", msg)
+private fun resolveIpAddress(host: String): String? {
+    val addresses = runCatching { InetAddress.getAllByName(host).toList() }.getOrNull().orEmpty()
+    val ipv4 = addresses.firstOrNull { it is Inet4Address }?.hostAddress
+    val ipv6 = addresses.firstOrNull { it !is Inet4Address }?.hostAddress
+    val resolved = ipv4 ?: ipv6
+    if (resolved != null) {
+        debugLog("Resolved $host -> $resolved (prefer ipv4=${ipv4 != null})")
     }
+    return resolved
 }
 
 private fun resolveIpCountry(host: String): String? {
@@ -464,7 +507,7 @@ private fun resolveIpCountry(host: String): String? {
         .url("http://ip-api.com/json/$ip?fields=status,country")
         .get()
         .build()
-    val ipApiBody = runCatching { defaultClient().newCall(ipApi).execute().use { it.body?.string() } }.getOrNull()
+    val ipApiBody = runCatching { OkHttpClient().newCall(ipApi).execute().use { it.body?.string() } }.getOrNull()
     if (!ipApiBody.isNullOrBlank()) {
         val country = runCatching {
             val json = JSONObject(ipApiBody)
@@ -477,7 +520,7 @@ private fun resolveIpCountry(host: String): String? {
         .url("https://ipwho.is/$ip?fields=country")
         .get()
         .build()
-    val ipwhoisBody = runCatching { defaultClient().newCall(ipwhois).execute().use { it.body?.string() } }.getOrNull()
+    val ipwhoisBody = runCatching { OkHttpClient().newCall(ipwhois).execute().use { it.body?.string() } }.getOrNull()
     if (!ipwhoisBody.isNullOrBlank()) {
         val country = runCatching { JSONObject(ipwhoisBody).optString("country", null) }.getOrNull()
         if (!country.isNullOrBlank()) return country
@@ -487,7 +530,7 @@ private fun resolveIpCountry(host: String): String? {
         .url("https://ipapi.co/$ip/json/")
         .get()
         .build()
-    val ipapiBody = runCatching { defaultClient().newCall(ipapi).execute().use { it.body?.string() } }.getOrNull()
+    val ipapiBody = runCatching { OkHttpClient().newCall(ipapi).execute().use { it.body?.string() } }.getOrNull()
     if (!ipapiBody.isNullOrBlank()) {
         val country = runCatching { JSONObject(ipapiBody).optString("country_name", null) }.getOrNull()
         if (!country.isNullOrBlank()) return country
@@ -496,4 +539,14 @@ private fun resolveIpCountry(host: String): String? {
     return null
 }
 
-private fun defaultClient(): OkHttpClient = OkHttpClient()
+fun fingerprintSha256(cert: X509Certificate): String {
+    val md = MessageDigest.getInstance("SHA-256")
+    val digest = md.digest(cert.encoded)
+    return digest.joinToString(":") { b -> "%02X".format(b) }
+}
+
+private fun debugLog(msg: String) {
+    if (DebugSettings.isDebugEnabled.value) {
+        Log.d("LinkChecker", msg)
+    }
+}

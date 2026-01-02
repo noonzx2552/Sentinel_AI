@@ -109,7 +109,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="22dp"
                 app:cardElevation="2dp"
@@ -219,7 +219,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
@@ -446,16 +446,16 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/home_card_bg"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="1dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@color/home_card_border"
-                app:strokeWidth="1dp">
+              <com.google.android.material.card.MaterialCardView
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="@dimen/card_margin_top"
+                  app:cardBackgroundColor="@color/home_card_bg"
+                  app:cardCornerRadius="18dp"
+                  app:cardElevation="0.5dp"
+                  app:cardUseCompatPadding="false"
+                  app:strokeColor="@color/home_card_border"
+                  app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -516,16 +516,16 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/home_card_bg"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="1dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@color/home_card_border"
-                app:strokeWidth="1dp">
+              <com.google.android.material.card.MaterialCardView
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="@dimen/card_margin_top"
+                  app:cardBackgroundColor="@color/home_card_bg"
+                  app:cardCornerRadius="18dp"
+                  app:cardElevation="0.5dp"
+                  app:cardUseCompatPadding="false"
+                  app:strokeColor="@color/home_card_border"
+                  app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"

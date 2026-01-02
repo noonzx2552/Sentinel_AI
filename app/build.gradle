@@ -23,6 +23,12 @@ android {
         // Self-hosted Whisper.cpp API key (X-API-Key header). Override with -PWHISPER_CPP_API_KEY or in gradle.properties/local.properties
         def whisperCppKey = (project.findProperty("WHISPER_CPP_API_KEY") ?: "D0yoUkn0wwho@mI%cAtCHm31fUcan").toString().replace("\"", "")
         buildConfigField("String", "WHISPER_CPP_API_KEY", "\"${whisperCppKey}\"")
+        // IPinfo token (for country lookup). Provide via -PIPINFO_TOKEN=... or in gradle.properties/local.properties
+        def ipinfoToken = (project.findProperty("IPINFO_TOKEN") ?: "b0d703ec7cfe55").toString().replace("\"", "")
+        buildConfigField("String", "IPINFO_TOKEN", "\"${ipinfoToken}\"")
+        // External phone validation API key (e.g., AbstractAPI/numverify). Provide via -PPHONE_REP_API_KEY=... or in gradle.properties/local.properties
+        def phoneRepKey = (project.findProperty("PHONE_REP_API_KEY") ?: "").toString().replace("\"", "")
+        buildConfigField("String", "PHONE_REP_API_KEY", "\"${phoneRepKey}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

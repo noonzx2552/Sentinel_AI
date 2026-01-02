@@ -185,7 +185,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"
@@ -254,7 +254,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"
@@ -323,7 +323,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"
@@ -395,7 +395,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"
@@ -464,7 +464,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"

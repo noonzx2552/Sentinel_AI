@@ -79,6 +79,7 @@ class SetupActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please enable all permissions for Guardian Mode.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            com.sentinel.ai.utils.OnboardingPrefs.setComplete(this, true)
             SentinelGuardianService.start(this)
             startActivity(Intent(this, HomeActivity::class.java))
             finish()

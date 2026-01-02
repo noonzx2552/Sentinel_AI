@@ -28,6 +28,7 @@ class PrivacyActivity : AppCompatActivity() {
 
         binding.btnAgree.setOnClickListener {
             val target = if (PermissionUtils.allEssentialGranted(this)) {
+                com.sentinel.ai.utils.OnboardingPrefs.setComplete(this, true)
                 Intent(this, HomeActivity::class.java)
             } else {
                 Intent(this, SetupActivity::class.java)

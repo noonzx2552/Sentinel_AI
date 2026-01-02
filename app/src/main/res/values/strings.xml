@@ -116,7 +116,8 @@
     <string name="checklink_score_format">Safety Score: %1$d/100</string>
     <string name="checklink_age_unknown">age unknown</string>
     <string name="checklink_country_unknown">Country unknown</string>
-    <string name="checklink_domain_body_format">%1$s • %2$s • %3$s</string>
+    <string name="checklink_domain_body_format_ip">%1$s (IP: %2$s) • %3$s • %4$s</string>
+    <string name="checklink_ip_unknown">IP unknown</string>
     <string name="checklink_ssl_ok">Valid HTTPS connection</string>
     <string name="checklink_ssl_details">TLS %1$s • Cert: %2$s • Issuer: %3$s</string>
     <string name="checklink_ssl_unknown">Unknown</string>

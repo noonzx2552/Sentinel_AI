@@ -17,6 +17,9 @@ import com.sentinel.ai.security.SafetyLevel
 import com.sentinel.ai.ui.navigation.BottomTab
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class CheckLinkActivity : BaseActivity() {
@@ -84,9 +87,14 @@ class CheckLinkActivity : BaseActivity() {
 
         scoreView.text = getString(R.string.checklink_score_format, result.score)
 
-        val ageText = result.domainAgeDays?.let { "$it days old" } ?: getString(R.string.checklink_age_unknown)
+        val ageText = when {
+            result.registrationDate != null -> formatRegistrationDate(result.registrationDate)
+            result.domainAgeDays != null -> "${result.domainAgeDays} days old"
+            else -> getString(R.string.checklink_age_unknown)
+        }
         val countryText = result.country ?: getString(R.string.checklink_country_unknown)
-        domainBody.text = getString(R.string.checklink_domain_body_format, result.domain, ageText, countryText)
+        val ipText = result.resolvedIp ?: getString(R.string.checklink_ip_unknown)
+        domainBody.text = getString(R.string.checklink_domain_body_format_ip, result.domain, ipText, ageText, countryText)
 
         sslBody.text = if (result.https) {
             val tls = result.tlsVersion ?: getString(R.string.checklink_ssl_unknown)
@@ -107,4 +115,18 @@ class CheckLinkActivity : BaseActivity() {
     }
 
     override fun getCurrentTab(): BottomTab = BottomTab.SCAN
+
+    private fun formatRegistrationDate(raw: String): String {
+        return runCatching {
+            val date = Instant.parse(raw).atZone(ZoneOffset.UTC).toLocalDate()
+            date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) // DD-MM-YYYY
+        }.getOrElse {
+            val fallback = raw.substringBefore("T", raw)
+            // Try reformat fallback if already yyyy-MM-dd
+            runCatching {
+                val parsed = DateTimeFormatter.ISO_LOCAL_DATE.parse(fallback)
+                DateTimeFormatter.ofPattern("dd-MM-yyyy").format(parsed)
+            }.getOrDefault(fallback)
+        }
+    }
 }

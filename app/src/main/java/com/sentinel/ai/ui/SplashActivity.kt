@@ -8,10 +8,15 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.sentinel.ai.BuildConfig
 import com.sentinel.ai.R
 import com.sentinel.ai.databinding.ActivitySplashBinding
+import com.sentinel.ai.utils.OnboardingPrefs
+import com.sentinel.ai.utils.PermissionUtils
 
 class SplashActivity : AppCompatActivity() {
 
@@ -28,8 +33,16 @@ class SplashActivity : AppCompatActivity() {
     private val progressDurationMs = 1200L
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        window.statusBarColor = getColor(R.color.splash_bg)
+        window.navigationBarColor = getColor(R.color.splash_bg)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true
+            isAppearanceLightNavigationBars = true
+        }
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -67,7 +80,11 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun navigateToNextScreen() {
-        val target = Intent(this, IntroActivity::class.java)
+        val target = if (OnboardingPrefs.isComplete(this) && PermissionUtils.allEssentialGranted(this)) {
+            Intent(this, HomeActivity::class.java)
+        } else {
+            Intent(this, IntroActivity::class.java)
+        }
         startActivity(target)
         // Apply fade-out transition to this activity and fade-in to the next
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
