@@ -78,9 +78,29 @@ class CallModeMonitor(private val context: Context) {
                     riskLevel = RiskLevel.SAFE
                 )
             )
-            tts.speak("Microphone permission missing. Call monitoring cannot start.", flush = true)
+            try {
+                tts.speak("Microphone permission missing. Call monitoring cannot start.", flush = true)
+            } catch (e: Exception) {
+                // ignore tts error
+            }
             return
         }
+        
+        // Safety check for Overlay permission
+        if (!android.provider.Settings.canDrawOverlays(context)) {
+             GuardianEventStore.addEvent(
+                GuardianEvent(
+                    source = "Call monitor",
+                    content = "Overlay permission missing. Cannot show UI.",
+                    score = 0,
+                    riskLevel = RiskLevel.SAFE
+                )
+            )
+            // Even if overlay is missing, we might still want to record audio? 
+            // Probably not safely without UI feedback. Let's abort to be safe and avoid crash.
+            return
+        }
+
         micRunning = true
         GuardianEventStore.addEvent(
             GuardianEvent(
@@ -90,18 +110,42 @@ class CallModeMonitor(private val context: Context) {
                 riskLevel = RiskLevel.SAFE
             )
         )
-        overlay.showLiveTranscript("Listening...")
-        tts.startKeepAliveLoop("Call monitoring active. Text to speech is running.")
-        speechTester.listenContinuously(
-            onResult = { handleTranscript(it) },
-            onError = { handleError(it) },
-            onPartial = { partial ->
-                if (partial.isNotBlank() && partial != "...") {
-                    overlay.updateLiveTranscript(partial)
-                }
-            },
-            languageTag = PREFERRED_LANG
-        )
+        
+        try {
+            overlay.showLiveTranscript("Listening...")
+        } catch (e: Exception) {
+            micRunning = false
+            return
+        }
+
+        try {
+            tts.startKeepAliveLoop("Call monitoring active. Text to speech is running.")
+        } catch (e: Exception) {
+            // ignore
+        }
+
+        try {
+            speechTester.listenContinuously(
+                onResult = { handleTranscript(it) },
+                onError = { handleError(it) },
+                onPartial = { partial ->
+                    if (partial.isNotBlank() && partial != "...") {
+                        try {
+                            overlay.updateLiveTranscript(partial)
+                        } catch (e: Exception) {
+                            // ignore UI update error
+                        }
+                    }
+                },
+                languageTag = PREFERRED_LANG
+            )
+        } catch (e: Exception) {
+            handleError("Start listen failed: ${e.message}")
+            micRunning = false
+            try {
+                overlay.dismiss()
+            } catch (ignore: Exception) {}
+        }
     }
 
     private fun handleTranscript(text: String) {

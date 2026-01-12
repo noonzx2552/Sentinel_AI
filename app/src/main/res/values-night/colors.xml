@@ -28,4 +28,5 @@
     <color name="profile_version_text">#475569</color>
     <color name="profile_toggle_track">#334155</color>
     <color name="profile_toggle_thumb">#E2E8F0</color>
+    <color name="splash_bg">#FFFFFF</color>
 </resources>

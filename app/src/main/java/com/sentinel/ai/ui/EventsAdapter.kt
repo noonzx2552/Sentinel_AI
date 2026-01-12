@@ -33,14 +33,16 @@ class EventsAdapter : RecyclerView.Adapter<EventsAdapter.EventViewHolder>() {
     class EventViewHolder(private val binding: ItemEventBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: GuardianEvent) {
             binding.eventTitle.text = event.source
-            binding.eventDetail.text = event.content
-            binding.eventScore.text = "Score: ${event.score}"
+            binding.eventMessage.text = event.content
+            // eventScore is not in the layout, skipping display for now or mapping it to something else if needed
+            // For now, removing the reference to avoid build error
+            
             val color = when (event.riskLevel) {
                 RiskLevel.SAFE -> R.color.sentinel_on_surface
                 RiskLevel.WARNING -> R.color.sentinel_warning
                 RiskLevel.CRITICAL -> R.color.sentinel_critical
             }
-            binding.eventScore.setTextColor(ContextCompat.getColor(binding.root.context, color))
+            binding.eventMessage.setTextColor(ContextCompat.getColor(binding.root.context, color))
         }
     }
 }

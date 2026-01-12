@@ -136,191 +136,64 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp">
 
-                        <EditText
-                            android:layout_width="match_parent"
-                            android:layout_height="120dp"
-                            android:background="@drawable/scan_textarea_bg"
-                            android:gravity="top|start"
-                            android:hint="@string/scan_input_hint"
-                            android:padding="14dp"
-                            android:textColor="@color/splash_title"
-                            android:textColorHint="@color/permission_subtle"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end|bottom"
-                            android:layout_marginEnd="12dp"
-                            android:layout_marginBottom="12dp"
-                            android:background="@drawable/checklink_chip_bg"
-                            android:paddingStart="10dp"
-                            android:paddingEnd="10dp"
-                            android:paddingTop="6dp"
-                            android:paddingBottom="6dp"
-                            android:text="@string/scan_paste"
-                            android:textColor="@color/splash_logo_bg"
-                            android:textSize="10sp"
-                            android:textStyle="bold" />
-                    </FrameLayout>
-
-                    <com.google.android.material.button.MaterialButton
+                    <EditText
+                        android:id="@+id/inputScanContent"
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginTop="14dp"
-                        android:text="@string/scan_action"
-                        android:textAllCaps="false"
-                        android:textColor="@color/splash_logo_icon"
-                        android:textSize="15sp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:backgroundTint="@color/splash_logo_bg"
-                        app:cornerRadius="16dp"
-                        app:icon="@drawable/checklink_icon_scan"
-                        app:iconPadding="8dp"
-                        app:iconTint="@color/splash_logo_icon" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
+                        android:layout_height="120dp"
+                        android:background="@drawable/scan_textarea_bg"
+                        android:gravity="top|start"
+                        android:hint="@string/scan_input_hint"
+                        android:padding="14dp"
+                        android:textColor="@color/splash_title"
+                        android:textColorHint="@color/permission_subtle"
+                        android:textSize="13sp" />
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="@color/home_card_bg"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="1dp"
-                    app:cardUseCompatPadding="true"
-                    app:strokeColor="@color/home_card_border"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/btnPaste"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/checklink_chip_bg"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:text="@string/scan_paste"
+                        android:textColor="@color/splash_logo_bg"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
 
-                        <FrameLayout
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@drawable/home_badge_blue_bg">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_gravity="center"
-                                android:src="@android:drawable/ic_menu_upload"
-                                app:tint="@color/home_accent_blue" />
-                        </FrameLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="@string/scan_upload_title"
-                            android:textColor="@color/splash_title"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/scan_upload_subtitle"
-                            android:textColor="@color/permission_subtle"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <Space
-                    android:layout_width="12dp"
-                    android:layout_height="wrap_content" />
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="@color/home_card_bg"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="1dp"
-                    app:cardUseCompatPadding="true"
-                    app:strokeColor="@color/home_card_border"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <FrameLayout
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@drawable/home_badge_purple_bg">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_gravity="center"
-                                android:src="@android:drawable/ic_menu_camera"
-                                app:tint="@color/home_accent_purple" />
-                        </FrameLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="@string/scan_qr_title"
-                            android:textColor="@color/splash_title"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/scan_qr_subtitle"
-                            android:textColor="@color/permission_subtle"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnScanAction"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/scan_action"
+                    android:textAllCaps="false"
+                    android:textColor="@color/splash_logo_icon"
+                    android:textSize="15sp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:backgroundTint="@color/splash_logo_bg"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/checklink_icon_scan"
+                    app:iconPadding="8dp"
+                    app:iconTint="@color/splash_logo_icon" />
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/scan_recent_title"
-                    android:textColor="@color/splash_title"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/scan_clear_all"
-                    android:textColor="@color/splash_logo_bg"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
 
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/card_margin_top"
+                android:layout_weight="1"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"
@@ -331,59 +204,50 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <FrameLayout
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/home_badge_green_bg">
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/home_badge_blue_bg">
 
                         <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/checknumber_icon_verified"
-                            app:tint="@color/splash_logo_bg" />
+                            android:src="@android:drawable/ic_menu_upload"
+                            app:tint="@color/home_accent_blue" />
                     </FrameLayout>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:layout_marginTop="10dp"
+                        android:text="@string/scan_upload_title"
+                        android:textColor="@color/splash_title"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/scan_recent_item1_title"
-                            android:textColor="@color/splash_title"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/scan_recent_item1_body"
-                            android:textColor="@color/home_muted"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@android:drawable/ic_media_next"
-                        app:tint="@color/permission_subtle" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/scan_upload_subtitle"
+                        android:textColor="@color/permission_subtle"
+                        android:textSize="10sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <Space
+                android:layout_width="12dp"
+                android:layout_height="wrap_content" />
+
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/card_margin_top"
+                android:layout_weight="1"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="1dp"
@@ -394,117 +258,80 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <FrameLayout
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/home_badge_red_bg">
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/home_badge_purple_bg">
 
                         <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/checknumber_icon_warning"
-                            app:tint="@color/home_accent_red" />
+                            android:src="@android:drawable/ic_menu_camera"
+                            app:tint="@color/home_accent_purple" />
                     </FrameLayout>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:layout_marginTop="10dp"
+                        android:text="@string/scan_qr_title"
+                        android:textColor="@color/splash_title"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/scan_recent_item2_title"
-                            android:textColor="@color/splash_title"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/scan_recent_item2_body"
-                            android:textColor="@color/home_muted"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@android:drawable/ic_media_next"
-                        app:tint="@color/permission_subtle" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/scan_qr_subtitle"
+                        android:textColor="@color/permission_subtle"
+                        android:textSize="10sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/card_margin_top"
-                app:cardBackgroundColor="@color/home_card_bg"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="1dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@color/home_card_border"
-                app:strokeWidth="1dp">
+                android:layout_weight="1"
+                android:text="@string/scan_recent_title"
+                android:textColor="@color/splash_title"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearHistory"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scan_clear_all"
+                android:textColor="@color/splash_logo_bg"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:rippleColor="@color/splash_logo_bg" />
+        </LinearLayout>
 
-                    <FrameLayout
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/home_badge_yellow_bg">
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/checknumber_icon_warning"
-                            app:tint="@color/home_accent_yellow" />
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/scan_recent_item3_title"
-                            android:textColor="@color/splash_title"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/scan_recent_item3_body"
-                            android:textColor="@color/home_muted"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@android:drawable/ic_media_next"
-                        app:tint="@color/permission_subtle" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recentScansList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:nestedScrollingEnabled="false" />
         </LinearLayout>
     </ScrollView>
     <com.sentinel.ai.ui.navigation.BottomNavView

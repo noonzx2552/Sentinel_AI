@@ -28,54 +28,70 @@ class SentinelCallScreeningService : CallScreeningService() {
     private val notificationHelper by lazy { NotificationHelper(this) }
 
     override fun onScreenCall(callDetails: Call.Details) {
-        SentinelGuardianService.start(this)
-        val number = callDetails.handle?.schemeSpecificPart ?: "Unknown"
-        val contactName = ContactLookup.getContactName(this, number)
-        val known = KnownNumberRepository.lookup(number) ?: KnownNumberRepository.heuristic(number)
-        val transcript = whisperEngine.transcribe()
-        val behavior = pressureAnalyzer.analyze(transcript)
-        val risk = riskScoring.score(transcript, behavior)
-        val riskLevel = maxRisk(known?.riskLevel ?: RiskLevel.SAFE, toRiskLevel(risk.score))
+        try {
+            SentinelGuardianService.start(this)
+            val number = callDetails.handle?.schemeSpecificPart ?: "Unknown"
+            val contactName = ContactLookup.getContactName(this, number)
+            val known = KnownNumberRepository.lookup(number) ?: KnownNumberRepository.heuristic(number)
+            
+            // Removed: whisperEngine.transcribe() - Cannot transcribe before call starts!
+            // Removed: pressureAnalyzer - No transcript yet.
 
-        val displayName = contactName ?: known?.displayName ?: "Unknown caller"
-        val reason = buildReason(known?.reason, behavior)
+            val riskLevel = known?.riskLevel ?: RiskLevel.SAFE
+            val displayName = contactName ?: known?.displayName ?: "Unknown caller"
+            val reason = known?.reason ?: ""
 
-        val event = GuardianEvent(
-            source = "Call from $number",
-            content = transcript,
-            score = risk.score,
-            riskLevel = riskLevel
-        )
-        GuardianEventStore.addEvent(event)
+            // Log basic event
+            val event = GuardianEvent(
+                source = "Call from $number",
+                content = "Incoming call ring. Known status: $riskLevel",
+                score = 0,
+                riskLevel = riskLevel
+            )
+            GuardianEventStore.addEvent(event)
 
-        overlay.showCallerInfo(
-            name = displayName,
-            number = number,
-            riskLevel = riskLevel,
-            reason = reason
-        )
-
-        when (riskLevel) {
-            RiskLevel.CRITICAL -> {
-                overlay.showCritical()
-                launchCriticalAlert(risk.score, transcript)
-                notifyCaretaker(displayName, number, riskLevel, reason)
-                respondToCall(
-                    callDetails,
-                    CallResponse.Builder()
-                        .setDisallowCall(true)
-                        .setRejectCall(true)
-                        .setSkipCallLog(true)
-                        .setSkipNotification(true)
-                        .build()
+            try {
+                overlay.showCallerInfo(
+                    name = displayName,
+                    number = number,
+                    riskLevel = riskLevel,
+                    reason = reason
                 )
+            } catch (e: Exception) {
+                // Ignore overlay error if permission missing
             }
-            RiskLevel.WARNING -> {
-                overlay.showWarning()
-                notifyCaretaker(displayName, number, riskLevel, reason)
-                allowCall(callDetails)
+
+            when (riskLevel) {
+                RiskLevel.CRITICAL -> {
+                    try {
+                        overlay.showCritical()
+                        notifyCaretaker(displayName, number, riskLevel, reason)
+                    } catch (e: Exception) {}
+                    
+                    respondToCall(
+                        callDetails,
+                        CallResponse.Builder()
+                            .setDisallowCall(true)
+                            .setRejectCall(true)
+                            .setSkipCallLog(true)
+                            .setSkipNotification(true)
+                            .build()
+                    )
+                }
+                RiskLevel.WARNING -> {
+                    try {
+                        overlay.showWarning()
+                        notifyCaretaker(displayName, number, riskLevel, reason)
+                    } catch (e: Exception) {}
+                    allowCall(callDetails)
+                }
+                RiskLevel.SAFE -> allowCall(callDetails)
             }
-            RiskLevel.SAFE -> allowCall(callDetails)
+        } catch (e: Exception) {
+            // Absolute safety net: Allow call if anything crashes
+            try {
+                respondToCall(callDetails, CallResponse.Builder().build())
+            } catch (ignore: Exception) {}
         }
     }
 

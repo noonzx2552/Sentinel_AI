@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.SentinelAI" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.SentinelAI" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/sentinel_primary</item>
         <item name="colorSecondary">@color/sentinel_accent</item>
         <item name="android:statusBarColor">@color/sentinel_primary</item>
@@ -16,10 +16,10 @@
         <item name="android:navigationBarColor">@color/splash_bg</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
-        <item name="postSplashScreenTheme">@style/Theme.SentinelAI</item>
+        <item name="postSplashScreenTheme">@style/Theme.SentinelAI.Intro</item>
     </style>
 
-    <style name="Theme.SentinelAI.Intro" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.SentinelAI.Intro" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">@color/splash_bg</item>
         <item name="android:statusBarColor">@color/splash_bg</item>
         <item name="android:navigationBarColor">@color/splash_bg</item>

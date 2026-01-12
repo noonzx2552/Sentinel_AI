@@ -107,6 +107,8 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
         }
 
         val normalized = headResult?.finalUrl ?: initial
+        val certHost = hostFromUrl(normalized) ?: normalizedHost
+        val certDomain = certHost.removePrefix("www.")
         val https = normalized.startsWith("https://", ignoreCase = true)
         if (https) {
             score += 10
@@ -193,7 +195,7 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
                     deductions.add(Deduction("Certificate not yet valid", 10))
                 }
             }
-            val hostMatch = matchesHost(certInfo.hosts, domain, normalizedHost)
+            val hostMatch = matchesHost(certInfo.hosts, certDomain, certHost)
             if (!hostMatch) {
                 score -= 15
                 notes.add("Certificate hostname mismatch")
@@ -284,6 +286,12 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
             response?.closeQuietly()
         }
         return null
+    }
+
+    private fun hostFromUrl(url: String): String? {
+        val uri = runCatching { URI(url) }.getOrNull() ?: return null
+        val host = uri.host ?: return null
+        return runCatching { IDN.toASCII(host) }.getOrNull() ?: host
     }
 
     private fun fetchDomainAgeDays(domain: String): Long? {
