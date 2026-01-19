@@ -3,7 +3,6 @@ package com.sentinel.ai.ui
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.sentinel.ai.R
 import com.sentinel.ai.databinding.ActivitySetupBinding
@@ -11,7 +10,7 @@ import com.sentinel.ai.service.SentinelGuardianService
 import com.sentinel.ai.utils.ModelInitializer
 import com.sentinel.ai.utils.PermissionUtils
 
-class SetupActivity : AppCompatActivity() {
+class SetupActivity : BaseLocalizedActivity() {
 
     private lateinit var binding: ActivitySetupBinding
 
@@ -76,7 +75,7 @@ class SetupActivity : AppCompatActivity() {
         }
         binding.btnContinue.setOnClickListener {
             if (!PermissionUtils.allEssentialGranted(this)) {
-                Toast.makeText(this, "Please enable all permissions for Guardian Mode.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.setup_permissions_required), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             com.sentinel.ai.utils.OnboardingPrefs.setComplete(this, true)

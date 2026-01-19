@@ -15,6 +15,6 @@ object OverlayGatekeeper {
     }
 
     fun dismissAll() {
-        controllers.forEach { it.dismiss() }
+        controllers.forEach { it.dismiss(force = false) }
     }
 }

@@ -42,7 +42,7 @@
                         android:id="@+id/profileTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Profile"
+                        android:text="@string/profile_title"
                         android:textColor="@color/profile_text_primary"
                         android:textSize="22sp"
                         android:textStyle="bold" />
@@ -52,31 +52,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Manage your account &amp; preferences"
+                        android:text="@string/profile_subtitle"
                         android:textColor="@color/profile_text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/profileNotificationsButton"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:cardBackgroundColor="@color/profile_card_bg"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="@color/profile_card_border"
-                    app:strokeWidth="1dp">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:contentDescription="@string/profile_notifications"
-                        android:src="@drawable/ic_profile_notifications"
-                        app:tint="@color/profile_icon_tint" />
-                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
@@ -151,15 +131,6 @@
                             android:textColor="@color/profile_text_primary"
                             android:textSize="18sp"
                             android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/profileEmail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/profile_email"
-                            android:textColor="@color/profile_text_secondary"
-                            android:textSize="12sp" />
                     </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -175,6 +146,7 @@
                 android:letterSpacing="0.08" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/profileAccountCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/card_margin_top"
@@ -191,10 +163,13 @@
                     android:orientation="vertical">
 
                     <LinearLayout
+                        android:id="@+id/rowProfileEditName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
 
                         <FrameLayout
                             android:layout_width="40dp"
@@ -220,7 +195,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/profile_personal_info"
+                                android:text="@string/profile_edit_name"
                                 android:textColor="@color/profile_text_primary"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
@@ -229,133 +204,19 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="@string/profile_personal_info_subtitle"
+                                android:text="@string/profile_edit_name_subtitle"
                                 android:textColor="@color/profile_text_secondary"
                                 android:textSize="12sp" />
                         </LinearLayout>
 
                         <ImageView
+                            android:id="@+id/chevronProfileEditName"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_profile_chevron_right"
                             app:tint="@color/profile_text_secondary" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="68dp"
-                        android:layout_marginEnd="16dp"
-                        android:background="@color/profile_card_border" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/profile_icon_circle"
-                            android:backgroundTint="@color/profile_icon_bg_yellow">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_profile_security"
-                                app:tint="@color/profile_icon_yellow" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/profile_security_privacy"
-                                android:textColor="@color/profile_text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/profile_security_privacy_subtitle"
-                                android:textColor="@color/profile_text_secondary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/ic_profile_chevron_right"
-                            app:tint="@color/profile_text_secondary" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="68dp"
-                        android:layout_marginEnd="16dp"
-                        android:background="@color/profile_card_border" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/profile_icon_circle"
-                            android:backgroundTint="@color/profile_icon_bg_green">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_profile_credit_card"
-                                app:tint="@color/profile_icon_green" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/profile_subscription"
-                                android:textColor="@color/profile_text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/profile_subscription_subtitle"
-                                android:textColor="@color/profile_text_secondary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/ic_profile_chevron_right"
-                            app:tint="@color/profile_text_secondary" />
-                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -386,10 +247,13 @@
                     android:orientation="vertical">
 
                     <LinearLayout
+                        android:id="@+id/rowProfilePush"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
 
                         <FrameLayout
                             android:layout_width="40dp"
@@ -446,10 +310,13 @@
                         android:background="@color/profile_card_border" />
 
                     <LinearLayout
+                        android:id="@+id/rowProfileDarkMode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
 
                         <FrameLayout
                             android:layout_width="40dp"
@@ -495,6 +362,131 @@
                             android:layout_height="wrap_content"
                             app:thumbTint="@color/profile_switch_thumb"
                             app:trackTint="@color/profile_switch_track" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="68dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@color/profile_card_border" />
+
+                    <LinearLayout
+                        android:id="@+id/rowProfileCallPlayback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/profile_icon_circle"
+                            android:backgroundTint="@color/profile_icon_bg_gray">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_profile_language"
+                                app:tint="@color/profile_icon_gray" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/profile_call_playback_capture"
+                                android:textColor="@color/profile_text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/profile_call_playback_capture_subtitle"
+                                android:textColor="@color/profile_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/profileCallPlaybackToggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:thumbTint="@color/profile_switch_thumb"
+                            app:trackTint="@color/profile_switch_track" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="68dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@color/profile_card_border" />
+
+                    <LinearLayout
+                        android:id="@+id/rowProfileLanguage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/profile_icon_circle"
+                            android:backgroundTint="@color/profile_icon_bg_green">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_profile_language"
+                                app:tint="@color/profile_icon_green" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/profile_language"
+                                android:textColor="@color/profile_text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/profileLanguageValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/language_english"
+                                android:textColor="@color/profile_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/chevronProfileLanguage"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_profile_chevron_right"
+                            app:tint="@color/profile_text_secondary" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -575,40 +567,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/card_margin_top"
-                app:cardBackgroundColor="@color/profile_card_bg"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@color/profile_logout_red"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="14dp">
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_profile_logout"
-                        app:tint="@color/profile_logout_red" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/profile_log_out"
-                        android:textColor="@color/profile_logout_red"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
             <TextView
                 android:id="@+id/profileVersionLabel"
                 android:layout_width="match_parent"
@@ -630,5 +588,3 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

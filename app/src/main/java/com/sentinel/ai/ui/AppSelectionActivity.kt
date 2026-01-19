@@ -9,13 +9,12 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.sentinel.ai.R
 import com.sentinel.ai.utils.AllowedAppGate
 
-class AppSelectionActivity : AppCompatActivity() {
+class AppSelectionActivity : BaseLocalizedActivity() {
 
     private lateinit var adapter: AppAdapter
     private val selected = mutableSetOf<String>()

@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.appcompat.app.AppCompatActivity
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -15,10 +15,11 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.sentinel.ai.BuildConfig
 import com.sentinel.ai.R
 import com.sentinel.ai.databinding.ActivitySplashBinding
+import com.sentinel.ai.utils.LanguageManager
 import com.sentinel.ai.utils.OnboardingPrefs
 import com.sentinel.ai.utils.PermissionUtils
 
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseLocalizedActivity() {
 
     private lateinit var binding: ActivitySplashBinding
     private val handler = Handler(Looper.getMainLooper())
@@ -30,18 +31,19 @@ class SplashActivity : AppCompatActivity() {
             getString(R.string.splash_status_security)
         )
     }
-    private val progressDurationMs = 1200L
+    private val progressDurationMs = 2000L
+    private val progressHoldAfterMs = 500L
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
-        window.statusBarColor = getColor(R.color.splash_bg)
-        window.navigationBarColor = getColor(R.color.splash_bg)
+        
+        // Let system bars follow the theme instead of being hardcoded
+        val isDark = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
         WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = true
-            isAppearanceLightNavigationBars = true
+            isAppearanceLightStatusBars = !isDark
+            isAppearanceLightNavigationBars = !isDark
         }
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -95,12 +97,13 @@ class SplashActivity : AppCompatActivity() {
         progressAnimator?.cancel()
         progressAnimator = ValueAnimator.ofInt(0, 100).apply {
             duration = progressDurationMs
+            interpolator = AccelerateDecelerateInterpolator()
             addUpdateListener { animator ->
                 binding.progress.progress = animator.animatedValue as Int
             }
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    navigateToNextScreen()
+                    handler.postDelayed({ navigateToNextScreen() }, progressHoldAfterMs)
                 }
             })
             start()
@@ -112,4 +115,10 @@ class SplashActivity : AppCompatActivity() {
         progressAnimator?.cancel()
         super.onDestroy()
     }
+
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LanguageManager.wrapWithLanguage(newBase, LanguageManager.LANG_EN))
+    }
+
+    override fun shouldApplyAppLanguage(): Boolean = false
 }

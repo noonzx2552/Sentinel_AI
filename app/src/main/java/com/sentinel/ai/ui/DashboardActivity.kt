@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.provider.CallLog
 import android.provider.Telephony
+import android.provider.OpenableColumns
 import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
@@ -34,15 +35,19 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.sentinel.ai.R
+import com.sentinel.ai.BuildConfig
 import com.sentinel.ai.ai.OfflineStt
 import com.sentinel.ai.ai.WhisperCppSttClient
+import com.sentinel.ai.model.RiskLevel
+import com.sentinel.ai.security.NumberChecker
+import com.sentinel.ai.security.SafetyLevel
 import com.sentinel.ai.service.InternalAudioCaptureService
 import com.sentinel.ai.utils.MicCaptureManager
 import com.sentinel.ai.utils.NetworkUtils
+import com.sentinel.ai.utils.OverlayController
 import java.io.ByteArrayOutputStream
 import java.io.File
 import com.sentinel.ai.utils.WavUtil
@@ -55,21 +60,26 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
+import java.net.URLEncoder
 import java.util.Locale
 import kotlin.math.sqrt
 import kotlin.math.min
 import kotlin.math.roundToInt
 import org.vosk.Recognizer
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 
-open class DashboardActivity : AppCompatActivity() {
+open class DashboardActivity : BaseLocalizedActivity() {
 
     private lateinit var startCaptureButton: Button
     private lateinit var stopCaptureButton: Button
     private lateinit var playRecordingButton: Button
     private lateinit var transcribeRecordingButton: Button
     private lateinit var testMicButton: Button
+    private lateinit var testMicWhisperButton: Button
     private lateinit var systemSttButton: Button
-    private lateinit var clearTranscriptButton: Button
+    private lateinit var clearTranscriptButton: View
     private lateinit var transcriptTextView: TextView
     private lateinit var statusTextView: TextView
 
@@ -96,6 +106,38 @@ open class DashboardActivity : AppCompatActivity() {
     @Volatile private var stableEmptyStreak: Int = 0
     private lateinit var callLogContainer: LinearLayout
     private lateinit var smsRiskContainer: LinearLayout
+    private lateinit var callLogHeaderRow: View
+    private lateinit var smsRiskHeaderRow: View
+    private lateinit var callLogHeaderChevron: android.widget.ImageView
+    private lateinit var smsRiskHeaderChevron: android.widget.ImageView
+    private var callLogExpanded = false
+    private var smsRiskExpanded = false
+    private lateinit var scamModelTypedInput: android.widget.EditText
+    private lateinit var scamModelNoteInput: android.widget.EditText
+    private lateinit var scamModelResult: TextView
+    private lateinit var scamModelRunButton: View
+    private lateinit var scamModelNoteButton: View
+    private lateinit var pickAudioButton: View
+    private lateinit var debugPhoneNumberInput: android.widget.EditText
+    private lateinit var debugPhoneCountryInput: android.widget.EditText
+    private lateinit var debugPhoneFormatInput: android.widget.EditText
+    private lateinit var debugPhoneApiKey1Input: android.widget.EditText
+    private lateinit var debugPhoneApiKey2Input: android.widget.EditText
+    private lateinit var debugPhoneRequestOutput: TextView
+    private lateinit var debugPhoneResponseOutput: TextView
+    private lateinit var debugPhoneKey1Button: View
+    private lateinit var debugPhoneKey2Button: View
+    private lateinit var debugBlsNumberInput: android.widget.EditText
+    private lateinit var debugBlsUserInput: android.widget.EditText
+    private lateinit var debugBlsPassInput: android.widget.EditText
+    private lateinit var debugBlsCapsolverInput: android.widget.EditText
+    private lateinit var debugBlsRequestOutput: TextView
+    private lateinit var debugBlsCookieOutput: TextView
+    private lateinit var debugBlsResponseOutput: TextView
+    private lateinit var debugBlsRunButton: View
+    private val httpClient = OkHttpClient()
+    private val scamModel by lazy { com.sentinel.ai.ai.ScamModelProvider.create(this) }
+    private var debugOverlayLoadingJob: kotlinx.coroutines.Job? = null
 
     private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
@@ -177,6 +219,32 @@ open class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    private val audioFilePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri == null) return@registerForActivityResult
+        lifecycleScope.launch(Dispatchers.IO) {
+            val file = copyAudioToCache(uri)
+            val mime = contentResolver.getType(uri)
+            withContext(Dispatchers.Main) {
+                if (file == null) {
+                    Toast.makeText(
+                        this@DashboardActivity,
+                        "Please select an audio file.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@withContext
+                }
+                lastRecordingPath = file.absolutePath
+                setStatus("Audio file loaded")
+                updatePlayButtonState()
+                Toast.makeText(this@DashboardActivity, "Audio file loaded.", Toast.LENGTH_SHORT).show()
+            }
+            if (file == null) return@launch
+            transcribeAudioFile(file, mime)
+        }
+    }
+
+    private lateinit var statusIndicator: View
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
@@ -188,27 +256,132 @@ open class DashboardActivity : AppCompatActivity() {
         playRecordingButton = findViewById(R.id.btnPlayRecording)
         transcribeRecordingButton = findViewById(R.id.btnTranscribeRecording)
         testMicButton = findViewById(R.id.btnTestMic)
+        testMicWhisperButton = findViewById(R.id.btnTestMicWhisper)
         systemSttButton = findViewById(R.id.btnSystemStt)
         clearTranscriptButton = findViewById(R.id.btnClearTranscript)
         transcriptTextView = findViewById(R.id.tvTranscript)
         statusTextView = findViewById(R.id.tvStatus)
+        statusIndicator = findViewById(R.id.statusIndicator)
         callLogContainer = findViewById(R.id.callLogContainer)
         smsRiskContainer = findViewById(R.id.smsRiskContainer)
+        callLogHeaderRow = findViewById(R.id.callLogHeaderRow)
+        smsRiskHeaderRow = findViewById(R.id.smsRiskHeaderRow)
+        callLogHeaderChevron = findViewById(R.id.callLogHeaderChevron)
+        smsRiskHeaderChevron = findViewById(R.id.smsRiskHeaderChevron)
+        scamModelTypedInput = findViewById(R.id.debugModelTypedInput)
+        scamModelNoteInput = findViewById(R.id.debugModelNoteInput)
+        scamModelResult = findViewById(R.id.debugModelResult)
+        scamModelRunButton = findViewById(R.id.btnRunScamModel)
+        scamModelNoteButton = findViewById(R.id.btnRunScamModelNote)
+        pickAudioButton = findViewById(R.id.btnPickAudioFile)
+        debugPhoneNumberInput = findViewById(R.id.debugPhoneNumberInput)
+        debugPhoneCountryInput = findViewById(R.id.debugPhoneCountryInput)
+        debugPhoneFormatInput = findViewById(R.id.debugPhoneFormatInput)
+        debugPhoneApiKey1Input = findViewById(R.id.debugPhoneApiKey1Input)
+        debugPhoneApiKey2Input = findViewById(R.id.debugPhoneApiKey2Input)
+        debugPhoneRequestOutput = findViewById(R.id.debugPhoneRequestOutput)
+        debugPhoneResponseOutput = findViewById(R.id.debugPhoneResponseOutput)
+        debugPhoneKey1Button = findViewById(R.id.btnDebugPhoneKey1)
+        debugPhoneKey2Button = findViewById(R.id.btnDebugPhoneKey2)
+        debugBlsNumberInput = findViewById(R.id.debugBlsNumberInput)
+        debugBlsUserInput = findViewById(R.id.debugBlsUserInput)
+        debugBlsPassInput = findViewById(R.id.debugBlsPassInput)
+        debugBlsCapsolverInput = findViewById(R.id.debugBlsCapsolverInput)
+        debugBlsRequestOutput = findViewById(R.id.debugBlsRequestOutput)
+        debugBlsCookieOutput = findViewById(R.id.debugBlsCookieOutput)
+        debugBlsResponseOutput = findViewById(R.id.debugBlsResponseOutput)
+        debugBlsRunButton = findViewById(R.id.btnDebugBlsRun)
+
+        findViewById<View>(R.id.btnDashboardBack).setOnClickListener { finish() }
 
         startCaptureButton.setOnClickListener { startCaptureProcess() }
         stopCaptureButton.setOnClickListener { stopCaptureProcess() }
         playRecordingButton.setOnClickListener { playLastRecording() }
         transcribeRecordingButton.setOnClickListener { transcribeLastRecording() }
         testMicButton.setOnClickListener { runMicTest() }
-        testMicButton.setOnLongClickListener {
+        testMicWhisperButton.setOnClickListener {
+            if (hybridJob?.isActive == true) {
+                stopHybridLiveStt()
+            } else {
+                runWhisperMicTest()
+            }
+        }
+        testMicWhisperButton.setOnLongClickListener {
             toggleHybridLiveStt()
             true
         }
         systemSttButton.setOnClickListener { startSystemSpeechToText() }
-        clearTranscriptButton.setOnClickListener { transcriptTextView.text = "" }
+        clearTranscriptButton.setOnClickListener { transcriptTextView.text = "> Session Cleared\n" }
+        scamModelRunButton.setOnClickListener {
+            runScamModelTest(scamModelTypedInput.text?.toString().orEmpty(), "Typed input")
+        }
+        scamModelNoteButton.setOnClickListener {
+            runScamModelTest(scamModelNoteInput.text?.toString().orEmpty(), "Note / written text")
+        }
+        pickAudioButton.setOnClickListener {
+            audioFilePickerLauncher.launch("audio/*")
+        }
+        debugPhoneCountryInput.setText("TH")
+        debugPhoneFormatInput.setText("1")
+        debugPhoneKey1Button.setOnClickListener {
+            runPhoneValidationDebug(keyOverride = debugPhoneApiKey1Input.text?.toString(), fallback = false)
+        }
+        debugPhoneKey2Button.setOnClickListener {
+            runPhoneValidationDebug(keyOverride = debugPhoneApiKey2Input.text?.toString(), fallback = true)
+        }
+        debugBlsRunButton.setOnClickListener {
+            runBlacklistSellerDebug()
+        }
+        
+        // Test Call Overlay
+        val debugOverlayNumberInput = findViewById<android.widget.EditText>(R.id.debugOverlayNumberInput)
+        val debugOverlayStatus = findViewById<TextView>(R.id.debugOverlayStatus)
+        findViewById<View>(R.id.btnTestOverlay).setOnClickListener {
+            val number = debugOverlayNumberInput.text?.toString()?.trim().orEmpty()
+            if (number.isBlank()) {
+                debugOverlayStatus.text = "Please enter a phone number."
+                return@setOnClickListener
+            }
+            if (!Settings.canDrawOverlays(this)) {
+                debugOverlayStatus.text = "Overlay permission required. Please enable it in settings."
+                Toast.makeText(this, "Overlay permission required.", Toast.LENGTH_SHORT).show()
+                requestOverlayPermission()
+                return@setOnClickListener
+            }
+            debugOverlayStatus.text = "Looking up $number..."
+            val overlay = OverlayController(this)
+            overlay.showCallerInfo(
+                name = "Unknown caller",
+                number = number,
+                riskLevel = RiskLevel.SAFE,
+                reason = "",
+                isOutgoing = false,
+                carrier = null,
+                region = "-",
+                reportCount = 0,
+                reportSummary = null,
+                dismissOnCallState = false,
+                allowGatekeeperDismiss = false,
+                reasonOverride = "searching.",
+                gravity = android.view.Gravity.CENTER
+            )
+            startDebugOverlayLoading(overlay)
+            runTestOverlay(number, debugOverlayStatus, overlay)
+        }
+        
+        callLogHeaderRow.setOnClickListener {
+            callLogExpanded = !callLogExpanded
+            updateSectionState(callLogContainer, callLogHeaderChevron, callLogExpanded)
+        }
+        smsRiskHeaderRow.setOnClickListener {
+            smsRiskExpanded = !smsRiskExpanded
+            updateSectionState(smsRiskContainer, smsRiskHeaderChevron, smsRiskExpanded)
+        }
         setStatus("Idle")
         updatePlayButtonState()
         refreshRiskPanels()
+        updateSectionState(callLogContainer, callLogHeaderChevron, callLogExpanded)
+        updateSectionState(smsRiskContainer, smsRiskHeaderChevron, smsRiskExpanded)
     }
 
     override fun onResume() {
@@ -228,14 +401,85 @@ open class DashboardActivity : AppCompatActivity() {
         startCaptureButton.isEnabled = !isRunning
         stopCaptureButton.isEnabled = isRunning
         testMicButton.isEnabled = !isRunning
+        testMicWhisperButton.isEnabled = !isRunning
         systemSttButton.isEnabled = !isRunning
         transcribeRecordingButton.isEnabled = !isRunning
         setStatus(if (isRunning) "Capturing audio (runs in background)" else "Idle")
         updatePlayButtonState()
     }
 
+    private fun runTestOverlay(number: String, statusView: TextView, overlay: OverlayController) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val checker = NumberChecker(this@DashboardActivity)
+            val result = runCatching { checker.check(number) }.getOrNull()
+            val carrier = result?.carrier
+            val region = result?.countryName ?: result?.region
+            val reportCount = result?.reportCount ?: 0
+            val reportSummary = result?.reportDetails?.joinToString(" | ")?.take(140)
+            val riskLevel = result?.let { toRiskLevel(it.status) } ?: RiskLevel.SAFE
+
+            withContext(Dispatchers.Main) {
+                stopDebugOverlayLoading()
+                if (result == null) {
+                    overlay.updateCallerInfoLoadingText("Lookup failed.")
+                } else {
+                    overlay.showCallerInfo(
+                        name = "Unknown caller",
+                        number = number,
+                        riskLevel = riskLevel,
+                        reason = "",
+                        isOutgoing = false,
+                        carrier = carrier,
+                        region = region,
+                        reportCount = reportCount,
+                        reportSummary = reportSummary,
+                        dismissOnCallState = false,
+                        allowGatekeeperDismiss = false,
+                        gravity = android.view.Gravity.CENTER
+                    )
+                }
+                statusView.text = if (result == null) {
+                    "Lookup failed. Showing basic overlay."
+                } else {
+                    "Overlay shown for $number (reports=$reportCount)."
+                }
+            }
+        }
+    }
+
+    private fun startDebugOverlayLoading(overlay: OverlayController) {
+        debugOverlayLoadingJob?.cancel()
+        debugOverlayLoadingJob = lifecycleScope.launch {
+            val frames = listOf("searching.", "searching..", "searching...")
+            var index = 0
+            while (isActive) {
+                overlay.updateCallerInfoLoadingText(frames[index % frames.size])
+                index++
+                delay(500L)
+            }
+        }
+    }
+
+    private fun stopDebugOverlayLoading() {
+        debugOverlayLoadingJob?.cancel()
+        debugOverlayLoadingJob = null
+    }
+
+    private fun toRiskLevel(status: SafetyLevel): RiskLevel = when (status) {
+        SafetyLevel.SAFE -> RiskLevel.SAFE
+        SafetyLevel.CAUTION -> RiskLevel.WARNING
+        SafetyLevel.DANGER -> RiskLevel.CRITICAL
+        SafetyLevel.UNKNOWN -> RiskLevel.SAFE
+    }
+
     private fun setStatus(text: String) {
         statusTextView.text = "Status: $text"
+        val isActive = text.contains("Capturing", ignoreCase = true) || 
+                      text.contains("Live", ignoreCase = true) || 
+                      text.contains("Testing", ignoreCase = true)
+        
+        statusIndicator.visibility = if (isActive) View.VISIBLE else View.GONE
+        statusTextView.setTextColor(if (isActive) Color.parseColor("#4ADE80") else Color.parseColor("#94A3B8"))
     }
 
     private fun startCaptureProcess() {
@@ -510,7 +754,7 @@ open class DashboardActivity : AppCompatActivity() {
             chunkMs = 1000 // send smaller chunks so online STT fires faster
         )
 
-        testMicButton.text = "Stop Live STT"
+        testMicWhisperButton.text = "Stop Live STT"
         setStatus("Live STT (online preferred)")
     }
 
@@ -521,7 +765,7 @@ open class DashboardActivity : AppCompatActivity() {
         hybridChannel = null
         hybridJob?.cancel()
         hybridJob = null
-        testMicButton.text = "Test Mic (Hybrid STT)"
+        testMicWhisperButton.text = "Test Mic (Whisper CPP)"
         if (!InternalAudioCaptureService.isServiceRunning) setStatus("Idle")
     }
 
@@ -685,6 +929,125 @@ open class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    private fun runScamModelTest(text: String, source: String) {
+        val trimmed = text.trim()
+        if (trimmed.isEmpty()) {
+            Toast.makeText(this, "ใส่ข้อความก่อนรันโมเดล", Toast.LENGTH_SHORT).show()
+            return
+        }
+        scamModelResult.text = "Loading model..."
+        lifecycleScope.launch {
+            try {
+                val ready = withContext(Dispatchers.IO) { scamModel.ensureLoaded() }
+                if (!ready) {
+                    scamModelResult.text = "Model not available (debug only)."
+                    return@launch
+                }
+                val prediction = withContext(Dispatchers.IO) { scamModel.predict(trimmed) }
+                if (prediction == null) {
+                    scamModelResult.text = "Prediction failed."
+                    return@launch
+                }
+                val percent = (prediction.confidence * 100).roundToInt()
+                scamModelResult.text = "$source -> ${prediction.label} ($percent%)"
+                transcriptTextView.append("\n[model] $source: ${prediction.label} $percent% | $trimmed")
+            } catch (e: Exception) {
+                Log.w("DashboardActivity", "Model test failed: ${e.message}", e)
+                scamModelResult.text = "Model error: ${e.message ?: "unknown"}"
+            }
+        }
+    }
+
+    private fun runWhisperMicTest() {
+        if (InternalAudioCaptureService.isServiceRunning) {
+            Toast.makeText(this, "Stop capture before testing mic.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) {
+            Toast.makeText(this, "Mic permission required.", Toast.LENGTH_SHORT).show()
+            permissionsLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
+            return
+        }
+        if (!shouldUseOnlineStt()) {
+            Toast.makeText(this, "Whisper CPP is not configured or offline.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        setStatus("Testing mic with Whisper CPP...")
+        testMicWhisperButton.isEnabled = false
+        testMicButton.isEnabled = false
+        lifecycleScope.launch(Dispatchers.IO) {
+            val sampleRate = 16000
+            val channelConfig = AudioFormat.CHANNEL_IN_MONO
+            val encoding = AudioFormat.ENCODING_PCM_16BIT
+            val minBuf = AudioRecord.getMinBufferSize(sampleRate, channelConfig, encoding)
+            val bufferSize = (minBuf.coerceAtLeast(2048))
+            val audioRecord = AudioRecord(
+                MediaRecorder.AudioSource.VOICE_RECOGNITION,
+                sampleRate,
+                channelConfig,
+                encoding,
+                bufferSize
+            )
+            val output = ByteArrayOutputStream()
+            try {
+                audioRecord.startRecording()
+                val buffer = ByteArray(bufferSize)
+                val targetDurationMs = 2500
+                var capturedMs = 0
+                val frameMs = bufferSize * 1000 / (sampleRate * 2)
+                while (capturedMs < targetDurationMs) {
+                    val read = audioRecord.read(buffer, 0, buffer.size)
+                    if (read > 0) {
+                        output.write(buffer, 0, read)
+                        capturedMs += frameMs
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@DashboardActivity, "Mic test failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    setStatus("Idle")
+                    testMicWhisperButton.isEnabled = true
+                    testMicButton.isEnabled = true
+                }
+                audioRecord.release()
+                return@launch
+            } finally {
+                try { audioRecord.stop() } catch (_: Exception) { }
+                audioRecord.release()
+            }
+
+            val audioData = output.toByteArray()
+            val normalizedPcm = normalizePcm16(audioData)
+            val transcript = try {
+                WhisperCppSttClient.transcribePcm16(normalizedPcm, sampleRate, 1) ?: ""
+            } catch (e: Exception) {
+                Log.w("DashboardActivity", "Whisper mic test failed: ${e.message}", e)
+                ""
+            }
+
+            val wavData = WavUtil.pcmToWav(normalizedPcm, sampleRate, 1, 16)
+            val testFile = File(cacheDir, "whisper_mic_test_${System.currentTimeMillis()}.wav")
+            testFile.writeBytes(wavData)
+            val savedPath = testFile.absolutePath
+
+            withContext(Dispatchers.Main) {
+                lastRecordingPath = savedPath
+                if (transcript.isNotBlank()) {
+                    transcriptTextView.append("\n[Whisper CPP] $transcript")
+                    setStatus("Whisper CPP: \"$transcript\"")
+                } else {
+                    setStatus("Whisper CPP: no text")
+                    Toast.makeText(this@DashboardActivity, "No text recognized from Whisper CPP.", Toast.LENGTH_SHORT).show()
+                }
+                Toast.makeText(this@DashboardActivity, "Test audio saved for playback.", Toast.LENGTH_SHORT).show()
+                updatePlayButtonState()
+                testMicWhisperButton.isEnabled = true
+                testMicButton.isEnabled = true
+            }
+        }
+    }
+
     private fun runMicTest() {
         if (InternalAudioCaptureService.isServiceRunning) {
             Toast.makeText(this, "Stop capture before testing mic.", Toast.LENGTH_SHORT).show()
@@ -703,6 +1066,7 @@ open class DashboardActivity : AppCompatActivity() {
         }
         setStatus("Testing mic with offline STT...")
         testMicButton.isEnabled = false
+        testMicWhisperButton.isEnabled = false
         lifecycleScope.launch(Dispatchers.IO) {
             val sampleRate = 16000
             val channelConfig = AudioFormat.CHANNEL_IN_MONO
@@ -735,6 +1099,7 @@ open class DashboardActivity : AppCompatActivity() {
                     Toast.makeText(this@DashboardActivity, "Mic test failed: ${e.message}", Toast.LENGTH_LONG).show()
                     setStatus("Idle")
                     testMicButton.isEnabled = true
+                    testMicWhisperButton.isEnabled = true
                 }
                 audioRecord.release()
                 return@launch
@@ -778,6 +1143,7 @@ open class DashboardActivity : AppCompatActivity() {
                 Toast.makeText(this@DashboardActivity, "Test audio saved for playback.", Toast.LENGTH_SHORT).show()
                 updatePlayButtonState()
                 testMicButton.isEnabled = true
+                testMicWhisperButton.isEnabled = true
             }
         }
     }
@@ -1151,6 +1517,96 @@ open class DashboardActivity : AppCompatActivity() {
     private fun dp(value: Int): Int =
         (value * resources.displayMetrics.density).roundToInt()
 
+    private fun updateSectionState(container: View, chevron: View, expanded: Boolean) {
+        container.visibility = if (expanded) View.VISIBLE else View.GONE
+        chevron.rotation = if (expanded) 90f else 0f
+        chevron.alpha = if (expanded) 1f else 0.7f
+    }
+
+    private fun runPhoneValidationDebug(keyOverride: String?, fallback: Boolean) {
+        val number = debugPhoneNumberInput.text?.toString().orEmpty().trim()
+        if (number.isBlank()) {
+            Toast.makeText(this, "Enter a phone number to test.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val country = debugPhoneCountryInput.text?.toString().orEmpty().trim().ifBlank { "TH" }
+        val format = debugPhoneFormatInput.text?.toString().orEmpty().trim().ifBlank { "1" }
+        val apiKey = keyOverride?.trim().takeIf { !it.isNullOrBlank() }
+            ?: if (fallback) BuildConfig.PHONE_REP_API_KEY_FALLBACK else BuildConfig.PHONE_REP_API_KEY
+        if (apiKey.isBlank()) {
+            Toast.makeText(this, "API key is missing.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val encoded = URLEncoder.encode(number, "UTF-8")
+            val url = "https://apilayer.net/api/validate?access_key=$apiKey&number=$encoded&country_code=$country&format=$format"
+            withContext(Dispatchers.Main) {
+                debugPhoneRequestOutput.text = "Request:\n$url"
+                debugPhoneResponseOutput.text = "Response: loading..."
+            }
+            val responseText = runCatching {
+                val request = Request.Builder().url(url).get().build()
+                httpClient.newCall(request).execute().use { resp ->
+                    val body = resp.body?.string().orEmpty()
+                    if (!resp.isSuccessful) "HTTP ${resp.code}: $body" else body
+                }
+            }.getOrElse { "Error: ${it.message}" }
+            withContext(Dispatchers.Main) {
+                debugPhoneResponseOutput.text = "Response:\n$responseText"
+            }
+        }
+    }
+
+    private fun runBlacklistSellerDebug() {
+        val rawNumber = debugBlsNumberInput.text?.toString().orEmpty().trim()
+        val number = rawNumber.filter { it.isDigit() }
+        if (number.isBlank()) {
+            Toast.makeText(this, "Enter a phone number to test.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val apiKey = debugBlsCapsolverInput.text?.toString().orEmpty().trim()
+            .ifBlank { BuildConfig.BLACKLIST_API_KEY }
+        val apiUrl = BuildConfig.BLACKLIST_API_URL.ifBlank { "https://blacklist.smarthomeus3r.space/search" }
+        if (apiKey.isBlank()) {
+            Toast.makeText(this, "Missing Blacklist API key.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        debugBlsRunButton.isEnabled = false
+        debugBlsRequestOutput.text = "Requests:\nRunning..."
+        debugBlsCookieOutput.text = "Cookies:\n-"
+        debugBlsResponseOutput.text = "Response:\n-"
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val requestLog = StringBuilder()
+            requestLog.append("POST $apiUrl\n")
+            requestLog.append("Headers: X-API-Key, Content-Type\n")
+            requestLog.append("Form: phone_number=$number\n")
+
+            val responseText = com.sentinel.ai.security.BlacklistSellerClient.request(
+                number = number,
+                apiKey = apiKey,
+                apiUrl = apiUrl,
+                client = httpClient
+            ).fold(
+                onSuccess = { it },
+                onFailure = { "Error: ${it.message}" }
+            )
+
+            withContext(Dispatchers.Main) {
+                debugBlsRequestOutput.text = "Requests:\n${requestLog.toString().trim()}"
+                debugBlsCookieOutput.text = "Cookies:\n-"
+                debugBlsResponseOutput.text = "Response:\n${limitForUi(responseText)}"
+                debugBlsRunButton.isEnabled = true
+            }
+        }
+    }
+
+    private fun limitForUi(text: String, limit: Int = 6000): String {
+        if (text.length <= limit) return text
+        return text.take(limit) + "\n...(truncated ${text.length - limit} chars)"
+    }
+
     private data class CallLogEntry(
         val name: String?,
         val number: String,
@@ -1333,6 +1789,53 @@ open class DashboardActivity : AppCompatActivity() {
                 Toast.makeText(this@DashboardActivity, "Saved device STT audio for Vosk replay.", Toast.LENGTH_SHORT).show()
                 updatePlayButtonState()
             }
+        }
+    }
+
+    private fun copyAudioToCache(uri: Uri): File? {
+        val mime = contentResolver.getType(uri).orEmpty()
+        val displayName = queryDisplayName(uri)
+        val lowerName = displayName?.lowercase(Locale.getDefault()).orEmpty()
+        val isAudio = mime.startsWith("audio/") ||
+            lowerName.endsWith(".wav") ||
+            lowerName.endsWith(".mp3") ||
+            lowerName.endsWith(".m4a") ||
+            lowerName.endsWith(".aac") ||
+            lowerName.endsWith(".ogg") ||
+            lowerName.endsWith(".flac")
+        if (!isAudio) return null
+        val targetName = displayName?.ifBlank { null } ?: "debug_audio_${System.currentTimeMillis()}"
+        val target = File(cacheDir, targetName)
+        return runCatching {
+            contentResolver.openInputStream(uri)?.use { input ->
+                target.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            target
+        }.getOrNull()
+    }
+
+    private suspend fun transcribeAudioFile(file: File, mime: String?) {
+        withContext(Dispatchers.Main) {
+            scamModelResult.text = "Transcribing audio..."
+        }
+        val text = WhisperCppSttClient.transcribeFile(file, mime)
+        withContext(Dispatchers.Main) {
+            if (text.isNullOrBlank()) {
+                scamModelResult.text = "Transcription failed."
+                Toast.makeText(this@DashboardActivity, "Transcription failed.", Toast.LENGTH_SHORT).show()
+                return@withContext
+            }
+            transcriptTextView.append("\n[audio] $text")
+            runScamModelTest(text, "Audio file")
+        }
+    }
+
+    private fun queryDisplayName(uri: Uri): String? {
+        return contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (cursor.moveToFirst() && nameIndex >= 0) cursor.getString(nameIndex) else null
         }
     }
 

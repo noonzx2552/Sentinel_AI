@@ -50,6 +50,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/homeGreeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
@@ -59,6 +60,7 @@
                 </LinearLayout>
 
                 <FrameLayout
+                    android:id="@+id/homeInfoButton"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@drawable/home_icon_button_bg">
@@ -70,17 +72,362 @@
                         android:src="@android:drawable/ic_dialog_info"
                         app:tint="@color/home_muted" />
 
-                    <View
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:layout_gravity="top|end"
-                        android:layout_marginTop="9dp"
-                        android:layout_marginEnd="9dp"
-                        android:background="@drawable/home_dot_red" />
                 </FrameLayout>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/homeThreatPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:visibility="gone">
+
+                <FrameLayout
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/home_threat_glow">
+
+                    <ImageView
+                        android:id="@+id/homeThreatIcon"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_threat_triangle" />
+
+                    <FrameLayout
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginBottom="32dp"
+                        android:layout_marginEnd="32dp"
+                        android:background="@drawable/home_threat_badge_bg">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_exclamation"
+                            app:tint="@color/home_accent_red" />
+                    </FrameLayout>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/homeThreatTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/home_threat_title"
+                    android:textColor="@color/home_accent_red"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/homeThreatDetailsCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    app:cardBackgroundColor="@color/home_threat_card_bg"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0.5dp"
+                    app:cardUseCompatPadding="false"
+                    app:strokeColor="@color/home_threat_card_border"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/homeThreatSummary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginBottom="12dp"
+                            android:gravity="center"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:text="@string/home_threat_summary_fallback"
+                            android:textColor="@color/splash_title"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/home_threat_card_border" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:weightSum="3">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:letterSpacing="0.08"
+                                    android:text="@string/home_threat_label_type"
+                                    android:textAllCaps="true"
+                                    android:textColor="@color/profile_section_label"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/homeThreatTypeValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="@string/home_threat_type_generic"
+                                    android:textColor="@color/splash_title"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@color/home_threat_card_border" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:letterSpacing="0.08"
+                                    android:text="@string/home_threat_label_severity"
+                                    android:textAllCaps="true"
+                                    android:textColor="@color/profile_section_label"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
+
+                                    <View
+                                        android:id="@+id/homeThreatSeverityDot"
+                                        android:layout_width="6dp"
+                                        android:layout_height="6dp"
+                                        android:layout_marginEnd="6dp"
+                                        android:background="@drawable/home_threat_severity_dot" />
+
+                                    <TextView
+                                        android:id="@+id/homeThreatSeverityValue"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/home_threat_severity_high"
+                                        android:textColor="@color/home_accent_red"
+                                        android:textSize="12sp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@color/home_threat_card_border" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:letterSpacing="0.08"
+                                    android:text="@string/home_threat_label_source"
+                                    android:textAllCaps="true"
+                                    android:textColor="@color/profile_section_label"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/homeThreatSourceValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="@string/home_threat_source_system"
+                                    android:textColor="@color/splash_title"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/homeThreatActionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="@string/home_threat_action_title"
+                    android:textColor="@color/splash_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/homeThreatActionCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:cardBackgroundColor="@color/home_card_bg"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="1dp"
+                    app:cardUseCompatPadding="true"
+                    app:strokeColor="@color/home_card_border"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/homeThreatBlockButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:backgroundTint="@color/home_accent_red"
+                            android:text="@string/home_threat_action_block"
+                            android:textAllCaps="false"
+                            android:textColor="@android:color/white"
+                            android:textSize="15sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            app:cornerRadius="16dp"
+                            app:icon="@drawable/ic_block"
+                            app:iconPadding="8dp"
+                            app:iconTint="@android:color/white" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/homeThreatLearnButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                app:cardBackgroundColor="@color/home_card_bg"
+                                app:cardCornerRadius="16dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/home_card_border"
+                                app:strokeWidth="1dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="horizontal"
+                                    android:paddingTop="12dp"
+                                    android:paddingBottom="12dp">
+
+                                    <ImageView
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:src="@drawable/ic_profile_help_outline"
+                                        app:tint="@color/home_muted" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:text="@string/home_threat_action_learn"
+                                        android:textColor="@color/splash_title"
+                                        android:textSize="13sp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <Space
+                                android:layout_width="12dp"
+                                android:layout_height="wrap_content" />
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/homeThreatReviewButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                app:cardBackgroundColor="@color/home_card_bg"
+                                app:cardCornerRadius="16dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/home_card_border"
+                                app:strokeWidth="1dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="horizontal"
+                                    android:paddingTop="12dp"
+                                    android:paddingBottom="12dp">
+
+                                    <ImageView
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:src="@drawable/intro_icon_search"
+                                        app:tint="@color/home_muted" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:text="@string/home_threat_action_review"
+                                        android:textColor="@color/splash_title"
+                                        android:textSize="13sp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/homeThreatDismiss"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:gravity="center"
+                            android:text="@string/home_threat_action_dismiss"
+                            android:textColor="@color/permission_subtle"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/homeSafePanel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
@@ -98,7 +445,7 @@
                         android:layout_height="92dp"
                         android:layout_gravity="center"
                         android:src="@drawable/intro_icon_shield"
-                        app:tint="@color/splash_logo_bg" />
+                        app:tint="@color/bottom_nav_active_green" />
 
                     <FrameLayout
                         android:layout_width="28dp"
@@ -194,6 +541,7 @@
                     </LinearLayout>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/homeProtectionToggle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -226,6 +574,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/homeRecentSeeAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/home_recent_action"
@@ -234,132 +583,22 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                  <com.google.android.material.card.MaterialCardView
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="@dimen/card_margin_top"
-                  app:cardBackgroundColor="@color/home_card_bg"
-                  app:cardCornerRadius="20dp"
-                  app:cardElevation="0.5dp"
-                  app:cardUseCompatPadding="false"
-                  app:strokeColor="@color/home_card_border"
-                  app:strokeWidth="1dp">
+                <LinearLayout
+                    android:id="@+id/homeRecentList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="14dp">
-
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/home_badge_red_bg">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/intro_icon_shield"
-                                app:tint="@color/home_accent_red" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/home_recent_item1_title"
-                                android:textColor="@color/splash_title"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/home_recent_item1_body"
-                                android:textColor="@color/home_muted"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/home_recent_item1_time"
-                            android:textColor="@color/permission_subtle"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-                  <com.google.android.material.card.MaterialCardView
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="@dimen/card_margin_top"
-                  app:cardBackgroundColor="@color/home_card_bg"
-                  app:cardCornerRadius="20dp"
-                  app:cardElevation="0.5dp"
-                  app:cardUseCompatPadding="false"
-                  app:strokeColor="@color/home_card_border"
-                  app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="14dp">
-
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/home_badge_green_bg">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/intro_icon_shield"
-                                app:tint="@color/splash_logo_bg" />
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/home_recent_item2_title"
-                                android:textColor="@color/splash_title"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="@string/home_recent_item2_body"
-                                android:textColor="@color/home_muted"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/home_recent_item2_time"
-                            android:textColor="@color/permission_subtle"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                <TextView
+                    android:id="@+id/homeRecentEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:text="@string/home_recent_empty"
+                    android:textColor="@color/home_muted"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <TextView
@@ -403,9 +642,13 @@
                     </FrameLayout>
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:minLines="2"
                         android:text="@string/home_quick_link"
                         android:textColor="@color/splash_title"
                         android:textSize="12sp"
@@ -440,9 +683,13 @@
                     </FrameLayout>
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:minLines="2"
                         android:text="@string/home_quick_number"
                         android:textColor="@color/splash_title"
                         android:textSize="12sp"
@@ -477,9 +724,13 @@
                     </FrameLayout>
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:minLines="2"
                         android:text="@string/home_quick_call_log"
                         android:textColor="@color/splash_title"
                         android:textSize="12sp"
@@ -514,6 +765,7 @@
                     android:orientation="vertical"
                     android:padding="8dp">
                     <LinearLayout
+                        android:id="@+id/homeModeMonitor"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -558,12 +810,14 @@
                         </LinearLayout>
 
                         <View
+                            android:id="@+id/homeModeMonitorRadio"
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:background="@drawable/home_radio_off" />
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/homeModeWarning"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -608,12 +862,14 @@
                         </LinearLayout>
 
                         <View
+                            android:id="@+id/homeModeWarningRadio"
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:background="@drawable/home_radio_off" />
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/homeModeAuto"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -631,7 +887,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/intro_icon_shield"
-                                app:tint="@color/splash_logo_bg" />
+                                app:tint="@color/bottom_nav_active_green" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -659,6 +915,7 @@
                         </LinearLayout>
 
                         <View
+                            android:id="@+id/homeModeAutoRadio"
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:background="@drawable/home_radio_on" />

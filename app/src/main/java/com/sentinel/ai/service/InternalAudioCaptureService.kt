@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.sentinel.ai.R
 import com.sentinel.ai.ai.OfflineStt
+import com.sentinel.ai.ai.SileroVad
 import com.sentinel.ai.utils.OverlayManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +53,7 @@ class InternalAudioCaptureService : Service() {
     private var recordingFile: File? = null
     private var recordingStream: FileOutputStream? = null
     private var totalPcmBytes: Long = 0
+    private var vad: SileroVad? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -105,15 +107,29 @@ class InternalAudioCaptureService : Service() {
                 OfflineStt.ensureModel(this)
             } catch (e: Exception) {
                 Log.e(TAG, "Vosk model load failed: ${e.message}", e)
-                Toast.makeText(applicationContext, "Vosk model failed: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    applicationContext,
+                    getString(R.string.vosk_model_failed_format, e.message ?: ""),
+                    Toast.LENGTH_LONG
+                ).show()
             broadcast(ACTION_CAPTURE_ERROR, EXTRA_ERROR_MESSAGE, "Model load failed")
             stopSelf()
             return
         }
 
         overlayManager.showOverlay()
-        overlayManager.updatePlaybackTranscript("Listening...")
+        overlayManager.updatePlaybackTranscript(getString(R.string.overlay_listening))
         startRecordingFile()
+
+        if (vad == null) {
+            vad = try {
+                SileroVad(this)
+            } catch (e: Exception) {
+                Log.w(TAG, "Silero VAD init failed: ${e.message}", e)
+                null
+            }
+        }
+        vad?.reset()
 
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, projectionData).also { mp ->
             mp.registerCallback(object : MediaProjection.Callback() {
@@ -179,6 +195,11 @@ class InternalAudioCaptureService : Service() {
                     .asShortBuffer()
                     .get(shorts)
 
+                val hasSpeech = vad?.isSpeech(shorts, shortCount, CAPTURE_SAMPLE_RATE) ?: true
+                if (!hasSpeech) {
+                    continue
+                }
+
                 val text = try {
                     OfflineStt.recognizePcm16(
                         context = this@InternalAudioCaptureService,
@@ -223,6 +244,9 @@ class InternalAudioCaptureService : Service() {
 
         try { mediaProjection?.stop() } catch (_: Exception) { }
         mediaProjection = null
+
+        try { vad?.close() } catch (_: Exception) { }
+        vad = null
 
         finalizeRecordingFile()
         overlayManager.removeOverlay()
@@ -314,7 +338,7 @@ class InternalAudioCaptureService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
-                "Audio Transcription",
+                getString(R.string.notification_channel_transcription),
                 NotificationManager.IMPORTANCE_LOW
             )
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -324,8 +348,8 @@ class InternalAudioCaptureService : Service() {
 
     private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("Transcription active")
-            .setContentText("Capturing internal audio...")
+            .setContentTitle(getString(R.string.notification_title_transcription_active))
+            .setContentText(getString(R.string.notification_text_capturing_audio))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
             .build()
@@ -370,7 +394,11 @@ class InternalAudioCaptureService : Service() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start service: ${e.message}", e)
-                Toast.makeText(context.applicationContext, "Cannot start capture: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    context.applicationContext,
+                    context.getString(R.string.capture_start_failed_format, e.message ?: ""),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 

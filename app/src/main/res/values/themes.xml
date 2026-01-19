@@ -1,35 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.SentinelAI" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.SentinelAI" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/sentinel_primary</item>
         <item name="colorSecondary">@color/sentinel_accent</item>
-        <item name="android:statusBarColor">@color/sentinel_primary</item>
-        <item name="android:navigationBarColor">@color/sentinel_primary</item>
+        <item name="android:statusBarColor">@color/profile_bg</item>
+        <item name="android:navigationBarColor">@color/bottom_nav_bg</item>
+        <item name="android:windowAnimationStyle">@style/AnimationSentinel</item>
     </style>
 
-    <style name="Theme.SentinelAI.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.SentinelAI.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/splash_window_bg</item>
         <item name="android:windowSplashScreenBackground">@color/splash_bg</item>
         <item name="android:windowSplashScreenAnimatedIcon">@null</item>
         <item name="android:windowSplashScreenIconBackgroundColor">@null</item>
         <item name="android:statusBarColor">@color/splash_bg</item>
         <item name="android:navigationBarColor">@color/splash_bg</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
         <item name="postSplashScreenTheme">@style/Theme.SentinelAI.Intro</item>
     </style>
 
-    <style name="Theme.SentinelAI.Intro" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.SentinelAI.Intro" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/splash_bg</item>
         <item name="android:statusBarColor">@color/splash_bg</item>
         <item name="android:navigationBarColor">@color/splash_bg</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowAnimationStyle">@style/AnimationSentinel</item>
+    </style>
+
+    <style name="AnimationSentinel">
+        <item name="android:activityOpenEnterAnimation">@anim/fade_in_scale</item>
+        <item name="android:activityOpenExitAnimation">@anim/fade_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/fade_in_scale</item>
+        <item name="android:activityCloseExitAnimation">@anim/fade_out</item>
     </style>
 
     <style name="Widget.Sentinel.Card">
         <item name="android:background">@color/sentinel_card</item>
         <item name="android:padding">16dp</item>
         <item name="android:elevation">4dp</item>
+    </style>
+
+    <style name="ThemeOverlay.SentinelAI.BottomSheet" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Sentinel.BottomSheet</item>
+    </style>
+
+    <style name="Widget.Sentinel.BottomSheet" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <!-- Fallback widget namespace to satisfy style lookups -->

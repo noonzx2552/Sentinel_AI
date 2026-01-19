@@ -9,7 +9,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONObject
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 /**
@@ -72,6 +74,47 @@ object WhisperCppSttClient {
 
         return try {
             Log.d(TAG, "Sending wav bytes=${wavBytes.size} sr=$sampleRate ch=$channels")
+            client.newCall(request).execute().use { resp ->
+                if (!resp.isSuccessful) {
+                    Log.w(TAG, "Whisper.cpp HTTP ${resp.code}: ${resp.message}")
+                    return null
+                }
+                val raw = resp.body?.string().orEmpty()
+                parseText(raw)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Whisper.cpp request failed: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
+     * Transcribe an audio file (wav/m4a/mp3/ogg). Uses the server to decode.
+     */
+    fun transcribeFile(file: File, mimeType: String?): String? {
+        if (!file.exists() || file.length() == 0L) return null
+        if (!isConfigured()) {
+            Log.w(TAG, "Missing Whisper.cpp API key; set WHISPER_CPP_API_KEY.")
+            return null
+        }
+        val mediaType = (mimeType?.ifBlank { null } ?: "application/octet-stream").toMediaType()
+        val body = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart(
+                "file",
+                file.name,
+                file.asRequestBody(mediaType)
+            )
+            .build()
+
+        val request = Request.Builder()
+            .url(ENDPOINT)
+            .addHeader("X-API-Key", BuildConfig.WHISPER_CPP_API_KEY)
+            .post(body)
+            .build()
+
+        return try {
+            Log.d(TAG, "Sending file ${file.name} bytes=${file.length()} mime=${mediaType}")
             client.newCall(request).execute().use { resp ->
                 if (!resp.isSuccessful) {
                     Log.w(TAG, "Whisper.cpp HTTP ${resp.code}: ${resp.message}")

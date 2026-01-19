@@ -9,13 +9,12 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.sentinel.ai.R
 import com.sentinel.ai.databinding.ActivityPrivacyBinding
 import com.sentinel.ai.utils.PermissionUtils
 
-class PrivacyActivity : AppCompatActivity() {
+class PrivacyActivity : BaseLocalizedActivity() {
 
     private lateinit var binding: ActivityPrivacyBinding
 

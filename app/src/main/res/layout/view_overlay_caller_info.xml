@@ -1,44 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:background="@drawable/overlay_card_bg">
+    android:padding="8dp">
 
-    <TextView
-        android:id="@+id/callerRisk"
-        android:layout_width="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/callerInfoCard"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:text="SAFE"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:padding="6dp"
-        android:background="@android:color/holo_green_dark" />
+        android:layout_gravity="center"
+        android:layout_margin="4dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#E5E7EB"
+        app:strokeWidth="1dp">
 
-    <TextView
-        android:id="@+id/callerName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Unknown caller"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="@color/sentinel_on_surface" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="14dp">
 
-    <TextView
-        android:id="@+id/callerNumber"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="+66xxxxxxxxx"
-        android:textColor="@color/sentinel_on_surface" />
+            <FrameLayout
+                android:id="@+id/infoBadge"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="@drawable/overlay_info_badge_bg"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/callerReason"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="Lookup info"
-        android:textColor="@color/sentinel_on_surface" />
-</LinearLayout>
+                <TextView
+                    android:id="@+id/ivInfoIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:text="?"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/home_muted" />
+            </FrameLayout>
+
+            <ImageButton
+                android:id="@+id/btnOverlayClose"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/overlay_dismiss"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="#94A3B8"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvPhoneNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/splash_title"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/infoBadge"
+                tools:text="Somchai Jaidee" />
+
+            <TextView
+                android:id="@+id/tvCallerNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/home_muted"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPhoneNumber"
+                tools:text="085 846 0148" />
+
+            <TextView
+                android:id="@+id/tvRegion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/home_muted"
+                android:textSize="13sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
+                tools:text="Thailand" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:background="#E5E7EB"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvRegion" />
+
+            <TextView
+                android:id="@+id/tvRiskReason"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="12dp"
+                android:lineSpacingExtra="2dp"
+                android:maxLines="3"
+                android:textColor="@color/home_muted"
+                android:textSize="13sp"
+                app:layout_constraintEnd_toStartOf="@id/mascotBadge"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/divider"
+                tools:text="This number hasn't been reported yet." />
+
+            <FrameLayout
+                android:id="@+id/mascotBadge"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/overlay_mascot_badge_bg"
+                app:layout_constraintBottom_toBottomOf="@id/tvRiskReason"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvRiskReason">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_launcher_foreground"
+                    android:tint="@android:color/white" />
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

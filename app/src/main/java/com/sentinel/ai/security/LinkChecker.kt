@@ -1,6 +1,8 @@
 package com.sentinel.ai.security
 
+import android.content.Context
 import android.util.Log
+import com.sentinel.ai.R
 import com.sentinel.ai.ui.DebugSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,6 +20,7 @@ import java.security.MessageDigest
 import java.security.cert.X509Certificate
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 data class LinkCheckResult(
     val normalizedUrl: String,
@@ -41,7 +44,7 @@ data class LinkCheckResult(
     val deductions: List<Deduction>
 )
 
-enum class SafetyLevel { SAFE, CAUTION, DANGER }
+enum class SafetyLevel { SAFE, CAUTION, DANGER, UNKNOWN }
 
 enum class CertErrorReason {
     TLS_HANDSHAKE_FAILED,
@@ -75,23 +78,33 @@ private data class HeadResult(
     val certInfo: CertInfo?
 )
 
-class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
+class LinkChecker(
+    private val context: Context,
+    private val client: OkHttpClient = OkHttpClient()
+) {
 
     suspend fun check(rawInput: String): LinkCheckResult = withContext(Dispatchers.IO) {
         val candidates = buildCandidateUrls(rawInput)
         val initial = candidates.first()
         val uri = runCatching { URI(initial) }.getOrElse {
-            throw IllegalArgumentException("Invalid URL")
+            throw IllegalArgumentException(context.getString(R.string.error_invalid_url))
         }
-        val host = uri.host ?: throw IllegalArgumentException("Missing host")
+        val host = uri.host ?: throw IllegalArgumentException(context.getString(R.string.error_missing_host))
         val normalizedHost = IDN.toASCII(host)
         val domain = normalizedHost.removePrefix("www.")
         val resolvedIp = resolveIpAddress(normalizedHost)
         val registrationDate = runCatching { DomainAnalyzer.getDomainRegistrationDate(domain).getOrNull() }.getOrNull()
 
-        var score = 60
+        var score = 100
         val notes = mutableListOf<String>()
         val deductions = mutableListOf<Deduction>()
+        fun deduct(points: Int, reason: String, note: String? = null) {
+            score -= points
+            deductions.add(Deduction(reason, points))
+            if (!note.isNullOrBlank()) {
+                notes.add(note)
+            }
+        }
         val initialResult = performHead(candidates)
         var headResult = initialResult
 
@@ -101,8 +114,11 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
             val httpResult = httpCandidate?.let { performHead(listOf(it)) }
             if (httpResult != null) {
                 headResult = httpResult
-                notes.add("HTTPS returned placeholder content; using HTTP response instead")
-                score -= 5
+                deduct(
+                    points = 10,
+                    reason = context.getString(R.string.link_deduction_https_placeholder),
+                    note = context.getString(R.string.link_note_https_placeholder)
+                )
             }
         }
 
@@ -110,56 +126,88 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
         val certHost = hostFromUrl(normalized) ?: normalizedHost
         val certDomain = certHost.removePrefix("www.")
         val https = normalized.startsWith("https://", ignoreCase = true)
-        if (https) {
-            score += 10
-        } else {
-            score -= 15
-            notes.add("Connection is not using HTTPS")
+        if (!https) {
+            deduct(
+                points = 30,
+                reason = context.getString(R.string.link_deduction_not_https),
+                note = context.getString(R.string.link_note_not_https)
+            )
             if (headResult?.usedUrl?.startsWith("https://") == true && !https) {
-                notes.add("HTTPS attempt failed; fell back to HTTP")
+                notes.add(context.getString(R.string.link_note_https_fallback))
             }
-            deductions.add(Deduction("Not using HTTPS", 15))
         }
 
         val code = headResult?.code
         val hadHandshake = headResult?.handshake == true
-        if (hadHandshake) score += 5 else if (!https) score -= 5
-        if (code in 200..399) score += 5 else if (code != null) score -= 5
+        if (!hadHandshake && https) {
+            deduct(points = 10, reason = context.getString(R.string.link_deduction_tls_handshake_failed))
+        }
+        if (code in 200..399) {
+            // Good HTTP status yields no penalty.
+        } else if (code != null) {
+            deduct(points = 10, reason = context.getString(R.string.link_deduction_http_status))
+        }
 
         val ageDays = runCatching { registrationDate?.let { Instant.parse(it).until(Instant.now(), ChronoUnit.DAYS) } }
             .getOrNull()
             ?: fetchDomainAgeDays(domain)
         if (ageDays != null) {
             when {
-                ageDays > 365 -> score += 15
-                ageDays > 90 -> score += 8
                 ageDays < 30 -> {
-                    score -= 15
-                    notes.add("Very new domain ($ageDays days old)")
-                    deductions.add(Deduction("Very new domain", 15))
+                    deduct(
+                        points = 10,
+                        reason = context.getString(R.string.link_deduction_domain_very_new),
+                        note = context.getString(R.string.link_note_domain_very_new_format, ageDays)
+                    )
                 }
                 ageDays < 90 -> {
-                    score -= 8
-                    notes.add("New domain ($ageDays days old)")
-                    deductions.add(Deduction("New domain", 8))
+                    deduct(
+                        points = 10,
+                        reason = context.getString(R.string.link_deduction_domain_new),
+                        note = context.getString(R.string.link_note_domain_new_format, ageDays)
+                    )
+                }
+                else -> {
+                    // Older domains yield no penalty.
                 }
             }
+        } else {
+            deduct(
+                points = 10,
+                reason = context.getString(R.string.link_deduction_domain_age_unknown),
+                note = context.getString(R.string.link_note_domain_age_unknown)
+            )
         }
 
         val country = fetchCountry(domain)
-        if (country != null && country.isNotBlank()) {
-            score += 2
-        }
 
         if (domain.endsWith(".xyz") || domain.endsWith(".top") || domain.endsWith(".click")) {
-            score -= 8
-            notes.add("Suspicious top-level domain")
-            deductions.add(Deduction("Suspicious TLD", 8))
+            deduct(
+                points = 10,
+                reason = context.getString(R.string.link_deduction_suspicious_tld),
+                note = context.getString(R.string.link_note_suspicious_tld)
+            )
+        }
+        if (looksLikeMicrosoftImpersonation(domain)) {
+            deduct(
+                points = 10,
+                reason = context.getString(R.string.link_deduction_impersonation),
+                note = context.getString(R.string.link_note_impersonation)
+            )
+        }
+        if (containsGamblingKeywords(domain)) {
+            deduct(
+                points = 20,
+                reason = context.getString(R.string.link_deduction_gambling_keywords),
+                note = context.getString(R.string.link_note_gambling_keywords)
+            )
         }
         if (normalized.contains("@") || normalized.contains("\\", ignoreCase = true)) {
-            score -= 5
-            notes.add("URL contains unusual characters")
-            deductions.add(Deduction("Unusual characters in URL", 5))
+            deduct(
+                points = 10,
+                reason = context.getString(R.string.link_deduction_unusual_chars),
+                note = context.getString(R.string.link_note_unusual_chars)
+            )
         }
 
         var certInfo = headResult?.certInfo ?: initialResult?.certInfo
@@ -183,27 +231,33 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
             val now = System.currentTimeMillis()
             certInfo.notAfter?.let {
                 if (now > it) {
-                    score -= 20
-                    notes.add("Certificate expired")
-                    deductions.add(Deduction("Certificate expired", 20))
+                    deduct(
+                        points = 10,
+                        reason = context.getString(R.string.link_deduction_cert_expired),
+                        note = context.getString(R.string.link_note_cert_expired)
+                    )
                 }
             }
             certInfo.notBefore?.let {
                 if (now < it) {
-                    score -= 10
-                    notes.add("Certificate not yet valid")
-                    deductions.add(Deduction("Certificate not yet valid", 10))
+                    deduct(
+                        points = 10,
+                        reason = context.getString(R.string.link_deduction_cert_not_yet_valid),
+                        note = context.getString(R.string.link_note_cert_not_yet_valid)
+                    )
                 }
             }
             val hostMatch = matchesHost(certInfo.hosts, certDomain, certHost)
             if (!hostMatch) {
-                score -= 15
-                notes.add("Certificate hostname mismatch")
-                deductions.add(Deduction("Certificate hostname mismatch", 15))
+                deduct(
+                    points = 10,
+                    reason = context.getString(R.string.link_deduction_cert_hostname_mismatch),
+                    note = context.getString(R.string.link_note_cert_hostname_mismatch)
+                )
             }
         }
 
-        val finalScore = score.coerceIn(0, 100)
+        val finalScore = if (deductions.isEmpty()) 100 else score.coerceIn(0, 100)
         val status = when {
             finalScore >= 75 -> SafetyLevel.SAFE
             finalScore >= 50 -> SafetyLevel.CAUTION
@@ -235,7 +289,7 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
 
     private fun buildCandidateUrls(raw: String): List<String> {
         val trimmed = raw.trim()
-        if (trimmed.isEmpty()) throw IllegalArgumentException("Empty URL")
+        if (trimmed.isEmpty()) throw IllegalArgumentException(context.getString(R.string.error_empty_url))
         return if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
             listOf(trimmed)
         } else {
@@ -294,6 +348,22 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
         return runCatching { IDN.toASCII(host) }.getOrNull() ?: host
     }
 
+    private fun looksLikeMicrosoftImpersonation(domain: String): Boolean {
+        val lower = domain.lowercase(Locale.getDefault())
+        return lower.contains("rnicrosoft") ||
+            lower.contains("micros0ft") ||
+            lower.contains("microsof1") ||
+            lower.contains("m1crosoft")
+    }
+
+    private fun containsGamblingKeywords(domain: String): Boolean {
+        val lower = domain.lowercase(Locale.getDefault())
+        return lower.contains("ufa") ||
+            lower.contains("888") ||
+            lower.contains("777") ||
+            lower.contains("666")
+    }
+
     private fun fetchDomainAgeDays(domain: String): Long? {
         val rdapUrls = listOf(
             "https://rdap.org/domain/$domain",
@@ -345,7 +415,11 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
         val country = ipApiBody?.let {
             runCatching {
                 val json = JSONObject(it)
-                if (json.optString("status") == "success") json.optString("country", null) else null
+                if (json.optString("status") == "success") {
+                    json.optString("country").takeIf { it.isNotBlank() }
+                } else {
+                    null
+                }
             }.getOrNull()
         }
         if (!country.isNullOrBlank()) return country
@@ -356,7 +430,9 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
             .build()
         val ipwhoisBody = runCatching { client.newCall(ipwhois).execute().use { it.body?.string() } }.getOrNull()
         if (ipwhoisBody.isNullOrBlank()) return null
-        val ipwhoisCountry = runCatching { JSONObject(ipwhoisBody).optString("country", null) }.getOrNull()
+        val ipwhoisCountry = runCatching {
+            JSONObject(ipwhoisBody).optString("country").takeIf { it.isNotBlank() }
+        }.getOrNull()
         if (!ipwhoisCountry.isNullOrBlank()) return ipwhoisCountry
 
         val ipapi = Request.Builder()
@@ -365,7 +441,9 @@ class LinkChecker(private val client: OkHttpClient = OkHttpClient()) {
             .build()
         val ipapiBody = runCatching { client.newCall(ipapi).execute().use { it.body?.string() } }.getOrNull()
         if (!ipapiBody.isNullOrBlank()) {
-            runCatching { JSONObject(ipapiBody).optString("country_name", null) }.getOrNull()?.let { return it }
+            runCatching {
+                JSONObject(ipapiBody).optString("country_name").takeIf { it.isNotBlank() }
+            }.getOrNull()?.let { return it }
         }
 
         resolveIpCountry(domain)?.let { return it }
@@ -410,7 +488,7 @@ private fun parseCountryFromRdap(body: String): String? {
     return runCatching {
         val json = JSONObject(body)
         val entities = json.optJSONArray("entities") ?: return@runCatching null
-        extractCountryFromEntities(entities) ?: json.optString("country", null)
+        extractCountryFromEntities(entities) ?: json.optString("country").takeIf { it.isNotBlank() }
     }.getOrNull()
 }
 
@@ -422,12 +500,12 @@ private fun extractCountryFromEntities(entities: JSONArray): String? {
             val entry = vcard.optJSONArray(j) ?: continue
             val key = entry.optString(0)
             if (key.equals("country-name", ignoreCase = true) || key.equals("country", ignoreCase = true)) {
-                val value = entry.optString(3, null)
+                val value = entry.optString(3).takeIf { it.isNotBlank() }
                 if (!value.isNullOrBlank()) return value
             }
             if (key.equals("adr", ignoreCase = true)) {
                 val adrValues = entry.optJSONArray(3)
-                val country = adrValues?.optString(6, null)
+                val country = adrValues?.optString(6)?.takeIf { it.isNotBlank() }
                 if (!country.isNullOrBlank()) return country
             }
         }
@@ -519,7 +597,11 @@ private fun resolveIpCountry(host: String): String? {
     if (!ipApiBody.isNullOrBlank()) {
         val country = runCatching {
             val json = JSONObject(ipApiBody)
-            if (json.optString("status") == "success") json.optString("country", null) else null
+            if (json.optString("status") == "success") {
+                json.optString("country").takeIf { it.isNotBlank() }
+            } else {
+                null
+            }
         }.getOrNull()
         if (!country.isNullOrBlank()) return country
     }
@@ -530,7 +612,9 @@ private fun resolveIpCountry(host: String): String? {
         .build()
     val ipwhoisBody = runCatching { OkHttpClient().newCall(ipwhois).execute().use { it.body?.string() } }.getOrNull()
     if (!ipwhoisBody.isNullOrBlank()) {
-        val country = runCatching { JSONObject(ipwhoisBody).optString("country", null) }.getOrNull()
+        val country = runCatching {
+            JSONObject(ipwhoisBody).optString("country").takeIf { it.isNotBlank() }
+        }.getOrNull()
         if (!country.isNullOrBlank()) return country
     }
 
@@ -540,7 +624,9 @@ private fun resolveIpCountry(host: String): String? {
         .build()
     val ipapiBody = runCatching { OkHttpClient().newCall(ipapi).execute().use { it.body?.string() } }.getOrNull()
     if (!ipapiBody.isNullOrBlank()) {
-        val country = runCatching { JSONObject(ipapiBody).optString("country_name", null) }.getOrNull()
+        val country = runCatching {
+            JSONObject(ipapiBody).optString("country_name").takeIf { it.isNotBlank() }
+        }.getOrNull()
         if (!country.isNullOrBlank()) return country
     }
 

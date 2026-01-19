@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import com.sentinel.ai.R
 
 /**
  * Stubbed initializer that represents downloading/loading local AI models.
@@ -12,7 +13,7 @@ import android.widget.Toast
 object ModelInitializer {
     fun initialize(context: Context, onReady: (() -> Unit)? = null) {
         Handler(Looper.getMainLooper()).postDelayed({
-            Toast.makeText(context, "AI models ready (stub)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.model_initializer_ready), Toast.LENGTH_SHORT).show()
             onReady?.invoke()
         }, 600)
     }

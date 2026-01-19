@@ -2,11 +2,9 @@ package com.sentinel.ai.ui
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.sentinel.ai.databinding.ActivityIntroBinding
-import com.sentinel.ai.utils.PermissionUtils
 
-class IntroActivity : AppCompatActivity() {
+class IntroActivity : BaseLocalizedActivity() {
 
     private lateinit var binding: ActivityIntroBinding
 

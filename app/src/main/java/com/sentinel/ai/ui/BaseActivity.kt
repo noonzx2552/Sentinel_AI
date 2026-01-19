@@ -2,7 +2,6 @@ package com.sentinel.ai.ui
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.sentinel.ai.R
 import com.sentinel.ai.ui.navigation.BottomNavController
 import com.sentinel.ai.ui.navigation.BottomNavView
@@ -10,20 +9,27 @@ import com.sentinel.ai.ui.navigation.BottomTab
 import com.sentinel.ai.ui.navigation.NavItem
 import com.sentinel.ai.ui.navigation.NavStateStore
 
-abstract class BaseActivity : AppCompatActivity() {
+abstract class BaseActivity : BaseLocalizedActivity() {
 
     private var bottomNavController: BottomNavController? = null
 
     protected abstract fun getCurrentTab(): BottomTab
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        com.sentinel.ai.utils.ProfilePrefs.applyTheme(com.sentinel.ai.utils.ProfilePrefs.isDarkMode(this))
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         bindBottomNav()
     }
 
-    override fun onResume() {
-        super.onResume()
-        NavStateStore.setCurrentTab(getCurrentTab())
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            NavStateStore.setCurrentTab(getCurrentTab())
+        }
     }
 
     private fun bindBottomNav() {
@@ -35,7 +41,6 @@ abstract class BaseActivity : AppCompatActivity() {
             NavItem(BottomTab.PROFILE, R.drawable.ic_nav_profile, R.string.home_nav_profile, R.color.bottom_nav_active_blue)
         )
 
-        NavStateStore.setCurrentTab(getCurrentTab())
         bottomNavController = BottomNavController(this, bottomNavView, navItems)
         bottomNavController?.bind { tab -> navigateTo(tab) }
     }

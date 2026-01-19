@@ -191,7 +191,7 @@
                             android:layout_height="34dp"
                             android:layout_gravity="center"
                             android:src="@drawable/intro_icon_shield"
-                            app:tint="@color/splash_logo_bg" />
+                            app:tint="@color/bottom_nav_active_green" />
 
                         <FrameLayout
                             android:layout_width="20dp"

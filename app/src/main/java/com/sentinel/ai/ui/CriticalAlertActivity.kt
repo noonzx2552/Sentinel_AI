@@ -2,13 +2,12 @@ package com.sentinel.ai.ui
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.sentinel.ai.databinding.ActivityAlertBinding
 
 /**
  * Simple alert surface shown after an auto-hangup event. Data shown is transient and in-memory only.
  */
-class CriticalAlertActivity : AppCompatActivity() {
+class CriticalAlertActivity : BaseLocalizedActivity() {
 
     private lateinit var binding: ActivityAlertBinding
 

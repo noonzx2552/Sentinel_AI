@@ -1,225 +1,913 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0f1115"
-    android:padding="16dp"
+    android:background="#0F1117"
+    android:fillViewport="true"
     tools:context=".ui.DashboardActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:divider="@drawable/divider_vertical"
-        android:showDividers="middle">
+        android:padding="20dp">
 
-        <!-- Status + primary controls -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
 
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Status: Idle"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="ควบคุมการจับเสียงและวิเคราะห์ความเสี่ยง"
-                android:textColor="#B3FFFFFF"
-                android:textSize="13sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp"
-                android:weightSum="2">
-
-                <Button
-                    android:id="@+id/btnStartCapture"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Start Capture" />
-
-                <Space
-                    android:layout_width="8dp"
-                    android:layout_height="wrap_content" />
-
-                <Button
-                    android:id="@+id/btnStopCapture"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Stop Capture" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Quick actions -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="การบันทึกและถอดเสียง"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="12dp">
-
-                <Button
-                    android:id="@+id/btnPlayRecording"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Play Last Recording" />
-
-                <Button
-                    android:id="@+id/btnTranscribeRecording"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Transcribe Last Recording (Vosk)" />
-
-                <Button
-                    android:id="@+id/btnTestMic"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Test Mic (Vosk offline)" />
-
-                <Button
-                    android:id="@+id/btnSystemStt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Test Mic (Device STT)" />
-
-                <Button
-                    android:id="@+id/btnClearTranscript"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Clear Transcript" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Call log -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="บันทึกการโทร + ความเสี่ยง"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="ดึงสายโทรเข้า/โทรออกล่าสุด พร้อมสรุปความเสี่ยงเบื้องต้น"
-                android:textColor="#B3FFFFFF"
-                android:textSize="13sp" />
-
-            <LinearLayout
-                android:id="@+id/callLogContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="12dp" />
-        </LinearLayout>
-
-        <!-- SMS risk -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="SMS Scam Watch"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="จับข้อความที่มีคำ/พฤติกรรมเข้าข่ายหลอกลวง"
-                android:textColor="#B3FFFFFF"
-                android:textSize="13sp" />
-
-            <LinearLayout
-                android:id="@+id/smsRiskContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="12dp" />
-        </LinearLayout>
-
-        <!-- Transcript -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="บันทึกข้อความเสียง"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvTranscript"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+            <ImageView
+                android:id="@+id/btnDashboardBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:padding="8dp"
-                android:background="#12151b"
-                android:text="Transcription will appear here..."
-                android:textColor="@android:color/white" />
+                android:src="@android:drawable/ic_menu_revert"
+                app:tint="@android:color/white"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dev Dashboard"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="System Diagnostics &amp; Testing"
+                    android:textColor="#88FFFFFF"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/statusIndicator"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/home_dot_red"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone" />
         </LinearLayout>
+
+        <!-- Status Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#1A1D24"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#2A2F3A">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status: Idle"
+                    android:textColor="#4ADE80"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Service engine state &amp; active listeners"
+                    android:textColor="#607D8B"
+                    android:textSize="11sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:weightSum="2">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnStartCapture"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Start Capture"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        app:cornerRadius="8dp"
+                        android:backgroundTint="#2563EB" />
+
+                    <Space
+                        android:layout_width="12dp"
+                        android:layout_height="wrap_content" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnStopCapture"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Stop Capture"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        app:cornerRadius="8dp"
+                        android:textColor="#EF4444"
+                        app:strokeColor="#EF4444" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DEVELOPER TOOLS"
+            android:textColor="#4B5563"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Tools Row 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardBackgroundColor="#1A1D24"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#2A2F3A">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Audio Recording"
+                        android:textColor="@android:color/white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPlayRecording"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Play Last"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:textColor="#E2E8F0"
+                        android:gravity="start|center_vertical"
+                        app:icon="@android:drawable/ic_media_play"
+                        app:iconPadding="8dp"
+                        app:iconTint="#E2E8F0" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTranscribeRecording"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Vosk Transcribe"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:textColor="#E2E8F0"
+                        android:gravity="start|center_vertical"
+                        app:icon="@android:drawable/ic_menu_edit"
+                        app:iconPadding="8dp"
+                        app:iconTint="#E2E8F0" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <Space
+                android:layout_width="12dp"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardBackgroundColor="#1A1D24"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#2A2F3A">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mic &amp; STT Tests"
+                        android:textColor="@android:color/white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTestMic"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Test Mic (Vosk)"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:textColor="#E2E8F0"
+                        android:gravity="start|center_vertical"
+                        app:icon="@android:drawable/ic_btn_speak_now"
+                        app:iconPadding="8dp"
+                        app:iconTint="#E2E8F0" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTestMicWhisper"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Test Mic (Whisper CPP)"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:textColor="#E2E8F0"
+                        android:gravity="start|center_vertical"
+                        app:icon="@android:drawable/ic_btn_speak_now"
+                        app:iconPadding="8dp"
+                        app:iconTint="#E2E8F0" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSystemStt"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Device STT"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:textColor="#E2E8F0"
+                        android:gravity="start|center_vertical"
+                        app:icon="@android:drawable/ic_menu_search"
+                        app:iconPadding="8dp"
+                        app:iconTint="#E2E8F0" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Risk Panels Container -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#1A1D24"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#2A2F3A">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Security Analytics"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Call Log &amp; SMS Risk scanning"
+                    android:textColor="#607D8B"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#2A2F3A"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/callLogHeaderRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/callLogHeaderText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Call History Risks"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/callLogHeaderChevron"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_profile_chevron_right"
+                        app:tint="#94A3B8" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/callLogContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/smsRiskHeaderRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/smsRiskHeaderText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="SMS Scam Watch"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/smsRiskHeaderChevron"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_profile_chevron_right"
+                        app:tint="#94A3B8" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/smsRiskContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Scam Model Debug -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1D24"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#2A2F3A">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scam Model (Debug)"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Runs scam_model.zip (debug-only) on typed text or scratch notes."
+                    android:textColor="#7C8EA2"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/debugModelTypedInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="พิมพ์ข้อความโทร/แชทเพื่อลอง"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/debugModelNoteInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="96dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="top"
+                    android:hint="จดโน้ต/เขียนเองเพื่อลอง (multi-line)"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRunScamModel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Run on typed"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:backgroundTint="#2563EB" />
+
+                    <Space
+                        android:layout_width="12dp"
+                        android:layout_height="wrap_content" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRunScamModelNote"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Run on note"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:textColor="#E2E8F0"
+                        app:strokeColor="#334155" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/debugModelResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Model idle"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickAudioFile"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Load audio file"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:textColor="#E2E8F0"
+                    app:strokeColor="#334155" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Phone Validation Debug -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1D24"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#2A2F3A">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phone Validation (Debug)"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Override parameters and test both API keys."
+                    android:textColor="#7C8EA2"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/debugPhoneNumberInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Number (e.g. 0936130173)"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <EditText
+                        android:id="@+id/debugPhoneCountryInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Country (TH)"
+                        android:background="@drawable/bg_input_dark"
+                        android:padding="10dp"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="#6B7280"
+                        android:textSize="13sp" />
+
+                    <Space
+                        android:layout_width="12dp"
+                        android:layout_height="wrap_content" />
+
+                    <EditText
+                        android:id="@+id/debugPhoneFormatInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Format (1)"
+                        android:background="@drawable/bg_input_dark"
+                        android:padding="10dp"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="#6B7280"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/debugPhoneApiKey1Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="API key #1 (optional override)"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/debugPhoneApiKey2Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="API key #2 (optional override)"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDebugPhoneKey1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Test key #1"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:backgroundTint="#2563EB" />
+
+                    <Space
+                        android:layout_width="12dp"
+                        android:layout_height="wrap_content" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDebugPhoneKey2"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Test key #2"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:textColor="#E2E8F0"
+                        app:strokeColor="#334155" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/debugPhoneRequestOutput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Request: -"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/debugPhoneResponseOutput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Response: -"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- BlacklistSeller Debug -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1D24"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#2A2F3A">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BlacklistSeller (Debug)"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Test report search and show request, cookies, and raw output."
+                    android:textColor="#7C8EA2"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/debugBlsNumberInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Number (e.g. 0936130173)"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/debugBlsUserInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="BLS user (blank = default)"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/debugBlsPassInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="BLS pass (blank = default)"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/debugBlsCapsolverInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="CapSolver key (blank = default)"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDebugBlsRun"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Run BLS test"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:backgroundTint="#2563EB" />
+
+                <TextView
+                    android:id="@+id/debugBlsRequestOutput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Requests: -"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/debugBlsCookieOutput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Cookies: -"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/debugBlsResponseOutput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Response: -"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Test Call Overlay Debug -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1D24"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#2A2F3A">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Test Call Overlay (Debug)"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Simulate incoming call overlay with phone number lookup."
+                    android:textColor="#7C8EA2"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/debugOverlayNumberInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Enter phone number to test"
+                    android:background="@drawable/bg_input_dark"
+                    android:padding="10dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#6B7280"
+                    android:textSize="13sp"
+                    android:inputType="phone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTestOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Show Overlay"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:backgroundTint="#16A34A" />
+
+                <TextView
+                    android:id="@+id/debugOverlayStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Enter a phone number and tap 'Show Overlay' to test."
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Console Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#000000"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#333333">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="#1A1A1A"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Terminal Console"
+                        android:textColor="#AAAAAA"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace" />
+
+                    <ImageView
+                        android:id="@+id/btnClearTranscript"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:padding="6dp"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        app:tint="#888888"
+                        android:background="?attr/selectableItemBackgroundBorderless" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvTranscript"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="140dp"
+                    android:padding="12dp"
+                    android:text="[System] Debug session started..."
+                    android:textColor="#4ADE80"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

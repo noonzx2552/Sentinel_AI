@@ -11,6 +11,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.sentinel.ai.R
+import com.sentinel.ai.SentinelApp
+import com.sentinel.ai.model.GuardianEvent
+import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.security.LinkCheckResult
 import com.sentinel.ai.security.LinkChecker
 import com.sentinel.ai.security.SafetyLevel
@@ -24,7 +27,7 @@ import java.util.Locale
 
 class CheckLinkActivity : BaseActivity() {
 
-    private val checker = LinkChecker(OkHttpClient())
+    private val checker by lazy { LinkChecker(this, OkHttpClient()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,8 +62,24 @@ class CheckLinkActivity : BaseActivity() {
                 scanBtn.isEnabled = false
                 scanBtn.text = getString(R.string.checklink_scanning)
                 runCatching { checker.check(url) }
-                    .onSuccess { updateUi(it, statusTitle, scoreView, domainBody, sslBody, historyBody, deductionsView) }
-                    .onFailure { Toast.makeText(this@CheckLinkActivity, it.message ?: "Invalid URL", Toast.LENGTH_LONG).show() }
+                    .onSuccess { result ->
+                        updateUi(result, statusTitle, scoreView, domainBody, sslBody, historyBody, deductionsView)
+                        SentinelApp.instance.database.eventDao().insert(
+                            GuardianEvent(
+                                source = getString(R.string.scan_event_source_web),
+                                content = getString(R.string.scan_event_content_url_format, result.domain),
+                                score = result.score,
+                                riskLevel = toRiskLevel(result.status)
+                            )
+                        )
+                    }
+                    .onFailure {
+                        Toast.makeText(
+                            this@CheckLinkActivity,
+                            it.message ?: getString(R.string.error_invalid_url),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 scanBtn.isEnabled = true
                 scanBtn.text = getString(R.string.checklink_scan)
             }
@@ -80,6 +99,7 @@ class CheckLinkActivity : BaseActivity() {
             SafetyLevel.SAFE -> getString(R.string.checklink_safe_title) to R.color.splash_title
             SafetyLevel.CAUTION -> getString(R.string.checklink_caution_title) to R.color.home_accent_yellow
             SafetyLevel.DANGER -> getString(R.string.checklink_danger_title) to R.color.home_accent_red
+            SafetyLevel.UNKNOWN -> getString(R.string.checklink_unknown_title) to R.color.home_muted
         }
 
         statusTitle.text = titleText
@@ -89,7 +109,7 @@ class CheckLinkActivity : BaseActivity() {
 
         val ageText = when {
             result.registrationDate != null -> formatRegistrationDate(result.registrationDate)
-            result.domainAgeDays != null -> "${result.domainAgeDays} days old"
+            result.domainAgeDays != null -> getString(R.string.checklink_age_days_format, result.domainAgeDays)
             else -> getString(R.string.checklink_age_unknown)
         }
         val countryText = result.country ?: getString(R.string.checklink_country_unknown)
@@ -105,7 +125,9 @@ class CheckLinkActivity : BaseActivity() {
             getString(R.string.checklink_ssl_missing)
         }
 
-        val issues = result.issues.takeIf { it.isNotEmpty() }?.joinToString(" • ") ?: getString(R.string.checklink_no_issues)
+        val issues = result.issues.takeIf { it.isNotEmpty() }
+            ?.joinToString(getString(R.string.list_separator))
+            ?: getString(R.string.checklink_no_issues)
         historyBody.text = issues.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         val deductions = result.deductions.takeIf { it.isNotEmpty() }
@@ -115,6 +137,13 @@ class CheckLinkActivity : BaseActivity() {
     }
 
     override fun getCurrentTab(): BottomTab = BottomTab.SCAN
+
+    private fun toRiskLevel(status: SafetyLevel): RiskLevel = when (status) {
+        SafetyLevel.SAFE -> RiskLevel.SAFE
+        SafetyLevel.CAUTION -> RiskLevel.WARNING
+        SafetyLevel.DANGER -> RiskLevel.CRITICAL
+        SafetyLevel.UNKNOWN -> RiskLevel.SAFE
+    }
 
     private fun formatRegistrationDate(raw: String): String {
         return runCatching {

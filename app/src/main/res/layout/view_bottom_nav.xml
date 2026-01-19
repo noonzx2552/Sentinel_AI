@@ -72,7 +72,7 @@
                         android:layout_gravity="center_horizontal"
                         android:translationY="-28dp"
                         android:visibility="invisible"
-                        app:cardBackgroundColor="@android:color/white"
+                        app:cardBackgroundColor="@color/bottom_nav_indicator_bg"
                         app:cardCornerRadius="29dp"
                         app:cardElevation="0dp"
                         app:cardUseCompatPadding="false">
@@ -107,14 +107,16 @@
 
                 <TextView
                     android:id="@+id/tabHomeLabel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
+                    android:ellipsize="end"
                     android:text="@string/home_nav_home"
                     android:textColor="@color/bottom_nav_inactive"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textAllCaps="false"
+                    android:maxLines="1"
                     android:gravity="center" />
             </LinearLayout>
 
@@ -150,7 +152,7 @@
                         android:layout_gravity="center_horizontal"
                         android:translationY="-28dp"
                         android:visibility="invisible"
-                        app:cardBackgroundColor="@android:color/white"
+                        app:cardBackgroundColor="@color/bottom_nav_indicator_bg"
                         app:cardCornerRadius="29dp"
                         app:cardElevation="0dp"
                         app:cardUseCompatPadding="false">
@@ -185,14 +187,16 @@
 
                 <TextView
                     android:id="@+id/tabActivityLabel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
+                    android:ellipsize="end"
                     android:text="@string/home_nav_activity"
                     android:textColor="@color/bottom_nav_inactive"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textAllCaps="false"
+                    android:maxLines="1"
                     android:gravity="center" />
             </LinearLayout>
 
@@ -228,7 +232,7 @@
                         android:layout_gravity="center_horizontal"
                         android:translationY="-28dp"
                         android:visibility="invisible"
-                        app:cardBackgroundColor="@android:color/white"
+                        app:cardBackgroundColor="@color/bottom_nav_indicator_bg"
                         app:cardCornerRadius="29dp"
                         app:cardElevation="0dp"
                         app:cardUseCompatPadding="false">
@@ -263,14 +267,16 @@
 
                 <TextView
                     android:id="@+id/tabScanLabel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
+                    android:ellipsize="end"
                     android:text="@string/home_nav_scan"
                     android:textColor="@color/bottom_nav_inactive"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textAllCaps="false"
+                    android:maxLines="1"
                     android:gravity="center" />
             </LinearLayout>
 
@@ -306,7 +312,7 @@
                         android:layout_gravity="center_horizontal"
                         android:translationY="-28dp"
                         android:visibility="invisible"
-                        app:cardBackgroundColor="@android:color/white"
+                        app:cardBackgroundColor="@color/bottom_nav_indicator_bg"
                         app:cardCornerRadius="29dp"
                         app:cardElevation="0dp"
                         app:cardUseCompatPadding="false">
@@ -341,14 +347,16 @@
 
                 <TextView
                     android:id="@+id/tabProfileLabel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
+                    android:ellipsize="end"
                     android:text="@string/home_nav_profile"
                     android:textColor="@color/bottom_nav_inactive"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textAllCaps="false"
+                    android:maxLines="1"
                     android:gravity="center" />
             </LinearLayout>
         </LinearLayout>

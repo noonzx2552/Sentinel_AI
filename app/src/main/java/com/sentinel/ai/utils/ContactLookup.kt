@@ -11,9 +11,11 @@ object ContactLookup {
         val hasPermission = PermissionUtils.hasReadContacts(context)
         if (!hasPermission) return null
 
+        // Normalize: remove dashes, spaces, etc. to ensure we match raw numbers
+        val normalized = phoneNumber.replace(Regex("[^0-9+]"), "")
         val uri: Uri = Uri.withAppendedPath(
             ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-            Uri.encode(phoneNumber)
+            Uri.encode(normalized)
         )
         val projection = arrayOf(
             ContactsContract.PhoneLookup.DISPLAY_NAME

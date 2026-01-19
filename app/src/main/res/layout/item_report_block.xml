@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="24dp"
+    app:cardBackgroundColor="@color/home_card_bg"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp"
+    app:cardUseCompatPadding="false"
+    app:strokeColor="@color/home_card_border"
+    app:strokeWidth="1dp">
+
+    <TextView
+        android:id="@+id/reportBlockText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="@string/checknumber_reports_placeholder"
+        android:textColor="@color/splash_title"
+        android:textSize="11sp"
+        android:lineSpacingExtra="3dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
+</com.google.android.material.card.MaterialCardView>

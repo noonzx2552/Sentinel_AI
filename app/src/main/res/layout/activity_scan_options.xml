@@ -7,7 +7,7 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scanOptionsScroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -57,18 +57,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <FrameLayout
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/home_icon_button_bg">
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_recent_history"
-                        app:tint="@color/home_muted" />
-                </FrameLayout>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
@@ -96,6 +84,7 @@
                         android:padding="4dp">
 
                         <TextView
+                            android:id="@+id/tabLink"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -109,6 +98,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tabNumber"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -120,6 +110,7 @@
                             android:textSize="12sp" />
 
                         <TextView
+                            android:id="@+id/tabFile"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -191,6 +182,7 @@
             android:orientation="horizontal">
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardUpload"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -245,6 +237,7 @@
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardQR"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -333,7 +326,7 @@
             android:layout_marginTop="16dp"
             android:nestedScrollingEnabled="false" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
     <com.sentinel.ai.ui.navigation.BottomNavView
         android:id="@+id/bottomNavView"
         android:layout_width="0dp"

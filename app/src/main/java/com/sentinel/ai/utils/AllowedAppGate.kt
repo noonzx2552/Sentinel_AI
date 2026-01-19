@@ -16,7 +16,15 @@ object AllowedAppGate {
         "com.linecorp.line.android",
         "com.facebook.katana", // Facebook
         "com.whatsapp",
-        "com.sentinel.ai" // allow in-app overlays
+        "com.sentinel.ai", // allow in-app overlays
+        "com.android.dialer",
+        "com.google.android.dialer",
+        "com.android.incallui",
+        "com.google.android.apps.messaging",
+        "com.samsung.android.dialer",
+        "com.samsung.android.incallui",
+        "com.coloros.numberbook",
+        "com.oppo.is"
     )
 
     private const val PREFS = "sentinel_allowed_apps"

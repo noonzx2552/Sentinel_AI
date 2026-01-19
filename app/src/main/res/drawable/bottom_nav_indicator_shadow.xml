@@ -7,7 +7,7 @@
         android:gradientRadius="16dp"
         android:centerX="50%"
         android:centerY="78%"
-        android:startColor="#66FFFFFF"
-        android:centerColor="#26FFFFFF"
+        android:startColor="@color/bottom_nav_indicator_glow"
+        android:centerColor="#00FFFFFF"
         android:endColor="#00FFFFFF" />
 </shape>
