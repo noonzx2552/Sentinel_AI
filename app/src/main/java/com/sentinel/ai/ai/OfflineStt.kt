@@ -2,6 +2,7 @@ package com.sentinel.ai.ai
 
 import android.content.Context
 import android.util.Log
+import com.sentinel.ai.utils.WavUtil
 import org.vosk.Model
 import org.vosk.Recognizer
 import java.io.File
@@ -76,6 +77,18 @@ object OfflineStt {
     /** Drop the shared streaming recognizer (used by long-running capture) */
     fun resetRecognizer() {
         try { recognizerRef.getAndSet(null)?.close() } catch (_: Exception) { }
+    }
+
+    /**
+     * Transcribe an audio file. Supports WAV (PCM) only; reads PCM and forwards to transcribePcm16.
+     * For other formats use Whisper/cloud. Returns null if not WAV or on error.
+     */
+    fun transcribeFile(context: Context, file: File): String? {
+        if (!file.exists() || file.length() == 0L) return null
+        val parsed = WavUtil.readPcmFromWav(file) ?: return null
+        val (pcm, sampleRate, channels) = parsed
+        if (pcm.isEmpty()) return null
+        return transcribePcm16(context, pcm, sampleRate, isStereo = channels >= 2)
     }
 
     /**

@@ -1,30 +1,28 @@
 package com.sentinel.ai.service
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
-import com.sentinel.ai.ai.WhisperCppSttClient
 import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
-import com.sentinel.ai.ui.CallMediaProjectionActivity
+import com.sentinel.ai.security.ScamKeywordMatcher
 import com.sentinel.ai.utils.CallTtsController
-import com.sentinel.ai.utils.NetworkUtils
 import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.PermissionUtils
-import com.sentinel.ai.utils.ProtectionPrefs
 import com.sentinel.ai.utils.SpeechTestController
+import com.sentinel.ai.utils.ContactLookup
+import com.sentinel.ai.utils.KnownNumberRepository
+import com.sentinel.ai.utils.LastCallStore
+import com.sentinel.ai.R
+import android.util.Log
 
 /**
  * Watches call state: uses playback capture + Whisper (when enabled) or falls back to mic + TTS.
  */
-class CallModeMonitor(private val context: Context) {
+class CallModeMonitor(private val context: Context) {   
     private val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
     private val speechTester = SpeechTestController(context)
     private val tts = CallTtsController(context)
@@ -33,8 +31,6 @@ class CallModeMonitor(private val context: Context) {
 
     private var phoneStateListener: PhoneStateListener? = null
     private var micRunning = false
-    private var broadcastReceiver: BroadcastReceiver? = null
-    private val fallbackRunnable = Runnable { onPlaybackFallbackTimeout() }
 
     @Suppress("DEPRECATION")
     fun start() {
@@ -82,20 +78,6 @@ class CallModeMonitor(private val context: Context) {
 
     private fun enterCallMode(number: String?) {
         if (micRunning) return
-        if (!PermissionUtils.hasMicPermission(context)) {
-            GuardianEventStore.addEvent(
-                GuardianEvent(
-                    source = "Call monitor",
-                    content = "Mic permission missing. Cannot listen to the call.",
-                    score = 0,
-                    riskLevel = RiskLevel.SAFE
-                )
-            )
-            try {
-                tts.speak("Microphone permission missing. Call monitoring cannot start.", flush = true)
-            } catch (e: Exception) { /* ignore */ }
-            return
-        }
         if (!android.provider.Settings.canDrawOverlays(context)) {
             GuardianEventStore.addEvent(
                 GuardianEvent(
@@ -108,76 +90,63 @@ class CallModeMonitor(private val context: Context) {
             return
         }
 
-        micRunning = true
-        GuardianEventStore.addEvent(
-            GuardianEvent(
-                source = "Call monitor",
-                content = "Incoming call detected from ${number ?: "unknown"}",
-                score = 0,
-                riskLevel = RiskLevel.SAFE
+        try {
+            micRunning = true
+            GuardianEventStore.addEvent(
+                GuardianEvent(
+                    source = "Call monitor",
+                    content = "Call detected (in/out) from ${number ?: "unknown"}",
+                    score = 0,
+                    riskLevel = RiskLevel.SAFE
+                )
             )
-        )
 
-        val usePlayback = ProtectionPrefs.useCallPlaybackCapture(context) &&
-            WhisperCppSttClient.isConfigured() &&
-            NetworkUtils.isOnline(context)
-
-        if (usePlayback) {
+            // Show caller overlay right away using contacts/known numbers
             try {
-                overlay.showLiveTranscript("Preparing...")
-            } catch (e: Exception) {
-                micRunning = false
+                val fallbackNumber = LastCallStore.get()?.number
+                val safeNumber = number?.takeIf { it.isNotBlank() } ?: fallbackNumber ?: context.getString(R.string.common_unknown)
+                val contactName = ContactLookup.getContactName(context, safeNumber)
+                val known = KnownNumberRepository.lookup(safeNumber) ?: KnownNumberRepository.heuristic(safeNumber)
+                val riskLevel = known?.riskLevel ?: RiskLevel.SAFE
+                val displayName = contactName ?: known?.displayName ?: context.getString(R.string.common_unknown)
+                val reason = known?.reason ?: context.getString(R.string.overlay_no_reports)
+                overlay.showCallerInfo(
+                    name = displayName,
+                    number = safeNumber,
+                    riskLevel = riskLevel,
+                    reason = reason,
+                    isOutgoing = stateIsOutgoing(),
+                    dismissOnCallState = false,
+                    allowGatekeeperDismiss = false,
+                    autoDismissMs = 0L,
+                    bypassGate = true
+                )
+            } catch (_: Exception) { }
+
+            if (!PermissionUtils.hasMicPermission(context)) {
+                GuardianEventStore.addEvent(
+                    GuardianEvent(
+                        source = "Call monitor",
+                        content = "Mic permission missing. Overlay only; call listening disabled.",
+                        score = 0,
+                        riskLevel = RiskLevel.SAFE
+                    )
+                )
+                try {
+                    tts.speak("Microphone permission missing. Overlay only.", flush = true)
+                } catch (_: Exception) { /* ignore */ }
                 return
             }
-            val filter = IntentFilter().apply {
-                addAction(CallPlaybackCaptureService.ACTION_CALL_PLAYBACK_CAPTURE_STARTED)
-                addAction(CallPlaybackCaptureService.ACTION_CALL_CAPTURE_FALLBACK_MIC)
-            }
-            broadcastReceiver = object : BroadcastReceiver() {
-                override fun onReceive(ctx: Context?, i: Intent?) {
-                    when (i?.action) {
-                        CallPlaybackCaptureService.ACTION_CALL_PLAYBACK_CAPTURE_STARTED -> {
-                            handler.removeCallbacks(fallbackRunnable)
-                            unregisterPlaybackReceiver()
-                            try { overlay.dismiss() } catch (_: Exception) { }
-                            // Service will show "Listening..." and handle transcript
-                        }
-                        CallPlaybackCaptureService.ACTION_CALL_CAPTURE_FALLBACK_MIC -> {
-                            handler.removeCallbacks(fallbackRunnable)
-                            unregisterPlaybackReceiver()
-                            runMicFallback()
-                        }
-                    }
-                }
-            }
-            @Suppress("DEPRECATION")
-            context.registerReceiver(
-                broadcastReceiver,
-                filter,
-                if (Build.VERSION.SDK_INT >= 33) Context.RECEIVER_NOT_EXPORTED else 0
-            )
 
-            context.startActivity(
-                Intent(context, CallMediaProjectionActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-            handler.postDelayed(fallbackRunnable, FALLBACK_DELAY_MS)
-        } else {
+            // เดิมทีตรงนี้จะลองใช้โหมด playback capture + MediaProjection (ขอแชร์หน้าจอ)
+            // ซึ่งทำให้ขึ้น popup ขอสิทธิ์แชร์จอทุกครั้งที่มีสายเข้า/ออก
+            // ตอนนี้ปิดไว้ชั่วคราว แล้วใช้เฉพาะโหมด mic + overlay แทน
             runMicFallback()
+        } catch (e: Exception) {
+            Log.e(TAG, "enterCallMode failed", e)
+            micRunning = false
+            try { overlay.dismiss() } catch (_: Exception) { }
         }
-    }
-
-    private fun unregisterPlaybackReceiver() {
-        try {
-            broadcastReceiver?.let { context.unregisterReceiver(it) }
-        } catch (_: Exception) { }
-        broadcastReceiver = null
-    }
-
-    private fun onPlaybackFallbackTimeout() {
-        if (CallPlaybackCaptureService.isServiceRunning) return
-        unregisterPlaybackReceiver()
-        runMicFallback()
     }
 
     private fun runMicFallback() {
@@ -195,6 +164,11 @@ class CallModeMonitor(private val context: Context) {
                 onPartial = { partial ->
                     if (partial.isNotBlank() && partial != "...") {
                         try { overlay.updateLiveTranscript(partial) } catch (_: Exception) { }
+                        val m = ScamKeywordMatcher.get(context).match(partial)
+                        if (m != null) {
+                            try { overlay.updateLiveTranscriptRisk(RiskLevel.CRITICAL, m.scenarioName) } catch (_: Exception) { }
+                            GuardianEventStore.addEvent(GuardianEvent(source = "Scam keyword", content = "${m.scenarioName}: ${m.matchedKeyword} | $partial", score = 80, riskLevel = RiskLevel.CRITICAL))
+                        }
                     }
                 },
                 languageTag = PREFERRED_LANG
@@ -216,6 +190,11 @@ class CallModeMonitor(private val context: Context) {
             )
         )
         overlay.updateLiveTranscript(text)
+        val m = ScamKeywordMatcher.get(context).match(text)
+        if (m != null) {
+            try { overlay.updateLiveTranscriptRisk(RiskLevel.CRITICAL, m.scenarioName) } catch (_: Exception) { }
+            GuardianEventStore.addEvent(GuardianEvent(source = "Scam keyword", content = "${m.scenarioName}: ${m.matchedKeyword} | $text", score = 80, riskLevel = RiskLevel.CRITICAL))
+        }
     }
 
     private fun handleError(err: String) {
@@ -237,9 +216,6 @@ class CallModeMonitor(private val context: Context) {
             return
         }
         micRunning = false
-        handler.removeCallbacks(fallbackRunnable)
-        unregisterPlaybackReceiver()
-        CallPlaybackCaptureService.stop(context)
         speechTester.stopContinuous()
         tts.stopKeepAliveLoop()
         overlay.dismiss()
@@ -251,8 +227,17 @@ class CallModeMonitor(private val context: Context) {
         tts.shutdown()
     }
 
+    private fun stateIsOutgoing(): Boolean {
+        return try {
+            // TelephonyManager CALL_STATE_OFFHOOK is used for both, but best guess: outgoing if last state was OFFHOOK and we got an intent ACTION_NEW_OUTGOING elsewhere.
+            false
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     companion object {
+        private const val TAG = "CallModeMonitor"
         private const val PREFERRED_LANG = "th-TH"
-        private const val FALLBACK_DELAY_MS = 15_000L
     }
 }

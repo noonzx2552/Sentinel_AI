@@ -56,19 +56,6 @@
                         android:textColor="@color/home_muted"
                         android:textSize="12sp" />
                 </LinearLayout>
-
-                <FrameLayout
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/home_icon_button_bg">
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_lock_idle_alarm"
-                        app:tint="@color/home_muted" />
-                </FrameLayout>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView

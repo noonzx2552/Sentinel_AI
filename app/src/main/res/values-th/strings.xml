@@ -438,11 +438,16 @@
     <string name="overlay_caller_scammer">มิจฉาชีพ</string>
     <string name="overlay_dismiss">ปิด</string>
     <string name="overlay_no_reports">ไม่พบรายงาน</string>
+    <plurals name="overlay_found_reports_count">
+        <item quantity="one">เจอ 1 report</item>
+        <item quantity="other">เจอ %d reports</item>
+    </plurals>
     <string name="overlay_reports_found_format">พบรายงาน %1$d รายการ</string>
     <string name="credits_title">เครดิต</string>
     <string name="credits_body">แอพ ScammerDetect พัฒนาโดยทีม Sentinel AI</string>
     <string name="credits_names">thammasorn chensintananan\narchwin kerddee\npunika sunthornwedsawong</string>
     <string name="scam_alert_risk_message">พบความเสี่ยงจากบทสนทนา</string>
+    <string name="scam_keyword_risk_title">⚠ พบคำเสี่ยง: %1$s</string>
     <string name="call_status_searching">กำลังค้นหา...</string>
     <string name="call_status_checking">กำลังตรวจสอบเบอร์...</string>
     <string name="call_status_lookup_failed">การค้นหาล้มเหลว</string>

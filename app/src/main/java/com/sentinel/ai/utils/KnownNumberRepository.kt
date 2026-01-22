@@ -19,7 +19,10 @@ object KnownNumberRepository {
         "1669" to NumberInfo("Emergency Medical", RiskLevel.SAFE, "Official emergency line"),
         "191" to NumberInfo("Police Hotline", RiskLevel.SAFE, "Official police hotline"),
         "1441" to NumberInfo("Anti-Fraud Hotline", RiskLevel.SAFE, "Anti-fraud center"),
-        "025560555" to NumberInfo("Revenue Dept.", RiskLevel.WARNING, "Government number - verify caller identity")
+        "025560555" to NumberInfo("Revenue Dept.", RiskLevel.WARNING, "Government number - verify caller identity"),
+        // Forced scammer flag
+        "0616581564" to NumberInfo("Reported scammer", RiskLevel.CRITICAL, "User-flagged scammer"),
+        "66616581564" to NumberInfo("Reported scammer", RiskLevel.CRITICAL, "User-flagged scammer")
     )
 
     fun lookup(number: String): NumberInfo? {

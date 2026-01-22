@@ -45,7 +45,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SentinelAI"
-        android:usesCleartextTraffic="false">
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <!-- Boot receiver -->
         <receiver
@@ -67,6 +68,14 @@
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".receiver.IncomingCallReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
 
 
         <!-- Guardian Service -->
@@ -76,6 +85,15 @@
             android:exported="false"
             android:stopWithTask="false"
             android:foregroundServiceType="dataSync|mediaProjection"
+            tools:targetApi="q" />
+
+        <!-- Incoming Call Overlay -->
+        <service
+            android:name=".service.IncomingCallOverlayService"
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="dataSync"
             tools:targetApi="q" />
 
         <!-- Internal Audio Capture Service -->
@@ -125,7 +143,8 @@
         <activity
             android:name=".ui.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.SentinelAI.Splash">
+            android:theme="@style/Theme.SentinelAI.Splash"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -135,53 +154,77 @@
         <activity
             android:name=".ui.IntroActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.PrivacyActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.HomeActivity"
             android:exported="true"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.CheckLinkActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.CheckNumberActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.CallLogScanActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ActivityLogActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ScanOptionsActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ProfileActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI.Intro" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.SetupActivity"
             android:exported="true"
-            android:theme="@style/Theme.SentinelAI.Intro" />
-        <activity android:name=".ui.DashboardActivity" android:exported="false" />
+            android:theme="@style/Theme.SentinelAI.Intro"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.DashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.CallMediaProjectionActivity"
             android:exported="false"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:screenOrientation="portrait"
             android:excludeFromRecents="true"
             android:taskAffinity="" />
-        <activity android:name=".ui.AppSelectionActivity" android:exported="false" />
-        <activity android:name=".ui.CriticalAlertActivity" android:exported="false" />
-        <activity android:name=".ui.QrScannerActivity" android:exported="false" android:theme="@style/Theme.SentinelAI" />
+        <activity
+            android:name=".ui.AppSelectionActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.CriticalAlertActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.QrScannerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI"
+            android:screenOrientation="portrait" />
 
     </application>
 

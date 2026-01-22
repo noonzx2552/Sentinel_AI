@@ -24,7 +24,14 @@ object AllowedAppGate {
         "com.samsung.android.dialer",
         "com.samsung.android.incallui",
         "com.coloros.numberbook",
-        "com.oppo.is"
+        "com.oppo.is",
+        "com.android.server.telecom",
+        "com.mediatek.incallui",
+        "com.sec.android.app.dialertab",
+        "com.realme.dialer",
+        "com.samsung.android.app.telephonyui",
+        "com.samsung.android.contacts",
+        "com.android.phone"
     )
 
     private const val PREFS = "sentinel_allowed_apps"

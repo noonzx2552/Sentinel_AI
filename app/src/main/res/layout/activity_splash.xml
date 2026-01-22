@@ -7,47 +7,39 @@
 
     <View
         android:id="@+id/logoGlow"
+        android:layout_width="500dp"
+        android:layout_height="500dp"
+        android:background="@drawable/splash_glow"
+        app:layout_constraintBottom_toBottomOf="@id/logo"
+        app:layout_constraintStart_toStartOf="@id/logo"
+        app:layout_constraintEnd_toEndOf="@id/logo"
+        app:layout_constraintTop_toTopOf="@id/logo" />
+
+    <ImageView
+        android:id="@+id/logo"
         android:layout_width="220dp"
         android:layout_height="220dp"
-        android:background="@drawable/splash_glow"
-        app:layout_constraintBottom_toBottomOf="@id/logoContainer"
-        app:layout_constraintStart_toStartOf="@id/logoContainer"
-        app:layout_constraintEnd_toEndOf="@id/logoContainer"
-        app:layout_constraintTop_toTopOf="@id/logoContainer" />
-
-    <FrameLayout
-        android:id="@+id/logoContainer"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:background="@drawable/splash_logo_bg"
-        android:elevation="8dp"
+        android:src="@drawable/ic_sentinel_logo"
+        android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0.38"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_gravity="center"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_sentinel_logo"
-            app:tint="@null" />
-    </FrameLayout>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="-180dp"
         android:fontFamily="sans-serif-medium"
         android:text="@string/splash_title"
         android:textColor="@color/splash_title"
         android:textSize="28sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/logoContainer"
+        app:layout_constraintVertical_bias="0.65"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

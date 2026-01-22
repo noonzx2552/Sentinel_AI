@@ -428,6 +428,62 @@
                         app:trackTint="@color/permission_switch_track"
                         app:thumbTint="@color/permission_switch_thumb" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/cardBattery"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_battery" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_battery_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/permission_battery_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="3dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/btnBattery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text=""
+                        app:trackTint="@color/permission_switch_track"
+                        app:thumbTint="@color/permission_switch_thumb" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

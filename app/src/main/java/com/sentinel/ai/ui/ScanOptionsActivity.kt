@@ -33,7 +33,7 @@ import java.security.MessageDigest
 
 class ScanOptionsActivity : BaseActivity() {
 
-    private enum class ScanTab { LINK, NUMBER, FILE }
+    private enum class ScanTab { LINK, NUMBER }
     private var activeTab = ScanTab.LINK
 
     private lateinit var inputScan: EditText
@@ -44,7 +44,6 @@ class ScanOptionsActivity : BaseActivity() {
     
     private lateinit var tabLink: TextView
     private lateinit var tabNumber: TextView
-    private lateinit var tabFile: TextView
 
     private val numberChecker by lazy { NumberChecker(this) }
     private val linkChecker by lazy { LinkChecker(this) }
@@ -80,17 +79,16 @@ class ScanOptionsActivity : BaseActivity() {
         
         tabLink = findViewById(R.id.tabLink)
         tabNumber = findViewById(R.id.tabNumber)
-        tabFile = findViewById(R.id.tabFile)
 
         tabLink.setOnClickListener { switchTab(ScanTab.LINK) }
         tabNumber.setOnClickListener { switchTab(ScanTab.NUMBER) }
-        tabFile.setOnClickListener { switchTab(ScanTab.FILE) }
 
         findViewById<Button>(R.id.btnClearHistory).setOnClickListener { clearHistory() }
 
         findViewById<View>(R.id.cardUpload).setOnClickListener {
-            openFilePicker()
+            filePickerLauncher.launch("*/*")
         }
+
         findViewById<View>(R.id.cardQR).setOnClickListener {
             openQrScanner()
         }
@@ -110,7 +108,6 @@ class ScanOptionsActivity : BaseActivity() {
             when (activeTab) {
                 ScanTab.LINK -> checkLink()
                 ScanTab.NUMBER -> checkNumber()
-                ScanTab.FILE -> openFilePicker()
             }
         }
 
@@ -120,10 +117,6 @@ class ScanOptionsActivity : BaseActivity() {
         
         loadHistory()
         switchTab(ScanTab.LINK) // Default
-    }
-
-    private fun openFilePicker() {
-        filePickerLauncher.launch("*/*")
     }
 
     private fun openQrScanner() {
@@ -137,7 +130,6 @@ class ScanOptionsActivity : BaseActivity() {
                 val fileName = getFileName(uri)
                 val fileSize = getFileSize(uri)
                 val mimeType = contentResolver.getType(uri) ?: getString(R.string.common_unknown)
-                val fileHash = computeFileHash(uri)
 
                 // Analyze file for suspicious patterns
                 var score = 70
@@ -214,6 +206,36 @@ class ScanOptionsActivity : BaseActivity() {
         }
     }
 
+    private fun getFileName(uri: Uri): String {
+        var name = getString(R.string.common_unknown)
+        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (cursor.moveToFirst() && nameIndex >= 0) {
+                name = cursor.getString(nameIndex)
+            }
+        }
+        return name
+    }
+
+    private fun getFileSize(uri: Uri): Long {
+        var size = 0L
+        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+            if (cursor.moveToFirst() && sizeIndex >= 0) {
+                size = cursor.getLong(sizeIndex)
+            }
+        }
+        return size
+    }
+
+    private fun formatFileSize(bytes: Long): String {
+        return when {
+            bytes >= 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
+            bytes >= 1024 -> "${bytes / 1024} KB"
+            else -> "$bytes B"
+        }
+    }
+
     private fun handleQrResult(content: String) {
         // Check if it's a URL
         if (content.startsWith("http://") || content.startsWith("https://") || content.contains(".")) {
@@ -264,52 +286,6 @@ class ScanOptionsActivity : BaseActivity() {
         }
     }
 
-    private fun getFileName(uri: Uri): String {
-        var name = getString(R.string.common_unknown)
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (cursor.moveToFirst() && nameIndex >= 0) {
-                name = cursor.getString(nameIndex)
-            }
-        }
-        return name
-    }
-
-    private fun getFileSize(uri: Uri): Long {
-        var size = 0L
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-            if (cursor.moveToFirst() && sizeIndex >= 0) {
-                size = cursor.getLong(sizeIndex)
-            }
-        }
-        return size
-    }
-
-    private fun computeFileHash(uri: Uri): String {
-        return try {
-            val digest = MessageDigest.getInstance("SHA-256")
-            contentResolver.openInputStream(uri)?.use { input ->
-                val buffer = ByteArray(8192)
-                var bytesRead: Int
-                while (input.read(buffer).also { bytesRead = it } != -1) {
-                    digest.update(buffer, 0, bytesRead)
-                }
-            }
-            digest.digest().joinToString("") { "%02x".format(it) }.take(16)
-        } catch (e: Exception) {
-            getString(R.string.common_unknown)
-        }
-    }
-
-    private fun formatFileSize(bytes: Long): String {
-        return when {
-            bytes >= 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
-            bytes >= 1024 -> "${bytes / 1024} KB"
-            else -> "$bytes B"
-        }
-    }
-
     private fun switchTab(tab: ScanTab) {
         activeTab = tab
         
@@ -329,16 +305,10 @@ class ScanOptionsActivity : BaseActivity() {
             setTextColor(if (tab == ScanTab.NUMBER) activeColor else inactiveColor)
             setTypeface(null, if (tab == ScanTab.NUMBER) Typeface.BOLD else Typeface.NORMAL)
         }
-        tabFile.apply {
-            setBackgroundResource(if (tab == ScanTab.FILE) activeBg else inactiveBg)
-            setTextColor(if (tab == ScanTab.FILE) activeColor else inactiveColor)
-            setTypeface(null, if (tab == ScanTab.FILE) Typeface.BOLD else Typeface.NORMAL)
-        }
         
         inputScan.hint = when (tab) {
             ScanTab.LINK -> getString(R.string.scan_hint_url)
             ScanTab.NUMBER -> getString(R.string.scan_hint_number)
-            ScanTab.FILE -> getString(R.string.scan_hint_file)
         }
     }
 

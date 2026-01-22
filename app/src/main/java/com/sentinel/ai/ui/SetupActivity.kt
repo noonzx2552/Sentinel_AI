@@ -73,6 +73,14 @@ class SetupActivity : BaseLocalizedActivity() {
                 PermissionUtils.requestCallLogAndSms(this, REQ_CALLLOG_SMS)
             }
         }
+        binding.btnBattery.setOnClickListener {
+            handlePermissionSwitch(
+                binding.btnBattery,
+                PermissionUtils.isBatteryOptimizationIgnored(this)
+            ) {
+                PermissionUtils.requestIgnoreBatteryOptimization(this)
+            }
+        }
         binding.btnContinue.setOnClickListener {
             if (!PermissionUtils.allEssentialGranted(this)) {
                 Toast.makeText(this, getString(R.string.setup_permissions_required), Toast.LENGTH_SHORT).show()
@@ -101,6 +109,7 @@ class SetupActivity : BaseLocalizedActivity() {
         binding.btnCallLogSms.applySwitchState(
             PermissionUtils.hasCallLogPermission(this) && PermissionUtils.hasSmsPermission(this)
         )
+        binding.btnBattery.applySwitchState(PermissionUtils.isBatteryOptimizationIgnored(this))
 
         val allGranted = PermissionUtils.allEssentialGranted(this)
         binding.btnContinue.isEnabled = allGranted
@@ -148,5 +157,6 @@ class SetupActivity : BaseLocalizedActivity() {
         private const val REQ_ROLE = 102
         private const val REQ_PHONE = 103
         private const val REQ_CALLLOG_SMS = 104
+        private const val REQ_BATTERY = 105
     }
 }

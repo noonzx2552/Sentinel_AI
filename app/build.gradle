@@ -31,7 +31,7 @@ android {
         def phoneRepKey = (project.findProperty("PHONE_REP_API_KEY") ?: "522387e25611ffb108e7b3bca1c6b98c").toString().replace("\"", "")
         buildConfigField("String", "PHONE_REP_API_KEY", "\"${phoneRepKey}\"")
         // Fallback phone validation API key. Provide via -PPHONE_REP_API_KEY_FALLBACK=... or in gradle.properties/local.properties
-        def phoneRepFallbackKey = (project.findProperty("PHONE_REP_API_KEY_FALLBACK") ?: "47e1ee8e8ccc5c8bd8e104f80cf8bb99").toString().replace("\"", "")
+        def phoneRepFallbackKey = (project.findProperty("PHONE_REP_API_KEY_FALLBACK") ?: "45c6c113bfe980261b6bec39aa4e11b7").toString().replace("\"", "")
         buildConfigField("String", "PHONE_REP_API_KEY_FALLBACK", "\"${phoneRepFallbackKey}\"")
         // CapSolver token (for Turnstile solving). Provide via -PCAPSOLVER_API_KEY=...
         def capsolverKey = (project.findProperty("CAPSOLVER_API_KEY") ?: "CAP-D5903264575AE0571295C9D7A21B097F").toString().replace("\"", "")

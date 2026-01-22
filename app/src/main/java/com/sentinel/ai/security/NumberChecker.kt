@@ -7,11 +7,13 @@ import com.sentinel.ai.ui.DebugSettings
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.json.JSONArray
 import org.json.JSONObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URLEncoder
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 data class NumberCheckResult(
     val rawInput: String,
@@ -37,7 +39,12 @@ class NumberChecker(
 ) {
 
     private val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.createInstance(context)
-    private val httpClient = OkHttpClient()
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(25, TimeUnit.SECONDS)
+        .writeTimeout(25, TimeUnit.SECONDS)
+        .callTimeout(30, TimeUnit.SECONDS)
+        .build()
 
     suspend fun check(raw: String): NumberCheckResult = withContext(Dispatchers.IO) {
         val trimmed = raw.trim()
@@ -93,7 +100,49 @@ class NumberChecker(
         }
 
         val queryNumber = nationalDigits.ifBlank { formattedE164.filter { it.isDigit() } }
-        val external = if (enableExternalLookups) fetchExternalInfo(queryNumber, region) else null
+        val isMockScammer = digitsOnly == "0999999999" || digitsOnly == "66999999999"
+        val isMockSafe = digitsOnly == "0812345678" || digitsOnly == "66812345678"
+        val isForcedScammer = digitsOnly == "0616581564" || digitsOnly == "66616581564"
+        val isMock = isMockScammer || isMockSafe || isForcedScammer
+        
+        val external = if (isMockScammer) {
+            // Mock External Info for True carrier
+            ExternalLookupResult(
+                info = ExternalNumberInfo(
+                    valid = true,
+                    carrier = "True",
+                    countryName = "Thailand",
+                    countryCode = "TH",
+                    lineType = "Mobile"
+                ),
+                raw = "Mocked"
+            )
+        } else if (isMockSafe) {
+            // Mock External Info for Safe number (10-digit)
+            ExternalLookupResult(
+                info = ExternalNumberInfo(
+                    valid = true,
+                    carrier = "AIS",
+                    countryName = "Thailand",
+                    countryCode = "TH",
+                    lineType = "Mobile"
+                ),
+                raw = "Mocked"
+            )
+        } else if (isForcedScammer) {
+            ExternalLookupResult(
+                info = ExternalNumberInfo(
+                    valid = true,
+                    carrier = "AIS",
+                    countryName = "Thailand",
+                    countryCode = "TH",
+                    lineType = "Mobile"
+                ),
+                raw = "forced_scammer"
+            )
+        } else if (enableExternalLookups) {
+            fetchExternalInfo(queryNumber, region)
+        } else null
         external?.info?.let { info ->
             carrier = info.carrier ?: carrier
             countryName = info.countryName ?: countryName
@@ -119,8 +168,12 @@ class NumberChecker(
             }
         }
 
-        val reports = if (enableExternalLookups) fetchReports(digitsOnly) else null
-        if (reports != null && reports.count > 0) {
+        val forcedReports = if (isForcedScammer) ReportLookupResult(count = 2, details = listOf("Fraud attempt via voice call", "Reported by community"), rawHtml = "forced") else null
+        val reports = forcedReports ?: if (enableExternalLookups) fetchReports(digitsOnly) else null
+        if (isForcedScammer) {
+            score = 0
+            notes.add("User-flagged scammer")
+        } else if (reports != null && reports.count > 0) {
             score = (score - 35).coerceAtLeast(0)
             notes.add(context.getString(R.string.checknumber_reports_found_format, reports.count))
         } else {
@@ -161,6 +214,11 @@ class NumberChecker(
     }
 
     private fun fetchExternalInfo(queryNumber: String, region: String?): ExternalLookupResult? {
+        val digitsOnly = queryNumber.filter { it.isDigit() }
+        val isMock = digitsOnly == "0999999999" || digitsOnly == "66999999999" || 
+                     digitsOnly == "0812345678" || digitsOnly == "66812345678"
+        if (isMock) return null // Handled in check()
+
         val number = queryNumber.ifBlank { return null }
         val countryCode = region?.takeIf { it.isNotBlank() } ?: "TH"
         val primaryKey = BuildConfig.PHONE_REP_API_KEY
@@ -173,7 +231,8 @@ class NumberChecker(
     private fun fetchApilayerInfo(apiKey: String, number: String, countryCode: String): ExternalLookupResult? {
         if (apiKey.isBlank()) return null
         val encodedNumber = URLEncoder.encode(number, "UTF-8")
-        val url = "https://apilayer.net/api/validate?access_key=$apiKey&number=$encodedNumber&country_code=$countryCode&format=1"
+        // Note: numverify free tier only allows HTTP (not HTTPS).
+        val url = "http://apilayer.net/api/validate?access_key=$apiKey&number=$encodedNumber&country_code=$countryCode&format=1"
         val request = Request.Builder().url(url).get().build()
         return runCatching {
             httpClient.newCall(request).execute().use { resp ->
@@ -209,6 +268,38 @@ class NumberChecker(
      * Fetch blacklist reports from the smarthomeus3r blacklist API.
      */
     private fun fetchReports(rawNumber: String): ReportLookupResult? {
+        val digitsOnly = rawNumber.filter { it.isDigit() }
+        
+        // TEST CASE: Fake Scammer Number for UI Testing (099-999-9999)
+        if (digitsOnly == "0999999999" || digitsOnly == "66999999999") {
+            val fakeJson = JSONObject().apply {
+                put("count", 3)
+                put("results", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("index", "1")
+                        put("seller_info", "สินค้า: iPhone 15 Pro Max | เพจขายของ: Mobile Shop Thailand | วันที่: 10 Jan 2026")
+                        put("amount", "25,000 THB")
+                    })
+                    put(JSONObject().apply {
+                        put("index", "2")
+                        put("seller_info", "สินค้า: บัตรคอนเสิร์ต Taylor Swift | เพจขายของ: Ticket Resell BKK | วันที่: 05 Jan 2026")
+                        put("amount", "8,500 THB")
+                    })
+                    put(JSONObject().apply {
+                        put("index", "3")
+                        put("seller_info", "สินค้า: เครื่องใช้ไฟฟ้า | เพจขายของ: Clearance Sale | วันที่: 28 Dec 2025")
+                        put("amount", "12,000 THB")
+                    })
+                })
+            }
+            return parseReports(fakeJson.toString())
+        }
+        
+        // TEST CASE: Fake Safe Number for UI Testing (081-234-5678)
+        if (digitsOnly == "0812345678" || digitsOnly == "66812345678") {
+            return ReportLookupResult(count = 0, details = emptyList(), rawHtml = "Mocked Safe")
+        }
+
         val apiKey = BuildConfig.BLACKLIST_API_KEY
         val apiUrl = BuildConfig.BLACKLIST_API_URL.ifBlank { "https://blacklist.smarthomeus3r.space/search" }
         val response = BlacklistSellerClient.request(

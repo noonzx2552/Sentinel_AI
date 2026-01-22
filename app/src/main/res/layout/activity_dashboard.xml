@@ -501,7 +501,52 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Phone Validation Debug -->
+                <!-- Permission Check Debug -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1D24"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#2A2F3A">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Permission Check (Debug)"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/debugPermissionsStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="#A8B2C2"
+                    android:textSize="12sp"
+                    android:text="Tap the button to check all required permissions." />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDebugPermissions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Check &amp; Request Permissions"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/sentinel_primary"
+                    app:cornerRadius="10dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+<!-- Phone Validation Debug -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -545,6 +590,15 @@
                     android:textColor="@android:color/white"
                     android:textColorHint="#6B7280"
                     android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/debugPhoneContactResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Local contact: -"
+                    android:textColor="#A8B2C2"
+                    android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -838,6 +892,16 @@
                     android:textAllCaps="false"
                     android:textSize="12sp"
                     android:backgroundTint="#16A34A" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTestScamOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Show Scam Alert (Red)"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:backgroundTint="#EF4444" />
 
                 <TextView
                     android:id="@+id/debugOverlayStatus"

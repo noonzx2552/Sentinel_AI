@@ -4,13 +4,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.sentinel.ai.R
 import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.security.NumberChecker
 import com.sentinel.ai.utils.ContactLookup
+import com.sentinel.ai.utils.LastCallStore
 import com.sentinel.ai.utils.KnownNumberRepository
-import com.sentinel.ai.utils.OverlayController
+import com.sentinel.ai.utils.LanguageManager
+import com.sentinel.ai.utils.PermissionUtils
+import com.sentinel.ai.service.IncomingCallOverlayService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,18 +30,43 @@ class OutgoingCallReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_NEW_OUTGOING_CALL) return
 
+        // 1. Ensure we use the user's selected language, not the system default
+        val appLanguage = LanguageManager.getLanguage(context)
+        val localizedContext = LanguageManager.contextForLanguage(context, appLanguage)
+
         val pendingResult = goAsync()
         scope.launch {
+            // 0. Basic guards: we need overlay + phone permissions, otherwise nothing will show.
+            if (!PermissionUtils.canDrawOverlays(context) || !PermissionUtils.hasPhoneStatePermission(context)) {
+                pendingResult.finish()
+                return@launch
+            }
             try {
-                val number = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER) ?: return@launch
+                val number = (intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER)
+                    ?: intent.data?.schemeSpecificPart
+                    ?: "").trim()
+                if (number.isBlank()) {
+                    IncomingCallOverlayService.show(
+                        context = context,
+                        number = "",
+                        displayName = localizedContext.getString(R.string.common_unknown),
+                        riskLevel = RiskLevel.SAFE,
+                        reason = localizedContext.getString(R.string.call_status_searching),
+                        carrier = null,
+                        region = null,
+                        reportCount = 0
+                    )
+                    return@launch
+                }
+                LastCallStore.setOutgoing(number)
 
                 // Lookup contact and known number info
                 val contactName = ContactLookup.getContactName(context, number)
                 val known = KnownNumberRepository.lookup(number) ?: KnownNumberRepository.heuristic(number)
 
                 val riskLevel = known?.riskLevel ?: RiskLevel.SAFE
-                val displayName = contactName ?: known?.displayName ?: "Unknown"
-                val reason = known?.reason ?: "Checking number..."
+                val displayName = contactName ?: known?.displayName ?: localizedContext.getString(R.string.common_unknown)
+                val reason = known?.reason ?: localizedContext.getString(R.string.call_status_checking)
                 val score = when (riskLevel) {
                     RiskLevel.SAFE -> 85
                     RiskLevel.WARNING -> 45
@@ -54,20 +83,21 @@ class OutgoingCallReceiver : BroadcastReceiver() {
                     )
                 )
 
-                val overlay = OverlayController(context)
+                // For consistency with incoming calls, always go through IncomingCallOverlayService.
+                // This gives us a single code path for overlays (WindowManager + layouts).
                 try {
-                    overlay.showCallerInfo(
-                        name = displayName,
+                    IncomingCallOverlayService.show(
+                        context = context,
                         number = number,
+                        displayName = displayName,
                         riskLevel = riskLevel,
-                        reason = reason,
-                        score = score,
-                        isOutgoing = true,
-                        reasonOverride = "Searching...",
-                        gravity = android.view.Gravity.CENTER
+                        reason = localizedContext.getString(R.string.call_status_searching),
+                        carrier = null,
+                        region = null,
+                        reportCount = 0
                     )
                 } catch (e: Exception) {
-                    Log.e("OutgoingCallReceiver", "Failed to show overlay", e)
+                    Log.e("OutgoingCallReceiver", "Failed to start outgoing overlay service", e)
                 }
 
                 // Enrich with external report lookup (Blacklist API)
@@ -84,26 +114,37 @@ class OutgoingCallReceiver : BroadcastReceiver() {
                                 )
                             )
                         }
+                        // Localize report summary if possible? The API returns English usually. 
+                        // But "Found X reports" part we can localize.
                         val reportSummary = if (result.reportCount > 0) {
                             result.reportDetails.joinToString(" / ").take(140)
                         } else {
                             null
                         }
+
+                        // Rebuild reason with localized base text.
+                        val updatedReason = known?.reason ?: localizedContext.getString(R.string.call_status_checking)
+                        val enrichedReason = if (reportSummary != null) {
+                            "$updatedReason | $reportSummary"
+                        } else {
+                            updatedReason
+                        }
+
+                        // Update overlay through the same foreground service used for incoming calls.
                         try {
-                            overlay.showCallerInfo(
-                                name = displayName,
+                            IncomingCallOverlayService.show(
+                                context = context,
                                 number = number,
+                                displayName = displayName,
                                 riskLevel = riskLevel,
-                                reason = reason,
-                                score = score,
-                                isOutgoing = true,
+                                reason = enrichedReason,
                                 carrier = result.carrier,
                                 region = result.countryName ?: result.region,
-                                reportCount = result.reportCount,
-                                reportSummary = reportSummary,
-                                gravity = android.view.Gravity.CENTER
+                                reportCount = result.reportCount
                             )
-                        } catch (_: Exception) {}
+                        } catch (_: Exception) {
+                        }
+                        
                         if (result.reportCount > 0) {
                             val reportText = "Found ${result.reportCount} reports | ${result.reportDetails.joinToString(" / ").take(140)}"
                             GuardianEventStore.addEvent(
@@ -114,7 +155,6 @@ class OutgoingCallReceiver : BroadcastReceiver() {
                                     riskLevel = RiskLevel.CRITICAL
                                 )
                             )
-                            // try { overlay.showCritical() } catch (_: Exception) {} // Removed to prevent overwriting card
                         }
                     }
                     .onFailure {

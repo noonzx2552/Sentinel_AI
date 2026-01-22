@@ -113,6 +113,19 @@ object PermissionUtils {
             isAccessibilityEnabled(context) &&
             hasPhoneStatePermission(context) &&
             hasCallLogPermission(context) &&
-            hasSmsPermission(context)
+            hasSmsPermission(context) &&
+            isBatteryOptimizationIgnored(context)
+    }
+    
+    fun isBatteryOptimizationIgnored(context: Context): Boolean {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
+    }
+
+    fun requestIgnoreBatteryOptimization(activity: Activity) {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.parse("package:${activity.packageName}")
+        }
+        activity.startActivity(intent)
     }
 }

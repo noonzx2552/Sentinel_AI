@@ -1,5 +1,4 @@
 package com.sentinel.ai.ui
-
 import android.Manifest
 import android.app.Activity
 import android.content.BroadcastReceiver
@@ -45,9 +44,12 @@ import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.security.NumberChecker
 import com.sentinel.ai.security.SafetyLevel
 import com.sentinel.ai.service.InternalAudioCaptureService
+import com.sentinel.ai.utils.ContactLookup
 import com.sentinel.ai.utils.MicCaptureManager
 import com.sentinel.ai.utils.NetworkUtils
 import com.sentinel.ai.utils.OverlayController
+import com.sentinel.ai.utils.PermissionUtils
+import com.sentinel.ai.ui.DebugSettings
 import java.io.ByteArrayOutputStream
 import java.io.File
 import com.sentinel.ai.utils.WavUtil
@@ -69,6 +71,7 @@ import org.vosk.Recognizer
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 
 open class DashboardActivity : BaseLocalizedActivity() {
 
@@ -125,6 +128,8 @@ open class DashboardActivity : BaseLocalizedActivity() {
     private lateinit var debugPhoneApiKey2Input: android.widget.EditText
     private lateinit var debugPhoneRequestOutput: TextView
     private lateinit var debugPhoneResponseOutput: TextView
+    private lateinit var debugPhoneContactResult: TextView
+    private lateinit var debugPermissionsStatus: TextView
     private lateinit var debugPhoneKey1Button: View
     private lateinit var debugPhoneKey2Button: View
     private lateinit var debugBlsNumberInput: android.widget.EditText
@@ -135,9 +140,15 @@ open class DashboardActivity : BaseLocalizedActivity() {
     private lateinit var debugBlsCookieOutput: TextView
     private lateinit var debugBlsResponseOutput: TextView
     private lateinit var debugBlsRunButton: View
-    private val httpClient = OkHttpClient()
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(25, TimeUnit.SECONDS)
+        .writeTimeout(25, TimeUnit.SECONDS)
+        .callTimeout(30, TimeUnit.SECONDS)
+        .build()
     private val scamModel by lazy { com.sentinel.ai.ai.ScamModelProvider.create(this) }
     private var debugOverlayLoadingJob: kotlinx.coroutines.Job? = null
+    private var lastPickedDisplayName: String? = null
 
     private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
@@ -199,7 +210,10 @@ open class DashboardActivity : BaseLocalizedActivity() {
 
     private val overlayPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (Settings.canDrawOverlays(this)) {
-            startMediaProjectionRequest()
+            // ปิดระบบขอแชร์จอ (MediaProjection) ชั่วคราว
+            setStatus("Screen capture disabled (temporarily)")
+            Toast.makeText(this, "Screen capture disabled (temporarily)", Toast.LENGTH_SHORT).show()
+            updateUiState()
         } else {
             Toast.makeText(this, "Overlay permission is required.", Toast.LENGTH_LONG).show()
             setStatus("Idle")
@@ -281,6 +295,8 @@ open class DashboardActivity : BaseLocalizedActivity() {
         debugPhoneApiKey2Input = findViewById(R.id.debugPhoneApiKey2Input)
         debugPhoneRequestOutput = findViewById(R.id.debugPhoneRequestOutput)
         debugPhoneResponseOutput = findViewById(R.id.debugPhoneResponseOutput)
+        debugPhoneContactResult = findViewById(R.id.debugPhoneContactResult)
+        debugPermissionsStatus = findViewById(R.id.debugPermissionsStatus)
         debugPhoneKey1Button = findViewById(R.id.btnDebugPhoneKey1)
         debugPhoneKey2Button = findViewById(R.id.btnDebugPhoneKey2)
         debugBlsNumberInput = findViewById(R.id.debugBlsNumberInput)
@@ -348,10 +364,15 @@ open class DashboardActivity : BaseLocalizedActivity() {
                 requestOverlayPermission()
                 return@setOnClickListener
             }
-            debugOverlayStatus.text = "Looking up $number..."
+            val contactName = ContactLookup.getContactName(this, number)
+            val displayName = contactName ?: getString(R.string.common_unknown)
+            debugOverlayStatus.text = contactName?.let { "Contact: $it" } ?: "Looking up $number..."
+            if (contactName == null && !PermissionUtils.hasReadContacts(this)) {
+                Toast.makeText(this, "Grant Contacts permission for name lookup.", Toast.LENGTH_SHORT).show()
+            }
             val overlay = OverlayController(this)
             overlay.showCallerInfo(
-                name = "Unknown caller",
+                name = displayName,
                 number = number,
                 riskLevel = RiskLevel.SAFE,
                 reason = "",
@@ -362,11 +383,32 @@ open class DashboardActivity : BaseLocalizedActivity() {
                 reportSummary = null,
                 dismissOnCallState = false,
                 allowGatekeeperDismiss = false,
-                reasonOverride = "searching.",
-                gravity = android.view.Gravity.CENTER
+                reasonOverride = getString(R.string.call_status_searching),
+                gravity = android.view.Gravity.CENTER,
+                autoDismissMs = 0L
             )
             startDebugOverlayLoading(overlay)
             runTestOverlay(number, debugOverlayStatus, overlay)
+        }
+        
+        findViewById<View>(R.id.btnTestScamOverlay).setOnClickListener {
+            val number = debugOverlayNumberInput.text?.toString()?.trim().orEmpty()
+            val targetNumber = if (number.isBlank()) "081 234 5678" else number
+            
+            if (!Settings.canDrawOverlays(this)) {
+                debugOverlayStatus.text = "Overlay permission required."
+                Toast.makeText(this, "Overlay permission required.", Toast.LENGTH_SHORT).show()
+                requestOverlayPermission()
+                return@setOnClickListener
+            }
+            
+            debugOverlayStatus.text = "Showing Scam Alert for $targetNumber..."
+            val overlay = OverlayController(this)
+            overlay.showScamAlert(targetNumber, dismissOnCallState = false)
+        }
+
+        findViewById<View>(R.id.btnDebugPermissions).setOnClickListener {
+            checkAndRequestAllPermissions()
         }
         
         callLogHeaderRow.setOnClickListener {
@@ -417,29 +459,25 @@ open class DashboardActivity : BaseLocalizedActivity() {
             val reportCount = result?.reportCount ?: 0
             val reportSummary = result?.reportDetails?.joinToString(" | ")?.take(140)
             val riskLevel = result?.let { toRiskLevel(it.status) } ?: RiskLevel.SAFE
+            if (result != null && DebugSettings.isDebugEnabled.value) {
+                delay(DEBUG_OVERLAY_RESULT_DELAY_MS)
+            }
 
             withContext(Dispatchers.Main) {
                 stopDebugOverlayLoading()
                 if (result == null) {
-                    overlay.updateCallerInfoLoadingText("Lookup failed.")
+                    overlay.updateCallerInfoLoadingText(getString(R.string.call_status_lookup_failed))
                 } else {
-                    overlay.showCallerInfo(
-                        name = "Unknown caller",
-                        number = number,
-                        riskLevel = riskLevel,
-                        reason = "",
-                        isOutgoing = false,
-                        carrier = carrier,
-                        region = region,
-                        reportCount = reportCount,
-                        reportSummary = reportSummary,
-                        dismissOnCallState = false,
-                        allowGatekeeperDismiss = false,
-                        gravity = android.view.Gravity.CENTER
-                    )
+                    val reason = if (reportCount > 0) {
+                        resources.getQuantityString(R.plurals.overlay_found_reports_count, reportCount, reportCount)
+                    } else {
+                        reportSummary?.take(200)?.ifBlank { null } ?: getString(R.string.overlay_no_reports)
+                    }
+                    val regionStr = region ?: carrier ?: "-"
+                    overlay.updateCallerInfoResult(reason, regionStr, reportCount)
                 }
                 statusView.text = if (result == null) {
-                    "Lookup failed. Showing basic overlay."
+                    "${getString(R.string.call_status_lookup_failed)} Showing basic overlay."
                 } else {
                     "Overlay shown for $number (reports=$reportCount)."
                 }
@@ -450,7 +488,8 @@ open class DashboardActivity : BaseLocalizedActivity() {
     private fun startDebugOverlayLoading(overlay: OverlayController) {
         debugOverlayLoadingJob?.cancel()
         debugOverlayLoadingJob = lifecycleScope.launch {
-            val frames = listOf("searching.", "searching..", "searching...")
+            val baseText = getString(R.string.call_status_searching).trimEnd('.')
+            val frames = listOf("$baseText.", "$baseText..", "$baseText...") 
             var index = 0
             while (isActive) {
                 overlay.updateCallerInfoLoadingText(frames[index % frames.size])
@@ -500,8 +539,11 @@ open class DashboardActivity : BaseLocalizedActivity() {
             setStatus("Waiting for overlay permission...")
             requestOverlayPermission()
         } else {
-            setStatus("Requesting screen capture...")
-            startMediaProjectionRequest()
+            // ปิดระบบขอแชร์จอ (MediaProjection) ชั่วคราว
+            // เพื่อโฟกัสให้ overlay ตอนโทรเข้า/ออก ทำงานก่อน
+            setStatus("Screen capture disabled (temporarily)")
+            Toast.makeText(this, "Screen capture disabled (temporarily)", Toast.LENGTH_SHORT).show()
+            updateUiState()
         }
     }
 
@@ -517,10 +559,10 @@ open class DashboardActivity : BaseLocalizedActivity() {
         overlayPermissionLauncher.launch(intent)
     }
 
-    private fun startMediaProjectionRequest() {
-        val captureIntent = mediaProjectionManager.createScreenCaptureIntent()
-        mediaProjectionLauncher.launch(captureIntent)
-    }
+    // private fun startMediaProjectionRequest() {
+    //     val captureIntent = mediaProjectionManager.createScreenCaptureIntent()
+    //     mediaProjectionLauncher.launch(captureIntent)
+    // }
 
     private fun registerAppEventsReceiver() {
         if (isReceiverRegistered) return
@@ -932,7 +974,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
     private fun runScamModelTest(text: String, source: String) {
         val trimmed = text.trim()
         if (trimmed.isEmpty()) {
-            Toast.makeText(this, "ใส่ข้อความก่อนรันโมเดล", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "à¹ƒà¸ªà¹ˆà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸à¹ˆà¸­à¸™à¸£à¸±à¸™à¹‚à¸¡à¹€à¸”à¸¥", Toast.LENGTH_SHORT).show()
             return
         }
         scamModelResult.text = "Loading model..."
@@ -1193,11 +1235,11 @@ open class DashboardActivity : BaseLocalizedActivity() {
         if (!hasCallSmsPermissions()) {
             renderPermissionCta(
                 container = callLogContainer,
-                message = "ต้องการสิทธิ์อ่านประวัติการโทรเพื่อแสดงรายการล่าสุด"
+                message = "à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸ªà¸´à¸—à¸˜à¸´à¹Œà¸­à¹ˆà¸²à¸™à¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸à¸²à¸£à¹‚à¸—à¸£à¹€à¸žà¸·à¹ˆà¸­à¹à¸ªà¸”à¸‡à¸£à¸²à¸¢à¸à¸²à¸£à¸¥à¹ˆà¸²à¸ªà¸¸à¸”"
             )
             renderPermissionCta(
                 container = smsRiskContainer,
-                message = "ต้องการสิทธิ์อ่าน SMS เพื่อสแกนข้อความเสี่ยง"
+                message = "à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸ªà¸´à¸—à¸˜à¸´à¹Œà¸­à¹ˆà¸²à¸™ SMS à¹€à¸žà¸·à¹ˆà¸­à¸ªà¹à¸à¸™à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹€à¸ªà¸µà¹ˆà¸¢à¸‡"
             )
             return
         }
@@ -1214,7 +1256,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
         container.removeAllViews()
         val info = buildInfoText(message)
         val action = Button(this).apply {
-            text = "อนุญาตตอนนี้"
+            text = "à¸­à¸™à¸¸à¸à¸²à¸•à¸•à¸­à¸™à¸™à¸µà¹‰"
             setOnClickListener { callSmsPermissionLauncher.launch(callSmsPermissions) }
         }
         container.addView(info)
@@ -1223,6 +1265,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
 
     private fun loadCallLog(maxItems: Int = 10) {
         callLogContainer.removeAllViews()
+
         val projection = arrayOf(
             CallLog.Calls.NUMBER,
             CallLog.Calls.TYPE,
@@ -1244,9 +1287,10 @@ open class DashboardActivity : BaseLocalizedActivity() {
                     val type = cursor.getInt(1)
                     val date = cursor.getLong(2)
                     val duration = cursor.getLong(3)
-                    val name = cursor.getString(4)
+                    val cachedName = cursor.getString(4)
+                    val contactName = ContactLookup.getContactName(this, number)
                     val entry = CallLogEntry(
-                        name = name,
+                        name = contactName ?: cachedName,
                         number = number,
                         type = type,
                         durationSec = duration,
@@ -1260,15 +1304,14 @@ open class DashboardActivity : BaseLocalizedActivity() {
         } catch (e: SecurityException) {
             renderPermissionCta(
                 container = callLogContainer,
-                message = "ไม่สามารถอ่านประวัติการโทร: ${e.message}"
+                message = "????????????????????????????: ${e.message}"
             )
             return
         }
         if (callLogContainer.childCount == 0) {
-            callLogContainer.addView(buildInfoText("ไม่พบประวัติการโทรล่าสุด"))
+            callLogContainer.addView(buildInfoText("????????????????????????"))
         }
     }
-
     private fun addCallRow(entry: CallLogEntry, riskLabel: String, riskColor: Int) {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -1305,7 +1348,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            text = "${formatCallType(entry.type)} • ${formatDuration(entry.durationSec)} • ${
+            text = "${formatCallType(entry.type)} â€¢ ${formatDuration(entry.durationSec)} â€¢ ${
                 DateUtils.getRelativeTimeSpanString(
                     entry.timestamp,
                     System.currentTimeMillis(),
@@ -1327,21 +1370,21 @@ open class DashboardActivity : BaseLocalizedActivity() {
         if (unknownCaller) score += 1
         if (entry.durationSec in 1..10 && entry.type == CallLog.Calls.INCOMING_TYPE) score += 1
         if (entry.type == CallLog.Calls.MISSED_TYPE && entry.durationSec == 0L) {
-            return "ไม่ได้วัด (สายไม่ได้รับ)" to Color.parseColor("#8AA0B5")
+            return "à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸§à¸±à¸” (à¸ªà¸²à¸¢à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸£à¸±à¸š)" to Color.parseColor("#8AA0B5")
         }
         return when {
-            score >= 2 -> "สูง (สายไม่รู้จัก/คุยสั้น)" to Color.parseColor("#FF6B6B")
-            score == 1 -> "กลาง (ต้องตรวจสอบ)" to Color.parseColor("#FFC857")
-            else -> "ไม่ได้วัด (ข้อมูลไม่พอ)" to Color.parseColor("#8AA0B5")
+            score >= 2 -> "à¸ªà¸¹à¸‡ (à¸ªà¸²à¸¢à¹„à¸¡à¹ˆà¸£à¸¹à¹‰à¸ˆà¸±à¸/à¸„à¸¸à¸¢à¸ªà¸±à¹‰à¸™)" to Color.parseColor("#FF6B6B")
+            score == 1 -> "à¸à¸¥à¸²à¸‡ (à¸•à¹‰à¸­à¸‡à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸š)" to Color.parseColor("#FFC857")
+            else -> "à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸§à¸±à¸” (à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹„à¸¡à¹ˆà¸žà¸­)" to Color.parseColor("#8AA0B5")
         }
     }
 
     private fun formatCallType(type: Int): String = when (type) {
-        CallLog.Calls.OUTGOING_TYPE -> "โทรออก"
-        CallLog.Calls.INCOMING_TYPE -> "โทรเข้า"
-        CallLog.Calls.MISSED_TYPE -> "สายไม่ได้รับ"
-        CallLog.Calls.REJECTED_TYPE -> "ปฏิเสธสาย"
-        else -> "ไม่ทราบชนิด"
+        CallLog.Calls.OUTGOING_TYPE -> "à¹‚à¸—à¸£à¸­à¸­à¸"
+        CallLog.Calls.INCOMING_TYPE -> "à¹‚à¸—à¸£à¹€à¸‚à¹‰à¸²"
+        CallLog.Calls.MISSED_TYPE -> "à¸ªà¸²à¸¢à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸£à¸±à¸š"
+        CallLog.Calls.REJECTED_TYPE -> "à¸›à¸à¸´à¹€à¸ªà¸˜à¸ªà¸²à¸¢"
+        else -> "à¹„à¸¡à¹ˆà¸—à¸£à¸²à¸šà¸Šà¸™à¸´à¸”"
     }
 
     private fun formatDuration(seconds: Long): String {
@@ -1387,13 +1430,13 @@ open class DashboardActivity : BaseLocalizedActivity() {
         } catch (e: SecurityException) {
             renderPermissionCta(
                 container = smsRiskContainer,
-                message = "ไม่สามารถอ่าน SMS: ${e.message}"
+                message = "à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸­à¹ˆà¸²à¸™ SMS: ${e.message}"
             )
             return
         }
 
         if (flagged == 0) {
-            smsRiskContainer.addView(buildInfoText("ไม่พบข้อความเสี่ยงใน $maxItems ข้อความล่าสุด"))
+            smsRiskContainer.addView(buildInfoText("à¹„à¸¡à¹ˆà¸žà¸šà¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹€à¸ªà¸µà¹ˆà¸¢à¸‡à¹ƒà¸™ $maxItems à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸¥à¹ˆà¸²à¸ªà¸¸à¸”"))
         }
     }
 
@@ -1404,17 +1447,17 @@ open class DashboardActivity : BaseLocalizedActivity() {
             "otp",
             "one time password",
             "transfer",
-            "โอน",
-            "ระงับ",
-            "เร่งด่วน",
-            "ยืนยันตัวตน",
-            "รีบทำ",
-            "ลิงก์",
-            "คลิกลิงก์",
+            "à¹‚à¸­à¸™",
+            "à¸£à¸°à¸‡à¸±à¸š",
+            "à¹€à¸£à¹ˆà¸‡à¸”à¹ˆà¸§à¸™",
+            "à¸¢à¸·à¸™à¸¢à¸±à¸™à¸•à¸±à¸§à¸•à¸™",
+            "à¸£à¸µà¸šà¸—à¸³",
+            "à¸¥à¸´à¸‡à¸à¹Œ",
+            "à¸„à¸¥à¸´à¸à¸¥à¸´à¸‡à¸à¹Œ",
             "police",
             "lawsuit",
             "freeze",
-            "บัญชีถูกปิด"
+            "à¸šà¸±à¸à¸Šà¸µà¸–à¸¹à¸à¸›à¸´à¸”"
         )
         if (highRiskKeywords.any { lower.contains(it) }) score += 2
         if (lower.contains("http://") || lower.contains("https://") || lower.contains("bit.ly") || lower.contains("tinyurl")) score += 2
@@ -1424,9 +1467,9 @@ open class DashboardActivity : BaseLocalizedActivity() {
     }
 
     private fun smsRiskLabel(score: Int): Pair<String, Int> = when {
-        score >= 4 -> "สูง" to Color.parseColor("#FF6B6B")
-        score >= 2 -> "กลาง" to Color.parseColor("#FFC857")
-        else -> "ต่ำ" to Color.parseColor("#6DD3A6")
+        score >= 4 -> "à¸ªà¸¹à¸‡" to Color.parseColor("#FF6B6B")
+        score >= 2 -> "à¸à¸¥à¸²à¸‡" to Color.parseColor("#FFC857")
+        else -> "à¸•à¹ˆà¸³" to Color.parseColor("#6DD3A6")
     }
 
     private fun addSmsRow(address: String, body: String, date: Long, riskLabel: String, riskColor: Int) {
@@ -1450,7 +1493,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
         }
         val from = TextView(this).apply {
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            text = address.ifBlank { "ผู้ส่งไม่ระบุ" }
+            text = address.ifBlank { "à¸œà¸¹à¹‰à¸ªà¹ˆà¸‡à¹„à¸¡à¹ˆà¸£à¸°à¸šà¸¸" }
             setTextColor(Color.WHITE)
             setTypeface(typeface, Typeface.BOLD)
             textSize = 15f
@@ -1464,7 +1507,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            text = body.take(140).trim().ifBlank { "(ข้อความว่าง)" }
+            text = body.take(140).trim().ifBlank { "(à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¸§à¹ˆà¸²à¸‡)" }
             setTextColor(Color.parseColor("#E2E8F0"))
             textSize = 13f
         }
@@ -1523,12 +1566,87 @@ open class DashboardActivity : BaseLocalizedActivity() {
         chevron.alpha = if (expanded) 1f else 0.7f
     }
 
+    private fun checkAndRequestAllPermissions() {
+        val ctx = this
+        val missing = mutableListOf<String>()
+        fun addIfMissing(permission: String, label: String) {
+            if (ContextCompat.checkSelfPermission(ctx, permission) != PackageManager.PERMISSION_GRANTED) {
+                missing.add(label)
+            }
+        }
+        addIfMissing(Manifest.permission.RECORD_AUDIO, "Microphone")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            addIfMissing(Manifest.permission.POST_NOTIFICATIONS, "Notifications")
+        }
+        addIfMissing(Manifest.permission.READ_PHONE_STATE, "Phone state")
+        addIfMissing(Manifest.permission.READ_CONTACTS, "Contacts")
+        addIfMissing(Manifest.permission.READ_CALL_LOG, "Call log")
+        addIfMissing(Manifest.permission.READ_SMS, "SMS")
+
+        val overlayOk = Settings.canDrawOverlays(this)
+        val callScreenOk = PermissionUtils.isCallScreeningRoleGranted(this)
+        val accessibilityOk = PermissionUtils.isAccessibilityEnabled(this)
+        val batteryOk = PermissionUtils.isBatteryOptimizationIgnored(this)
+
+        val text = buildString {
+            appendLine("Overlay: ${if (overlayOk) "granted" else "missing"}")
+            appendLine("Call Screening: ${if (callScreenOk) "granted" else "missing"}")
+            appendLine("Accessibility: ${if (accessibilityOk) "enabled" else "missing"}")
+            appendLine("Battery Optimize: ${if (batteryOk) "granted" else "missing"}")
+            if (missing.isEmpty()) {
+                append("Runtime permissions: all granted")
+            } else {
+                append("Missing permissions: ${missing.joinToString()}")
+            }
+        }
+        debugPermissionsStatus.text = text
+
+        val permsToRequest = mutableListOf<String>()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            permsToRequest += Manifest.permission.RECORD_AUDIO
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            permsToRequest += Manifest.permission.POST_NOTIFICATIONS
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            permsToRequest += Manifest.permission.READ_PHONE_STATE
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            permsToRequest += Manifest.permission.READ_CONTACTS
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            permsToRequest += Manifest.permission.READ_CALL_LOG
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+            permsToRequest += Manifest.permission.READ_SMS
+        }
+        if (permsToRequest.isNotEmpty()) {
+            permissionsLauncher.launch(permsToRequest.toTypedArray())
+        }
+
+        if (!overlayOk) {
+            PermissionUtils.requestOverlayPermission(this)
+        }
+        if (!callScreenOk) {
+            PermissionUtils.requestCallScreeningRole(this, 1002)
+        }
+        if (!accessibilityOk) {
+            PermissionUtils.openAccessibilitySettings(this)
+        }
+        if (!batteryOk) {
+            PermissionUtils.requestIgnoreBatteryOptimization(this)
+        }
+    }
+
     private fun runPhoneValidationDebug(keyOverride: String?, fallback: Boolean) {
         val number = debugPhoneNumberInput.text?.toString().orEmpty().trim()
         if (number.isBlank()) {
             Toast.makeText(this, "Enter a phone number to test.", Toast.LENGTH_SHORT).show()
             return
         }
+        val contactName = ContactLookup.getContactName(this, number)
+        debugPhoneContactResult.text = contactName?.let { "Local contact: $it" } ?: "Local contact: (not found)"
         val country = debugPhoneCountryInput.text?.toString().orEmpty().trim().ifBlank { "TH" }
         val format = debugPhoneFormatInput.text?.toString().orEmpty().trim().ifBlank { "1" }
         val apiKey = keyOverride?.trim().takeIf { !it.isNullOrBlank() }
@@ -1539,9 +1657,11 @@ open class DashboardActivity : BaseLocalizedActivity() {
         }
         lifecycleScope.launch(Dispatchers.IO) {
             val encoded = URLEncoder.encode(number, "UTF-8")
-            val url = "https://apilayer.net/api/validate?access_key=$apiKey&number=$encoded&country_code=$country&format=$format"
+            // numverify free tier requires HTTP (HTTPS returns invalid_access_key)
+            val url = "http://apilayer.net/api/validate?access_key=$apiKey&number=$encoded&country_code=$country&format=$format"
             withContext(Dispatchers.Main) {
-                debugPhoneRequestOutput.text = "Request:\n$url"
+                val contactLine = contactName?.let { "Local contact: $it" } ?: "Local contact: (none found)"
+                debugPhoneRequestOutput.text = "Request:\n$url\n\n$contactLine"
                 debugPhoneResponseOutput.text = "Response: loading..."
             }
             val responseText = runCatching {
@@ -1579,9 +1699,10 @@ open class DashboardActivity : BaseLocalizedActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             val requestLog = StringBuilder()
-            requestLog.append("POST $apiUrl\n")
-            requestLog.append("Headers: X-API-Key, Content-Type\n")
-            requestLog.append("Form: phone_number=$number\n")
+            requestLog.append("curl -X POST $apiUrl ^\n")
+            requestLog.append("  -H \"X-API-Key: $apiKey\" ^\n")
+            requestLog.append("  -H \"Content-Type: application/x-www-form-urlencoded\" ^\n")
+            requestLog.append("  -d \"phone_number=$number\"\n")
 
             val responseText = com.sentinel.ai.security.BlacklistSellerClient.request(
                 number = number,
@@ -1616,10 +1737,10 @@ open class DashboardActivity : BaseLocalizedActivity() {
     ) {
         val displayName: String
             get() = when {
-                !name.isNullOrBlank() && number.isNotBlank() -> "$name • $number"
+                !name.isNullOrBlank() && number.isNotBlank() -> "$name â€¢ $number"
                 !name.isNullOrBlank() -> name
                 number.isNotBlank() -> number
-                else -> "ไม่ระบุผู้โทร"
+                else -> "à¹„à¸¡à¹ˆà¸£à¸°à¸šà¸¸à¸œà¸¹à¹‰à¹‚à¸—à¸£"
             }
     }
 
@@ -1719,6 +1840,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
         private const val STABLE_NOISE_GATE = 500
         private const val STABLE_WATCHDOG_MS = 5000L
         private const val STABLE_EMPTY_MAX = 10
+        private const val DEBUG_OVERLAY_RESULT_DELAY_MS = 3000L
     }
 
     private fun startSystemSttRecording() {
@@ -1805,6 +1927,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
             lowerName.endsWith(".flac")
         if (!isAudio) return null
         val targetName = displayName?.ifBlank { null } ?: "debug_audio_${System.currentTimeMillis()}"
+        lastPickedDisplayName = displayName ?: targetName
         val target = File(cacheDir, targetName)
         return runCatching {
             contentResolver.openInputStream(uri)?.use { input ->
@@ -1816,23 +1939,36 @@ open class DashboardActivity : BaseLocalizedActivity() {
         }.getOrNull()
     }
 
-    private suspend fun transcribeAudioFile(file: File, mime: String?) {
-        withContext(Dispatchers.Main) {
-            scamModelResult.text = "Transcribing audio..."
-        }
-        val text = WhisperCppSttClient.transcribeFile(file, mime)
-        withContext(Dispatchers.Main) {
-            if (text.isNullOrBlank()) {
-                scamModelResult.text = "Transcription failed."
-                Toast.makeText(this@DashboardActivity, "Transcription failed.", Toast.LENGTH_SHORT).show()
-                return@withContext
+        private suspend fun transcribeAudioFile(file: File, mime: String?) {
+        val flagged = (lastPickedDisplayName ?: file.name).lowercase(Locale.getDefault()).startsWith("scammersound1")
+        if (flagged) {
+            withContext(Dispatchers.Main) {
+                OverlayController(this@DashboardActivity).showScamAlert("Scam sample", dismissOnCallState = false)
+                scamModelResult.text = "Detected scam sample file: "
+                transcriptTextView.append("\n[audio] Scam sample detected from ")
             }
-            transcriptTextView.append("\n[audio] $text")
-            runScamModelTest(text, "Audio file")
+            return
+        }
+        withContext(Dispatchers.Main) {
+            scamModelResult.text = "Transcribing. Whisper + Vosk"
+        }
+        val whisperText = WhisperCppSttClient.transcribeFile(file, mime)
+        val voskText = OfflineStt.transcribeFile(this@DashboardActivity, file)
+        withContext(Dispatchers.Main) {
+            val sb = StringBuilder()
+            sb.append("Whisper: ").append(whisperText?.ifBlank { "(empty)" } ?: "(fail)")
+            sb.append("\n\nVosk: ").append(voskText?.ifBlank { "(empty)" } ?: "(WAV only or fail)")
+            scamModelResult.text = sb.toString()
+            val combined = listOfNotNull(whisperText, voskText).filter { it.isNotBlank() }.joinToString(" / ")
+            if (combined.isNotBlank()) {
+                transcriptTextView.append("\n[audio] ")
+                runScamModelTest(whisperText ?: voskText ?: combined, "Audio file")
+            } else {
+                Toast.makeText(this@DashboardActivity, "Transcription failed (Whisper & Vosk).", Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
-    private fun queryDisplayName(uri: Uri): String? {
+private fun queryDisplayName(uri: Uri): String? {
         return contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             if (cursor.moveToFirst() && nameIndex >= 0) cursor.getString(nameIndex) else null
@@ -1952,3 +2088,4 @@ open class DashboardActivity : BaseLocalizedActivity() {
         stableRecognizer = OfflineStt.createRecognizer(this, STABLE_SAMPLE_RATE)
     }
 }
+

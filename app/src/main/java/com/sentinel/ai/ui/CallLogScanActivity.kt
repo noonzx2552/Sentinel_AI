@@ -166,6 +166,17 @@ class CallLogScanActivity : BaseActivity() {
                 return@launch
             }
 
+            // FAKE DATA INJECTION (As requested)
+            // 1. Safe Number
+            calls.add(CallLogItem("02-123-4567", System.currentTimeMillis() - 3600000, CallLog.Calls.INCOMING_TYPE, "Safe Business"))
+            // 2. Unsafe Number
+            calls.add(CallLogItem("099-999-9999", System.currentTimeMillis() - 7200000, CallLog.Calls.MISSED_TYPE, null))
+            // 3. Suspicious Number
+            calls.add(CallLogItem("098-888-8888", System.currentTimeMillis() - 10800000, CallLog.Calls.INCOMING_TYPE, null))
+            // 4. Unknown Number
+            calls.add(CallLogItem("082-222-2222", System.currentTimeMillis() - 14400000, CallLog.Calls.OUTGOING_TYPE, null))
+            
+            /*
             cursor?.use {
                 val numberIdx = it.getColumnIndex(CallLog.Calls.NUMBER)
                 val dateIdx = it.getColumnIndex(CallLog.Calls.DATE)
@@ -182,6 +193,7 @@ class CallLogScanActivity : BaseActivity() {
                     }
                 }
             }
+            */
 
             // Show list immediately
             withContext(Dispatchers.Main) {
@@ -199,32 +211,24 @@ class CallLogScanActivity : BaseActivity() {
 
             if (calls.isEmpty()) return@launch
 
-            // Analyze in parallel
+            // Analyze in parallel (Mocked for Fake Data)
             allScannedCalls = calls.map { item ->
                 async {
+                    // MOCK ANALYSIS based on number
+                    val status = when (item.number) {
+                        "02-123-4567" -> SafetyLevel.SAFE
+                        "099-999-9999" -> SafetyLevel.DANGER
+                        "098-888-8888" -> SafetyLevel.CAUTION
+                        else -> SafetyLevel.UNKNOWN
+                    }
+                    /*
                     val result = try {
                         numberChecker.check(item.number)
                     } catch (e: Exception) {
-                        // Fallback for invalid numbers
-                        com.sentinel.ai.security.NumberCheckResult(
-                            rawInput = item.number,
-                            formattedE164 = item.number,
-                            displayNumber = item.number,
-                            region = null,
-                            carrier = null,
-                            countryName = null,
-                            externalLineType = null,
-                            numberType = io.michaelrocks.libphonenumber.android.PhoneNumberUtil.PhoneNumberType.UNKNOWN,
-                            score = 0,
-                            status = SafetyLevel.UNKNOWN, // Default to Unknown on error
-                            issues = listOf(getString(R.string.calllog_analysis_failed_format, e.message ?: "")),
-                            reportCount = 0,
-                            reportDetails = emptyList(),
-                            debugExternalRaw = null,
-                            debugReportRaw = null
-                        )
+                         // ... (original error handling) ...
                     }
-                    item to result.status
+                    */
+                    item to status
                 }
             }.awaitAll()
 
@@ -306,29 +310,29 @@ class CallLogScanActivity : BaseActivity() {
                 
                 val (chipBg, chipText, iconBg) = when (safety) {
                     SafetyLevel.SAFE -> Triple(
-                        R.color.profile_icon_bg_green,
-                        R.color.bottom_nav_active_green,
+                        R.color.profile_icon_green,
+                        R.color.splash_logo_icon,
                         R.color.profile_icon_bg_green
                     )
                     SafetyLevel.CAUTION -> Triple(
-                        R.color.activity_chip_bg_critical,
-                        R.color.home_accent_red,
-                        R.color.activity_chip_bg_critical
+                        R.color.profile_icon_yellow,
+                        R.color.splash_logo_icon,
+                        R.color.profile_icon_bg_yellow
                     )
                     SafetyLevel.DANGER -> Triple(
-                        R.color.activity_chip_bg_critical,
                         R.color.home_accent_red,
+                        R.color.splash_logo_icon,
                         R.color.activity_chip_bg_critical
                     )
                     SafetyLevel.UNKNOWN -> Triple(
-                        R.color.profile_icon_bg_gray,
-                        R.color.home_muted,
+                        R.color.profile_icon_gray,
+                        R.color.splash_logo_icon,
                         R.color.profile_icon_bg_gray
                     )
                 }
 
                 icon.setImageResource(android.R.drawable.ic_menu_call)
-                icon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(itemView.context, R.color.splash_logo_icon))
+                icon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(itemView.context, chipBg))
                 ViewCompat.setBackgroundTintList(
                     iconContainer,
                     ColorStateList.valueOf(ContextCompat.getColor(itemView.context, iconBg))

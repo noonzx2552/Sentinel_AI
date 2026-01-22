@@ -34,10 +34,8 @@ object ProtectionPrefs {
             .apply()
     }
 
-    fun useCallPlaybackCapture(context: Context): Boolean {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean(KEY_USE_CALL_PLAYBACK_CAPTURE, false)
-    }
+    /** Always true: Call playback capture is always on (setting removed from Profile). */
+    fun useCallPlaybackCapture(context: Context): Boolean = true
 
     fun setUseCallPlaybackCapture(context: Context, enabled: Boolean) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

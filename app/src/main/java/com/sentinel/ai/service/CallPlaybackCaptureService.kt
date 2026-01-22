@@ -19,22 +19,26 @@ import androidx.core.app.NotificationCompat
 import com.sentinel.ai.R
 import com.sentinel.ai.ai.SileroVad
 import com.sentinel.ai.ai.WhisperCppSttClient
+import com.sentinel.ai.ai.RawSttClient
 import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
+import com.sentinel.ai.security.ScamKeywordMatcher
 import com.sentinel.ai.utils.OverlayController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 /**
- * During a call: captures playback audio (including USAGE_VOICE_COMMUNICATION when allowed)
- * via MediaProjection, buffers ~2s chunks, and sends to WhisperCppSttClient — same path as
- * Dashboard debug mode. Updates overlay and GuardianEventStore with transcripts.
+ * During a call (incoming or outgoing): captures playback audio via MediaProjection,
+ * buffers 3s chunks with 1s overlap, sends to WhisperCppSttClient (https://voice.smarthomeus3r.space/stt)
+ * — same API as debug mode. Real-time STT: overlay + GuardianEventStore.
  */
 class CallPlaybackCaptureService : Service() {
 
@@ -157,12 +161,11 @@ class CallPlaybackCaptureService : Service() {
         }
 
         isServiceRunning = true
+        sendBroadcast(Intent(ACTION_CALL_PLAYBACK_CAPTURE_STARTED).setPackage(packageName))
         overlay.showLiveTranscript(getString(R.string.overlay_listening))
 
-        // Accumulate ~2 sec (16kHz * 2 bytes * 2 sec) then send to Whisper (same as debug path)
-        val chunkBytes = SAMPLE_RATE * 2 * CHUNK_SEC
-        val accumulate = ArrayList<ByteArray>()
-        var total = 0
+        // 3s chunks, 1s overlap → advance 2s per chunk. Send to https://voice.smarthomeus3r.space/stt (same as debug).
+        val buffer = ByteArrayOutputStream()
 
         captureJob = serviceScope.launch {
             val buf = ByteArray(bufferSize)
@@ -172,37 +175,42 @@ class CallPlaybackCaptureService : Service() {
                     if (read < 0) Log.w(TAG, "AudioRecord read=$read")
                     continue
                 }
-                accumulate.add(buf.copyOf(read))
-                total += read
-                if (total < chunkBytes) continue
+                buffer.write(buf, 0, read)
 
-                val chunk = ByteArray(total)
-                var off = 0
-                for (a in accumulate) {
-                    System.arraycopy(a, 0, chunk, off, a.size)
-                    off += a.size
-                }
-                accumulate.clear()
-                total = 0
+                while (buffer.size() >= CHUNK_BYTES) {
+                    val arr = buffer.toByteArray()
+                    val chunk = arr.copyOfRange(0, CHUNK_BYTES)
+                    buffer.reset()
+                    buffer.write(arr, STEP_BYTES, arr.size - STEP_BYTES)
 
-                val shortCount = chunk.size / 2
-                val shorts = ShortArray(shortCount)
-                ByteBuffer.wrap(chunk).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts)
-                val hasSpeech = vad?.isSpeech(shorts, shortCount, SAMPLE_RATE) ?: true
-                if (!hasSpeech) continue
+                    val shortCount = chunk.size / 2
+                    val shorts = ShortArray(shortCount)
+                    ByteBuffer.wrap(chunk).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts)
+                    val hasSpeech = vad?.isSpeech(shorts, shortCount, SAMPLE_RATE) ?: true
+                    if (!hasSpeech) continue
 
-                val text = try {
-                    WhisperCppSttClient.transcribePcm16(chunk, SAMPLE_RATE, 1)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Whisper transcribe failed: ${e.message}", e)
-                    null
-                }
-                if (!text.isNullOrBlank()) {
-                    Log.d(TAG, "Whisper text: $text")
-                    GuardianEventStore.addEvent(
-                        GuardianEvent(source = "Call playback", content = text, score = 0, riskLevel = RiskLevel.SAFE)
-                    )
-                    launch(Dispatchers.Main) { overlay.updateLiveTranscript(text) }
+                    launch {
+                        val text = try {
+                            RawSttClient.transcribePcm16(chunk)
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Raw STT failed: ${e.message}", e)
+                            null
+                        }
+                        if (!text.isNullOrBlank()) {
+                            Log.d(TAG, "Whisper text: $text")
+                            GuardianEventStore.addEvent(
+                                GuardianEvent(source = "Call playback", content = text, score = 0, riskLevel = RiskLevel.SAFE)
+                            )
+                            withContext(Dispatchers.Main) { overlay.updateLiveTranscript(text) }
+                            val m = ScamKeywordMatcher.get(this@CallPlaybackCaptureService).match(text)
+                            if (m != null) {
+                                GuardianEventStore.addEvent(
+                                    GuardianEvent(source = "Scam keyword", content = "${m.scenarioName}: ${m.matchedKeyword} | $text", score = 80, riskLevel = RiskLevel.CRITICAL)
+                                )
+                                withContext(Dispatchers.Main) { overlay.updateLiveTranscriptRisk(RiskLevel.CRITICAL, m.scenarioName) }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -264,7 +272,10 @@ class CallPlaybackCaptureService : Service() {
         private const val CHANNEL_ID = "CallPlaybackCaptureChannel"
         private const val NOTIFICATION_ID = 2002
         private const val SAMPLE_RATE = 16000
-        private const val CHUNK_SEC = 2
+        private const val CHUNK_SEC = 3
+        private const val OVERLAP_SEC = 1
+        private val CHUNK_BYTES = SAMPLE_RATE * 2 * CHUNK_SEC      // 3s @ 16kHz 16bit mono
+        private val STEP_BYTES = SAMPLE_RATE * 2 * (CHUNK_SEC - OVERLAP_SEC)  // 2s, 1s overlap
 
         const val ACTION_START = "com.sentinel.ai.service.action.START_CALL_PLAYBACK_CAPTURE"
         const val ACTION_STOP = "com.sentinel.ai.service.action.STOP_CALL_PLAYBACK_CAPTURE"

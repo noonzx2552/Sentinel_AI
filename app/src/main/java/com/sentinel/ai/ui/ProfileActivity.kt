@@ -13,7 +13,6 @@ import com.sentinel.ai.R
 import com.sentinel.ai.ui.navigation.BottomTab
 import com.sentinel.ai.utils.LanguageManager
 import com.sentinel.ai.utils.ProfilePrefs
-import com.sentinel.ai.utils.ProtectionPrefs
 import kotlinx.coroutines.launch
 
 class ProfileActivity : BaseActivity() {
@@ -31,13 +30,11 @@ class ProfileActivity : BaseActivity() {
         languageValue = findViewById(R.id.profileLanguageValue)
         val pushToggle = findViewById<SwitchMaterial>(R.id.profilePushToggle)
         val darkToggle = findViewById<SwitchMaterial>(R.id.profileDarkModeToggle)
-        val callPlaybackToggle = findViewById<SwitchMaterial>(R.id.profileCallPlaybackToggle)
 
         // Load persisted values using ProfilePrefs
         applySavedName()
         applyLanguageLabel()
         darkToggle?.isChecked = ProfilePrefs.isDarkMode(this)
-        callPlaybackToggle?.isChecked = ProtectionPrefs.useCallPlaybackCapture(this)
 
         // Allow editing display name
         nameView?.setOnClickListener { showEditNameSheet() }
@@ -62,15 +59,6 @@ class ProfileActivity : BaseActivity() {
             // Theme is applied inside ProfilePrefs.setDarkMode
         }
 
-        callPlaybackToggle?.setOnCheckedChangeListener { _, checked ->
-            ProtectionPrefs.setUseCallPlaybackCapture(this, checked)
-            Toast.makeText(
-                this,
-                getString(if (checked) R.string.profile_call_playback_enabled else R.string.profile_call_playback_disabled),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
         findViewById<View>(R.id.rowProfileEditName)?.setOnClickListener { showEditNameSheet() }
         findViewById<View>(R.id.rowProfileLanguage)?.setOnClickListener { showLanguageSheet() }
 
@@ -79,7 +67,6 @@ class ProfileActivity : BaseActivity() {
         // Sync row taps with toggles for accessibility
         findViewById<View>(R.id.rowProfilePush)?.setOnClickListener { pushToggle?.toggle() }
         findViewById<View>(R.id.rowProfileDarkMode)?.setOnClickListener { darkToggle?.toggle() }
-        findViewById<View>(R.id.rowProfileCallPlayback)?.setOnClickListener { callPlaybackToggle?.toggle() }
 
         debugRow?.setOnClickListener {
             startActivity(Intent(this, DashboardActivity::class.java))

@@ -13,6 +13,7 @@
         android:layout_gravity="center"
         android:layout_margin="4dp"
         app:cardBackgroundColor="@android:color/white"
+        android:backgroundTint="@android:color/white"
         app:cardCornerRadius="22dp"
         app:cardElevation="0dp"
         app:strokeColor="#E5E7EB"
@@ -42,13 +43,25 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/home_muted" />
+
+                <ImageView
+                android:id="@+id/ivInfoIconScammer"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_exclamation"
+                android:tint="@android:color/white" />
             </FrameLayout>
 
             <ImageButton
                 android:id="@+id/btnOverlayClose"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:background="@android:color/transparent"
+                android:padding="9dp"
                 android:contentDescription="@string/overlay_dismiss"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
                 android:tint="#94A3B8"

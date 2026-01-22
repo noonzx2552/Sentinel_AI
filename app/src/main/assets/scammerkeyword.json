@@ -1,0 +1,404 @@
+{
+  "meta": {
+    "version": "3.0",
+    "type": "voice_scam_detection_lexicon",
+    "note": "ชุดคำ/ประโยคสำหรับตรวจจับสายโทรหลอกลวง (ฝึกโมเดล/ทำ rules) ไม่ใช่สคริปต์เพื่อใช้งานหลอกลวง",
+    "fields": {
+      "words": "คำ/วลีที่มักได้ยินในสถานการณ์นั้น (รวมคำเพี้ยน/สะกดหลอก/ทับศัพท์)",
+      "sentences": "ตัวอย่างประโยคที่มักพูดบนสาย (TH/EN/Karaoke)"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "bank_otp_freeze",
+      "name": "แอบอ้างธนาคาร/วอลเล็ท: ธุรกรรมผิดปกติ-อายัด-ขอ OTP",
+      "words": [
+        {
+          "canonical": "ธุรกรรมผิดปกติ",
+          "variants": ["ธุระกรรมผิดปกติ", "รายการผิดปกติ", "ทำรายการผิดปกติ", "ทรานแซคชั่นผิดปกติ", "unusual transaction", "suspicious activity"]
+        },
+        {
+          "canonical": "อายัด",
+          "variants": ["อา ยั ด", "อายั ด", "อาญัติ", "อาญัด", "freeze", "frozen", "hold funds", "block account"]
+        },
+        {
+          "canonical": "ระงับบัญชี",
+          "variants": ["ระงับ", "ล็อกบัญชี", "ล็อคบัญชี", "ปิดบัญชีชั่วคราว", "suspend account", "account suspended"]
+        },
+        {
+          "canonical": "ยืนยันตัวตน",
+          "variants": ["ยืนยัน", "ตรวจสอบตัวตน", "verify identity", "verification", "KYC", "อัปเดต KYC", "update KYC"]
+        },
+        {
+          "canonical": "OTP",
+          "variants": ["โอทีพี", "รหัสยืนยัน", "โค้ดยืนยัน", "code 6 digit", "รหัส 6 หลัก", "one-time password"]
+        },
+        {
+          "canonical": "กดอนุมัติ",
+          "variants": ["กดยืนยัน", "กด approve", "อนุมัติรายการ", "approve transaction", "ยืนยันในแอป"]
+        },
+        {
+          "canonical": "บัญชีพักเงิน/บัญชีปลอดภัย",
+          "variants": ["บัญชีปลอดภัย", "บัญชีเซฟ", "บัญชีพัก", "safe account", "holding account"]
+        },
+        {
+          "canonical": "โอนทดสอบ/โอนตรวจสอบ",
+          "variants": ["โอนพิสูจน์", "โอนตรวจเส้นทาง", "verify transfer", "test transfer"]
+        }
+      ],
+      "sentences": [
+        {
+          "th": "ตรวจพบรายการโอนผิดปกติจากบัญชีคุณ ตอนนี้ต้องยืนยันเพื่อยกเลิกรายการครับ/ค่ะ",
+          "en": "We detected an unusual transfer. You must verify to cancel it.",
+          "karaoke": "dtruat-phop rai-gaan ohn phit-pa-ga-ti chak ban-chee khun dtorn-nee dtong yuen-yan phuea yok-loek rai-gaan"
+        },
+        {
+          "th": "บัญชีคุณกำลังจะถูกอายัด/อาญัติ ถ้าไม่ยืนยันเดี๋ยวนี้",
+          "en": "Your account will be frozen if you don’t verify now.",
+          "karaoke": "ban-chee khun gam-lang ja thuk a-yat / aa-nyaat thaa mai yuen-yan diao-nee"
+        },
+        {
+          "th": "เดี๋ยวมี OTP ส่งเข้าไป บอกเลขให้เจ้าหน้าที่เพื่อยืนยันตัวตน",
+          "en": "An OTP will be sent. Read it to me to verify.",
+          "karaoke": "diao mee o-tee-pee song khao-pai bok lek hai jao-naa-thee phuea yuen-yan"
+        },
+        {
+          "th": "อย่ากดปฏิเสธนะครับ/ค่ะ ให้กดอนุมัติ เพื่อยกเลิก/กันเงินออก",
+          "en": "Don’t decline. Approve it to cancel/block the transfer.",
+          "karaoke": "yaa got pa-dti-set na khrap/ka hai got anu-mat phuea yok-loek / gan ngoen ork"
+        },
+        {
+          "th": "เพื่อความปลอดภัยให้โอนเงินไปบัญชีพักเงินก่อน เดี๋ยวโอนคืนให้ครบ",
+          "en": "Move funds to a safe holding account; we’ll return it.",
+          "karaoke": "phuea khwam-plot-phai hai ohn ngoen pai ban-chee phak-ngoen gorn diao ohn khuen hai khrop"
+        }
+      ]
+    },
+    {
+      "id": "police_court_amlo",
+      "name": "แอบอ้างตำรวจ/ศาล/ปปง.: คดีฟอกเงิน-หมายเรียก-ขู่ดำเนินคดี",
+      "words": [
+        {
+          "canonical": "คดีฟอกเงิน",
+          "variants": ["ฟอกเงิน", "money laundering", "บัญชีม้า", "บัญชีม้าเกี่ยวข้อง", "เส้นทางการเงิน"]
+        },
+        {
+          "canonical": "หมายเรียก/หมายจับ",
+          "variants": ["หมายศาล", "หมายเรียก", "หมายจับ", "summons", "warrant"]
+        },
+        {
+          "canonical": "อายัดทรัพย์",
+          "variants": ["อายัดทรัพ", "freeze assets", "ระงับทรัพย์สิน", "ยึดทรัพย์"]
+        },
+        {
+          "canonical": "สอบสวน/ปากคำ",
+          "variants": ["สอบปากคำ", "ให้ปากคำ", "statement", "interrogation"]
+        },
+        {
+          "canonical": "ขัดขวางการสอบสวน",
+          "variants": ["ห้ามบอกใคร", "ห้ามติดต่อธนาคาร", "obstruction", "tampering"]
+        },
+        {
+          "canonical": "เลขคดี/เลขอ้างอิง",
+          "variants": ["เลขคดี", "case id", "reference number", "เลขอ้างอิง"]
+        }
+      ],
+      "sentences": [
+        {
+          "th": "คุณมีส่วนเกี่ยวข้องคดีฟอกเงิน เลขคดี {case_id} ต้องให้ความร่วมมือทันที",
+          "en": "You’re linked to a money laundering case {case_id}. Cooperate now.",
+          "karaoke": "khun mee suan-giiao-khong kha-dee fok-ngoen lek kha-dee {case_id} dtong hai khwam-ruam-mue than-tee"
+        },
+        {
+          "th": "มีหมายเรียก/หมายจับออกแล้ว ถ้าไม่ทำตามขั้นตอนจะส่งชุดไปที่บ้าน",
+          "en": "A summons/warrant is issued. Officers may visit your home.",
+          "karaoke": "mee mai-riak / mai-jap ork laeo thaa mai tham-taam khan-dton ja song chut pai thee ban"
+        },
+        {
+          "th": "ห้ามวางสายและห้ามบอกใคร ไม่งั้นเข้าข่ายขัดขวางการสอบสวน",
+          "en": "Do not hang up or tell anyone; it may be obstruction.",
+          "karaoke": "ham wang-sai lae ham bok khrai mai-ngan khao-khai khat-khwang gaan-sop-suan"
+        },
+        {
+          "th": "ต้องโอนเงินพิสูจน์เส้นทางการเงิน แล้วเราจะออกเอกสารรับรองให้",
+          "en": "Transfer funds to verify the money trail; we’ll certify it.",
+          "karaoke": "dtong ohn ngoen phit-sut sen-thaang gaan-ngoen laeo rao ja ork ek-ga-saan rap-rong hai"
+        }
+      ]
+    },
+    {
+      "id": "parcel_customs_fee",
+      "name": "พัสดุ/ไปรษณีย์/ศุลกากร: ตีกลับ-ค้างชำระ-ให้จ่ายค่าธรรมเนียม",
+      "words": [
+        { "canonical": "พัสดุตีกลับ", "variants": ["ตีกลับวันนี้", "ส่งไม่สำเร็จ", "delivery failed", "return to sender"] },
+        { "canonical": "ศุลกากร", "variants": ["customs", "เคลียร์ศุลกากร", "clearance", "ค้างด่าน"] },
+        { "canonical": "ค่าธรรมเนียม", "variants": ["ค่าเคลียร์", "ค่าภาษี", "ค่าจัดส่งเพิ่ม", "processing fee", "small fee"] },
+        { "canonical": "ลิงก์ชำระเงิน", "variants": ["ส่งลิงก์จ่าย", "pay link", "payment link", "ลิงก์กรอกข้อมูล"] }
+      ],
+      "sentences": [
+        {
+          "th": "พัสดุของคุณค้างศุลกากร ต้องชำระค่าธรรมเนียมก่อนถึงจะส่งต่อได้",
+          "en": "Your parcel is held at customs. Pay the fee to proceed.",
+          "karaoke": "pha-sadu khun khang sun-la-ka-korn dtong cham-ra kha tham-niam gorn thueng ja song-dtor dai"
+        },
+        {
+          "th": "ที่อยู่ไม่ชัด พัสดุจะตีกลับวันนี้ เดี๋ยวส่งลิงก์ให้ยืนยันข้อมูล",
+          "en": "Address unclear; it will be returned today. I’ll send a link to verify.",
+          "karaoke": "thee-yu mai chat pha-sadu ja dtee-klap wan-nee diao song ling hai yuen-yan khom-mun"
+        },
+        {
+          "th": "ยอดนิดเดียว {amount} จ่ายปุ๊บส่งปั๊บ",
+          "en": "It’s only {amount}. Pay and we ship immediately.",
+          "karaoke": "yot nid-diao {amount} jai pup song pap"
+        }
+      ]
+    },
+    {
+      "id": "sim_swap_carrier",
+      "name": "เครือข่ายมือถือ/ซิม: ซิมสวอป-ระงับซิม-ขอรหัสจาก SMS",
+      "words": [
+        { "canonical": "ซิมสวอป", "variants": ["sim swap", "เปลี่ยนซิมแทน", "ย้ายซิม", "ย้ายค่าย", "port out"] },
+        { "canonical": "ระงับซิม", "variants": ["ซิมถูกระงับ", "ปิดเบอร์ชั่วคราว", "suspend SIM", "disable number"] },
+        { "canonical": "รหัสทาง SMS", "variants": ["รหัสยืนยัน SMS", "โค้ดในข้อความ", "verification code", "one-time code"] },
+        { "canonical": "ยืนยันเจ้าของเบอร์", "variants": ["ยืนยันเบอร์", "verify number", "confirm subscriber"] }
+      ],
+      "sentences": [
+        {
+          "th": "มีคนยื่นเรื่องเปลี่ยนซิมแทนคุณ ต้องยืนยันเดี๋ยวนี้เพื่อยกเลิก",
+          "en": "Someone requested a SIM swap. Verify now to cancel it.",
+          "karaoke": "mee khon yuen-rueang plian sim thaen khun dtong yuen-yan diao-nee phuea yok-loek"
+        },
+        {
+          "th": "เดี๋ยวมีรหัสส่ง SMS เข้าไป อ่านให้ผม/ดิฉันฟังเพื่อยืนยันเจ้าของเบอร์",
+          "en": "A code will be sent by SMS. Read it to confirm you own the number.",
+          "karaoke": "diao mee ra-hat song es-em-es khao-pai aan hai phom/di-chan fang phuea yuen-yan jao-khong ber"
+        }
+      ]
+    },
+    {
+      "id": "tech_support_remote",
+      "name": "ซัพพอร์ตไอทีปลอม: เครื่องติดไวรัส-ให้ติดตั้งรีโมต-ขอรหัสเข้าถึง",
+      "words": [
+        { "canonical": "ติดไวรัส/ถูกแฮก", "variants": ["ไวรัส", "มัลแวร์", "โดนแฮก", "compromised", "hacked", "malware"] },
+        { "canonical": "รีโมต/แชร์หน้าจอ", "variants": ["remote", "remote support", "แชร์หน้าจอ", "screen share", "เข้าควบคุมระยะไกล"] },
+        { "canonical": "อนุญาตทั้งหมด", "variants": ["กดอนุญาต", "allow all", "permission", "สิทธิ์การเข้าถึง"] },
+        { "canonical": "รหัสเข้าถึง", "variants": ["access code", "pin", "โค้ดเข้าระบบ", "รหัสเชื่อมต่อ"] },
+        { "canonical": "ค่าบริการ", "variants": ["ค่าซ่อมระบบ", "ค่าดำเนินการ", "service fee", "support fee"] }
+      ],
+      "sentences": [
+        {
+          "th": "เครื่องคุณติดไวรัส เราต้องเข้าควบคุมระยะไกลเพื่อแก้ทันที",
+          "en": "Your device is infected. We must remote in immediately.",
+          "karaoke": "khrueang khun dtit wai-rat rao dtong khao khwab-khum ra-ya glai phuea kae than-tee"
+        },
+        {
+          "th": "เปิดแอป {app_name} แล้วกดอนุญาตทั้งหมด เดี๋ยวผม/ดิฉันช่วยจัดการให้",
+          "en": "Open {app_name} and allow all permissions. I’ll handle it.",
+          "karaoke": "bperd aep {app_name} laeo got anu-yaat thang-mot diao phom/di-chan chuai jat-gaan hai"
+        },
+        {
+          "th": "ขอรหัสเข้าถึง/โค้ดที่ขึ้นบนหน้าจอ เพื่อเชื่อมต่อ",
+          "en": "Tell me the access code shown on your screen to connect.",
+          "karaoke": "khor ra-hat khao-thueng / koad thee kheun bon naa-joh phuea chueam-dtor"
+        }
+      ]
+    },
+    {
+      "id": "investment_crypto_forex",
+      "name": "ชวนลงทุนคริปโต/ฟอเร็กซ์: การันตีผลตอบแทน-รีบเติมเงิน-ถอนยาก",
+      "words": [
+        { "canonical": "การันตีผลตอบแทน", "variants": ["กำไรชัวร์", "กำไรแน่นอน", "รับประกัน", "guaranteed return", "risk-free"] },
+        { "canonical": "กำไรต่อวัน", "variants": ["กำไรวันละ", "ROI", "daily profit", "เปอร์เซ็นต่อวัน", "ปันผลรายวัน"] },
+        { "canonical": "เติมเงิน/ท็อปอัพ", "variants": ["top up", "เติมพอร์ต", "เติมทุน", "add funds", "ฝากเพิ่ม"] },
+        { "canonical": "ภาษีถอน/ค่าปลดล็อก", "variants": ["ค่าธรรมเนียมถอน", "unlock fee", "withdraw fee", "ภาษีถอนก่อน"] },
+        { "canonical": "กลุ่มสัญญาณ", "variants": ["signal group", "ห้องวีไอพี", "VIP group", "แอดเข้ากลุ่ม", "telegram group"] }
+      ],
+      "sentences": [
+        {
+          "th": "มีโปรเจกต์ลงทุนให้กำไรวันละ X% การันตีผลตอบแทน สนใจไหมครับ/คะ",
+          "en": "We have a project with X% daily profit, guaranteed returns. Interested?",
+          "karaoke": "mee pro-ject long-thun hai gam-rai wan-la X persen gaan-dtee phon-dtaen jai-son mai"
+        },
+        {
+          "th": "ตอนนี้มีรอบปิดยอด ถ้าเติมทุนวันนี้จะได้โบนัส",
+          "en": "Funding window closes soon. Top up today for a bonus.",
+          "karaoke": "dtorn-nee mee rop bpid-yot thaa derm-thun wan-nee ja dai bo-nus"
+        },
+        {
+          "th": "ถอนออกได้ แต่ต้องจ่ายค่าปลดล็อก/ภาษีก่อน ระบบถึงจะอนุมัติ",
+          "en": "You can withdraw, but you must pay the unlock fee/tax first.",
+          "karaoke": "thon ork dai dtae dtong jai kha bplot-lok / phaa-see gorn ra-bop thueng ja anu-mat"
+        }
+      ]
+    },
+    {
+      "id": "job_task_click_like",
+      "name": "งานออนไลน์/ภารกิจ: กดไลก์-กดติดตาม-ทำภารกิจ-โอนค่าสมัคร/ค่าปลดล็อก",
+      "words": [
+        { "canonical": "งานพาร์ทไทม์", "variants": ["งานเสริม", "งานออนไลน์", "work from home", "wfh job", "remote job"] },
+        { "canonical": "ทำภารกิจ", "variants": ["ทำมิชชั่น", "task", "ภารกิจรายวัน", "ทำครบรับเงิน"] },
+        { "canonical": "ค่ามัดจำ/ค่าสมัคร", "variants": ["ค่าลงทะเบียน", "ค่าสมาชิก", "deposit", "สมัคร VIP"] },
+        { "canonical": "ปลดล็อกถอนเงิน", "variants": ["ปลดล็อกบัญชี", "unlock withdrawal", "ถอนติดเงื่อนไข", "ต้องเติมเพิ่ม"] }
+      ],
+      "sentences": [
+        {
+          "th": "มีงานออนไลน์ แค่กดไลก์/กดติดตาม เดี๋ยวโอนค่าคอมให้",
+          "en": "Simple online job: like/follow and we pay commission.",
+          "karaoke": "mee ngaan on-lai khae got lai / got dtit-dtaam diao ohn kha kom hai"
+        },
+        {
+          "th": "เริ่มงานต้องโอนค่าสมัคร/ค่ามัดจำก่อน แล้วถึงจะเปิดสิทธิ์ถอน",
+          "en": "To start, pay the registration/deposit first to unlock withdrawals.",
+          "karaoke": "roem ngaan dtong ohn kha samak / kha mat-jam gorn laeo thueng ja bperd sit thon"
+        },
+        {
+          "th": "ยอดคุณค้างภารกิจอีกหนึ่งชุด ถ้าเติมเพิ่มจะถอนรอบใหญ่ได้",
+          "en": "You’re missing one task set. Add more funds for a bigger withdrawal.",
+          "karaoke": "yot khun khang pha-ra-git ik nueng chut thaa derm phoem ja thon rop yai dai"
+        }
+      ]
+    },
+    {
+      "id": "romance_pig_butchering",
+      "name": "หลอกคุยเชิงรัก/เพื่อนใหม่ แล้วชวนลงทุนหรือขอเงิน",
+      "words": [
+        { "canonical": "ย้ายไปคุยนอกแอป", "variants": ["แอดไลน์", "คุยไลน์", "คุยเทเลแกรม", "move to LINE", "move to Telegram"] },
+        { "canonical": "อนาคตด้วยกัน", "variants": ["จริงจัง", "แต่งงาน", "ดูแลกัน", "build a future", "serious relationship"] },
+        { "canonical": "ช่วยเหลือฉุกเฉิน", "variants": ["มีปัญหาด่วน", "ค่ารักษา", "ค่าตั๋ว", "emergency money", "hospital bill"] },
+        { "canonical": "โอกาสลงทุนพิเศษ", "variants": ["มีคนสอนเทรด", "วงใน", "insider", "special investment", "VIP opportunity"] }
+      ],
+      "sentences": [
+        {
+          "th": "คุยในนี้ไม่สะดวก แอดไลน์/เทเลแกรมได้ไหม จะได้โทรคุยง่ายๆ",
+          "en": "It’s not convenient here. Can we move to LINE/Telegram?",
+          "karaoke": "khui nai-nee mai sa-duak aed lai / te-le-gram dai mai ja dai thoh khui ngai ngai"
+        },
+        {
+          "th": "เราคบกันจริงจังนะ แต่ตอนนี้ฉันติดปัญหา ขอให้ช่วยโอนก่อน เดี๋ยวคืน",
+          "en": "I’m serious about us, but I have an urgent issue. Please transfer first, I’ll pay back.",
+          "karaoke": "rao khop kan jing-jang na dtae dtorn-nee chan dtit pan-haa khor hai chuai ohn gorn diao khuen"
+        },
+        {
+          "th": "ฉันมีช่องทางลงทุนที่กำไรดีมาก เดี๋ยวพาเข้ากลุ่มสัญญาณ",
+          "en": "I have a great investment channel. I’ll add you to the signal group.",
+          "karaoke": "chan mee chong-thaang long-thun thee gam-rai dee mak diao phaa khao glum san-yaan"
+        }
+      ]
+    },
+    {
+      "id": "ecommerce_seller_buyer",
+      "name": "ซื้อขายออนไลน์: หลอกโอนมัดจำ/หลอกเป็นผู้ซื้อ-ส่งลิงก์ปลอม-คืนเงินปลอม",
+      "words": [
+        { "canonical": "มัดจำ", "variants": ["ค่ามัดจำ", "โอนจอง", "จองก่อน", "deposit", "reservation fee"] },
+        { "canonical": "ขนส่ง/ค่าจัดส่ง", "variants": ["ค่าส่ง", "ส่งด่วน", "ค่าส่งเพิ่ม", "shipping fee"] },
+        { "canonical": "ลิงก์ยืนยันรับเงิน", "variants": ["ลิงก์รับเงิน", "ลิงก์ยืนยันผู้ขาย", "payment confirmation link", "ฟอร์มยืนยัน"] },
+        { "canonical": "สลิปปลอม", "variants": ["ส่งสลิปแล้ว", "สลิปโอน", "สลิป pending", "ปลอมสลิป"] },
+        { "canonical": "ขอเลขหลังบัตร", "variants": ["CVV", "เลข 3 ตัวหลัง", "รหัสหลังบัตร", "card security code"] }
+      ],
+      "sentences": [
+        {
+          "th": "ของมีคนจองเยอะ โอนมัดจำก่อนเดี๋ยวล็อกให้",
+          "en": "Many people want it. Transfer a deposit to lock it in.",
+          "karaoke": "khong mee khon jorng yer ohn mat-jam gorn diao lok hai"
+        },
+        {
+          "th": "ผม/ดิฉันเป็นผู้ซื้อ ขอส่งลิงก์ให้กรอกเพื่อรับเงินนะครับ/คะ",
+          "en": "I’m the buyer. I’ll send a link for you to receive payment.",
+          "karaoke": "phom/di-chan pen phu-sue khor song ling hai grok phuea rap ngoen na khrap/ka"
+        },
+        {
+          "th": "ระบบบอกว่าต้องยืนยันบัตรก่อน ขอเลข 3 ตัวหลัง/วันหมดอายุ",
+          "en": "The system says you must verify your card. Tell me the CVV/expiry.",
+          "karaoke": "ra-bop bok waa dtong yuen-yan bat gorn khor lek saam dtua lang / wan mod-a-yu"
+        }
+      ]
+    },
+    {
+      "id": "refund_overpayment_chargeback",
+      "name": "คืนเงิน/โอนเกิน/ชาร์จแบ็ก: หลอกให้กดลิงก์-กรอกข้อมูล-ให้โอนกลับ",
+      "words": [
+        { "canonical": "โอนเกิน", "variants": ["โอนผิด", "ยอดเกิน", "overpayment", "sent too much"] },
+        { "canonical": "คืนเงิน", "variants": ["refund", "คืนยอด", "คืนให้ทันที", "reverse transfer"] },
+        { "canonical": "ยกเลิกออเดอร์", "variants": ["ยกเลิกคำสั่งซื้อ", "cancel order", "cancelled", "dispute"] },
+        { "canonical": "ลิงก์รับคืน", "variants": ["ลิงก์คืนเงิน", "refund link", "แบบฟอร์มคืนเงิน"] }
+      ],
+      "sentences": [
+        {
+          "th": "ผม/ดิฉันโอนผิด โอนเกินไป ช่วยโอนคืนเดี๋ยวนี้ได้ไหม",
+          "en": "I sent too much by mistake. Can you transfer it back now?",
+          "karaoke": "phom/di-chan ohn phit ohn gern pai chuai ohn khuen diao-nee dai mai"
+        },
+        {
+          "th": "จะคืนเงินให้ แต่คุณต้องกดลิงก์/ยืนยันก่อน ระบบถึงจะโอนกลับ",
+          "en": "We can refund, but you must click the link/verify first.",
+          "karaoke": "ja khuen ngoen hai dtae khun dtong got ling / yuen-yan gorn ra-bop thueng ja ohn klap"
+        }
+      ]
+    },
+    {
+      "id": "lottery_prize_giveaway",
+      "name": "รางวัล/สุ่มแจก: ได้รางวัลใหญ่-เสียค่าธรรมเนียม/ภาษีก่อน",
+      "words": [
+        { "canonical": "ได้รางวัล", "variants": ["ถูกรางวัล", "ชนะรางวัล", "winner", "congratulations", "คุณคือผู้โชคดี"] },
+        { "canonical": "ค่าธรรมเนียมรับรางวัล", "variants": ["ค่าดำเนินการ", "ค่าจัดส่ง", "ภาษีรางวัล", "processing fee", "claim fee"] },
+        { "canonical": "ยืนยันสิทธิ์", "variants": ["claim", "ยืนยันรับของ", "verify winner"] }
+      ],
+      "sentences": [
+        {
+          "th": "ยินดีด้วย คุณถูกรางวัลใหญ่ ต้องยืนยันสิทธิ์ภายในวันนี้",
+          "en": "Congratulations! You won a big prize. Verify today.",
+          "karaoke": "yin-dee duay khun thuk raang-wan yai dtong yuen-yan sit phai-nai wan-nee"
+        },
+        {
+          "th": "ก่อนรับรางวัลต้องชำระค่าธรรมเนียม/ภาษีก่อนนะครับ/คะ",
+          "en": "Before claiming, you must pay the fee/tax first.",
+          "karaoke": "gorn rap raang-wan dtong cham-ra kha tham-niam / phaa-see gorn na khrap/ka"
+        }
+      ]
+    },
+    {
+      "id": "utility_cutoff_bill",
+      "name": "บิลค้างชำระ: ไฟ/น้ำ/เน็ต จะถูกตัด-ให้จ่ายด่วน-ส่งลิงก์",
+      "words": [
+        { "canonical": "ค้างชำระ", "variants": ["ค้างบิล", "ยังไม่ได้จ่าย", "past due", "overdue bill"] },
+        { "canonical": "ตัดบริการ", "variants": ["ตัดไฟ", "ตัดน้ำ", "ตัดเน็ต", "disconnect", "service cutoff"] },
+        { "canonical": "ชำระด่วน", "variants": ["จ่ายด่วน", "ภายใน 1 ชั่วโมง", "urgent payment", "pay immediately"] },
+        { "canonical": "ลิงก์ชำระ", "variants": ["payment link", "ส่งลิงก์จ่ายบิล", "QR จ่ายเงิน"] }
+      ],
+      "sentences": [
+        {
+          "th": "บิลของคุณค้างชำระ หากไม่ชำระภายใน {deadline} จะถูกตัดบริการทันที",
+          "en": "Your bill is overdue. Pay by {deadline} or service will be disconnected.",
+          "karaoke": "bin khun khang cham-ra thaa mai cham-ra phai-nai {deadline} ja thuk dtat bor-ri-gaan than-tee"
+        },
+        {
+          "th": "เดี๋ยวส่งลิงก์ให้ชำระผ่านระบบ จ่ายเสร็จเปิดให้ทันที",
+          "en": "I’ll send a payment link. Pay and it will be restored immediately.",
+          "karaoke": "diao song ling hai cham-ra phaan ra-bop jai set bperd hai than-tee"
+        }
+      ]
+    },
+    {
+      "id": "family_emergency_voice",
+      "name": "ญาติเดือดร้อน/อุบัติเหตุ/เสียงคล้ายคนรู้จัก: ขอเงินด่วน-ห้ามวางสาย",
+      "words": [
+        { "canonical": "อุบัติเหตุ", "variants": ["ชน", "รถชน", "เข้าโรงพยาบาล", "accident", "emergency"] },
+        { "canonical": "ด่วนมาก", "variants": ["รีบด่วน", "ตอนนี้เลย", "เดี๋ยวนี้", "urgent", "right now"] },
+        { "canonical": "ค่ารักษา/ค่าประกันตัว", "variants": ["ค่าห้องฉุกเฉิน", "ค่ามัดจำโรงพยาบาล", "bail", "medical bill"] },
+        { "canonical": "อย่าบอกใคร", "variants": ["อย่าโทรกลับ", "อย่าถามใคร", "ห้ามวางสาย", "keep on the line"] }
+      ],
+      "sentences": [
+        {
+          "th": "ช่วยด้วย ตอนนี้ฉัน/เขาเกิดอุบัติเหตุ ต้องโอนค่ามัดจำโรงพยาบาลด่วน",
+          "en": "Help! There’s an accident. We need a hospital deposit now.",
+          "karaoke": "chuai duay dtorn-nee geut u-bat-di-het dtong ohn kha mat-jam rong-pha-yaa-baan duan"
+        },
+        {
+          "th": "อย่าเพิ่งโทรกลับหรือบอกใคร โอนมาก่อน เดี๋ยวอธิบายทีหลัง",
+          "en": "Don’t call back or tell anyone. Transfer first; I’ll explain later.",
+          "karaoke": "yaa phoeng thoh klap rue bok khrai ohn maa gorn diao a-thi-bai tee-lang"
+        }
+      ]
+    }
+  ]
+}
