@@ -1,6 +1,10 @@
 package com.sentinel.ai.service
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.telephony.PhoneStateListener
@@ -10,6 +14,8 @@ import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.security.ScamKeywordMatcher
 import com.sentinel.ai.utils.CallTtsController
+import com.sentinel.ai.utils.MediaProjectionHolder
+import com.sentinel.ai.utils.MediaProjectionStore
 import com.sentinel.ai.utils.OverlayController
 import com.sentinel.ai.utils.PermissionUtils
 import com.sentinel.ai.utils.SpeechTestController
@@ -31,10 +37,36 @@ class CallModeMonitor(private val context: Context) {
 
     private var phoneStateListener: PhoneStateListener? = null
     private var micRunning = false
+    private var playbackCaptureRunning = false
+
+    // Receives ACTION_CALL_CAPTURE_FALLBACK_MIC when CallPlaybackCaptureService fails
+    // (e.g. AudioRecord build error or Whisper not configured) so we can fall back to mic.
+    private val fallbackReceiver = object : BroadcastReceiver() {
+        override fun onReceive(ctx: Context?, intent: Intent?) {
+            if (intent?.action == CallPlaybackCaptureService.ACTION_CALL_CAPTURE_FALLBACK_MIC) {
+                Log.w(TAG, "Playback capture failed — falling back to mic")
+                playbackCaptureRunning = false
+                runMicFallback()
+            }
+        }
+    }
+    private var fallbackReceiverRegistered = false
 
     @Suppress("DEPRECATION")
     fun start() {
         if (phoneStateListener != null) return
+
+        // Register fallback receiver so we can switch to mic if playback capture fails
+        if (!fallbackReceiverRegistered) {
+            val filter = IntentFilter(CallPlaybackCaptureService.ACTION_CALL_CAPTURE_FALLBACK_MIC)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(fallbackReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                context.registerReceiver(fallbackReceiver, filter)
+            }
+            fallbackReceiverRegistered = true
+        }
+
         if (!PermissionUtils.hasPhoneStatePermission(context)) {
             GuardianEventStore.addEvent(
                 GuardianEvent(
@@ -74,6 +106,10 @@ class CallModeMonitor(private val context: Context) {
         exitCallMode()
         phoneStateListener?.let { telephonyManager.listen(it, PhoneStateListener.LISTEN_NONE) }
         phoneStateListener = null
+        if (fallbackReceiverRegistered) {
+            try { context.unregisterReceiver(fallbackReceiver) } catch (_: Exception) {}
+            fallbackReceiverRegistered = false
+        }
     }
 
     private fun enterCallMode(number: String?) {
@@ -123,6 +159,22 @@ class CallModeMonitor(private val context: Context) {
                 )
             } catch (_: Exception) { }
 
+            // ---- Attempt playback capture (remote-party voice) ----
+            // Priority 1: use the MediaProjection object already held in memory (no popup).
+            // Priority 2: use the cached (resultCode, data) from MediaProjectionStore (Android 10-13
+            //             allows calling getMediaProjection() multiple times with the same result).
+            // Priority 3: mic fallback (captures owner voice only).
+            val hasHeld = MediaProjectionHolder.isReady()
+            val hasCached = MediaProjectionStore.get() != null
+
+            if (hasHeld || hasCached) {
+                Log.d(TAG, "Starting call playback capture (held=$hasHeld cached=$hasCached)")
+                playbackCaptureRunning = true
+                CallPlaybackCaptureService.startHeld(context)
+                // runMicFallback() will be triggered by fallbackReceiver if the service fails
+                return
+            }
+
             if (!PermissionUtils.hasMicPermission(context)) {
                 GuardianEventStore.addEvent(
                     GuardianEvent(
@@ -138,9 +190,8 @@ class CallModeMonitor(private val context: Context) {
                 return
             }
 
-            // เดิมทีตรงนี้จะลองใช้โหมด playback capture + MediaProjection (ขอแชร์หน้าจอ)
-            // ซึ่งทำให้ขึ้น popup ขอสิทธิ์แชร์จอทุกครั้งที่มีสายเข้า/ออก
-            // ตอนนี้ปิดไว้ชั่วคราว แล้วใช้เฉพาะโหมด mic + overlay แทน
+            // No MediaProjection grant yet — fall back to microphone
+            Log.d(TAG, "No MediaProjection grant — using mic fallback (owner voice only)")
             runMicFallback()
         } catch (e: Exception) {
             Log.e(TAG, "enterCallMode failed", e)
@@ -210,6 +261,11 @@ class CallModeMonitor(private val context: Context) {
     }
 
     private fun exitCallMode() {
+        // Stop playback capture service if it was running
+        if (playbackCaptureRunning) {
+            playbackCaptureRunning = false
+            try { CallPlaybackCaptureService.stop(context) } catch (_: Exception) {}
+        }
         if (!micRunning) {
             tts.stopKeepAliveLoop()
             overlay.dismiss()

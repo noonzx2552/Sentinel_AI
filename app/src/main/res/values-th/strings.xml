@@ -73,6 +73,10 @@
     <string name="permission_notification_body">ให้การป้องกันทำงานต่อเนื่องเบื้องหลัง</string>
     <string name="permission_calllog_sms_title">บันทึกการโทรและ SMS</string>
     <string name="permission_calllog_sms_body">อ่านการโทรและข้อความล่าสุดเพื่อหาสัญญาณมิจฉาชีพ</string>
+    <string name="permission_audio_capture_title">จับเสียงในสาย</string>
+    <string name="permission_audio_capture_body">ถอดความเสียงของผู้โทรแบบเรียลไทม์เพื่อตรวจจับคำพูดมิจฉาชีพ อนุญาตครั้งเดียว ไม่มี popup ทุกสาย</string>
+    <string name="permission_audio_capture_granted">เปิดใช้งานการจับเสียงในสายแล้ว</string>
+    <string name="permission_audio_capture_error">ไม่สามารถเปิดใช้การจับเสียงในสายได้ กรุณาลองใหม่</string>
     <string name="home_title">Sentinel AI</string>
     <string name="home_greeting">สวัสดี</string>
     <string name="home_status_title">คุณปลอดภัย</string>
@@ -451,4 +455,42 @@
     <string name="call_status_searching">กำลังค้นหา...</string>
     <string name="call_status_checking">กำลังตรวจสอบเบอร์...</string>
     <string name="call_status_lookup_failed">การค้นหาล้มเหลว</string>
+
+    <!-- Bypass / Limited Mode -->
+    <string name="setup_skip_for_now">ข้ามสำหรับตอนนี้</string>
+    <string name="setup_limited_mode_note">บางฟีเจอร์อาจจำกัดโดยไม่มีสิทธิ์ครบถ้วน</string>
+    <string name="home_limited_mode_active">โหมดจำกัด — บางฟีเจอร์ไม่พร้อมใช้งาน</string>
+    <string name="home_protection_limited">เปิดการป้องกัน (โหมดจำกัด)</string>
+    <string name="setup_continue_limited">ดำเนินการในโหมดจำกัด</string>
+    <string name="setup_permissions_partial">สิทธิ์บางส่วนยังไม่ได้รับอนุญาต โหมด Guardian อาจทำงานจำกัด</string>
+
+    <!-- Activity Log Stats -->
+    <string name="activitylog_stats_total">ทั้งหมด</string>
+    <string name="activitylog_stats_threats">ภัยคุกคาม</string>
+    <string name="activitylog_stats_safe">ปลอดภัย</string>
+    <string name="activitylog_stats_scans">การสแกน</string>
+    <string name="activitylog_clear_all">ล้างทั้งหมด</string>
+    <string name="activitylog_clear_confirm_title">ล้างกิจกรรม?</string>
+    <string name="activitylog_clear_confirm_msg">การดำเนินการนี้จะลบเหตุการณ์ที่บันทึกไว้ทั้งหมด ไม่สามารถเรียกคืนได้</string>
+    <string name="activitylog_clear_confirm_yes">ล้าง</string>
+    <string name="activitylog_clear_done">ล้างกิจกรรมแล้ว</string>
+
+    <!-- Share / Copy Results -->
+    <string name="share_result_link">แชร์ผลการตรวจสอบลิงก์</string>
+    <string name="share_result_number">แชร์ผลการตรวจสอบเบอร์</string>
+    <string name="copy_result">คัดลอกผลลัพธ์</string>
+    <string name="result_copied">คัดลอกผลลัพธ์แล้ว</string>
+    <string name="share_link_template">Sentinel AI — ผลการตรวจสอบลิงก์\nURL: %1$s\nสถานะ: %2$s\nคะแนนความปลอดภัย: %3$d/100</string>
+    <string name="share_number_template">Sentinel AI — ผลการตรวจสอบเบอร์\nเบอร์: %1$s\nสถานะ: %2$s\nคะแนนความปลอดภัย: %3$d/100</string>
+
+    <!-- Home Stats -->
+    <string name="home_stats_scans_today">สแกนวันนี้</string>
+    <string name="home_stats_threats_total">ภัยคุกคามที่พบ</string>
+    <string name="home_stats_protected_since">ป้องกันตั้งแต่</string>
+
+    <!-- General -->
+    <string name="action_share">แชร์</string>
+    <string name="action_copy">คัดลอก</string>
+    <string name="action_clear_all">ล้างทั้งหมด</string>
+    <string name="action_skip">ข้าม</string>
 </resources>

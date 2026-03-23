@@ -75,6 +75,10 @@
     <string name="permission_battery_body">Apps &gt; Sentinel AI &gt; Battery &gt; \"Unrestricted\"</string>
     <string name="permission_calllog_sms_title">Call Log &amp; SMS</string>
     <string name="permission_calllog_sms_body">Read recent calls and messages to detect scam signals.</string>
+    <string name="permission_audio_capture_title">Call Audio Capture</string>
+    <string name="permission_audio_capture_body">Transcribe the caller\'s voice in real-time to detect scam speech. Grant once — no popup per call.</string>
+    <string name="permission_audio_capture_granted">Call audio capture enabled.</string>
+    <string name="permission_audio_capture_error">Could not enable call audio capture. Try again.</string>
     <string name="home_title">Sentinel AI</string>
     <string name="home_greeting">Good Morning</string>
     <string name="home_status_title">You are Safe</string>
@@ -434,6 +438,76 @@
     <string name="link_deduction_https_placeholder">HTTPS placeholder response</string>
     <string name="link_deduction_tls_handshake_failed">TLS handshake failed</string>
     <string name="link_deduction_http_status">Unexpected HTTP status</string>
+    <string name="link_deduction_many_redirects">Too many redirects</string>
+    <string name="link_deduction_cross_domain_redirect">Cross-domain redirect</string>
+    <string name="link_deduction_url_shortener">URL shortener used</string>
+    <string name="link_deduction_ip_literal">IP address URL</string>
+    <string name="link_deduction_punycode_host">Punycode domain</string>
+    <string name="link_deduction_deep_subdomain">Deep subdomain chain</string>
+    <string name="link_deduction_very_long_url">Very long URL</string>
+    <string name="link_deduction_unusual_port">Unusual network port</string>
+    <string name="link_deduction_query_too_many_params">Too many query parameters</string>
+    <string name="link_deduction_sensitive_query_params">Sensitive query parameters</string>
+    <string name="link_deduction_suspicious_path">Suspicious path keywords</string>
+    <string name="link_deduction_missing_security_headers">Missing security headers</string>
+    <string name="link_deduction_suspicious_content_type">Suspicious content type</string>
+
+    <!-- Bypass / Limited Mode -->
+    <string name="setup_skip_for_now">Skip for now</string>
+    <string name="setup_limited_mode_note">Some features may be limited without all permissions.</string>
+    <string name="home_limited_mode_active">Limited Mode — some features disabled</string>
+    <string name="home_protection_limited">Protection active (Limited)</string>
+    <string name="setup_continue_limited">Continue in Limited Mode</string>
+    <string name="setup_permissions_partial">Some permissions are missing. Guardian Mode may be limited.</string>
+
+    <!-- Activity Log Stats -->
+    <string name="activitylog_stats_total">Total</string>
+    <string name="activitylog_stats_threats">Threats</string>
+    <string name="activitylog_stats_safe">Safe</string>
+    <string name="activitylog_stats_scans">Scans</string>
+    <string name="activitylog_clear_all">Clear All</string>
+    <string name="activitylog_clear_confirm_title">Clear activity?</string>
+    <string name="activitylog_clear_confirm_msg">This will delete all recorded events. This action cannot be undone.</string>
+    <string name="activitylog_clear_confirm_yes">Clear</string>
+    <string name="activitylog_clear_done">Activity cleared.</string>
+
+    <!-- Share / Copy Results -->
+    <string name="share_result_link">Share Link Result</string>
+    <string name="share_result_number">Share Number Result</string>
+    <string name="copy_result">Copy Result</string>
+    <string name="result_copied">Result copied to clipboard.</string>
+    <string name="share_link_template">Sentinel AI — Link Check Result\nURL: %1$s\nStatus: %2$s\nSafety Score: %3$d/100</string>
+    <string name="share_number_template">Sentinel AI — Number Check Result\nNumber: %1$s\nStatus: %2$s\nSafety Score: %3$d/100</string>
+
+    <!-- Home Stats -->
+    <string name="home_stats_scans_today">Scans today</string>
+    <string name="home_stats_threats_total">Threats found</string>
+    <string name="home_stats_protected_since">Protected since</string>
+
+    <!-- General -->
+    <string name="action_share">Share</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_clear_all">Clear All</string>
+    <string name="action_skip">Skip</string>
+    <string name="link_deduction_phishing_content">Phishing-like page content</string>
+    <string name="link_deduction_weak_tls">Weak TLS version</string>
+    <string name="link_deduction_https_downgrade">HTTPS downgrade redirect</string>
+    <string name="link_note_many_redirects">URL has multiple redirect hops</string>
+    <string name="link_note_cross_domain_redirect_format">Redirected to a different host: %1$s</string>
+    <string name="link_note_url_shortener">Shortened URL can hide final destination</string>
+    <string name="link_note_ip_literal">Using IP directly instead of trusted domain</string>
+    <string name="link_note_punycode_host">Domain contains punycode characters</string>
+    <string name="link_note_deep_subdomain">Unusually deep subdomain structure</string>
+    <string name="link_note_very_long_url">URL is unusually long</string>
+    <string name="link_note_unusual_port_format">URL uses uncommon port: %1$d</string>
+    <string name="link_note_query_too_many_params">URL has many query parameters</string>
+    <string name="link_note_sensitive_query_params">URL query includes redirect/login/token style parameters</string>
+    <string name="link_note_suspicious_path">Path contains account/login/payment style keywords</string>
+    <string name="link_note_missing_security_headers_format">Missing headers: %1$s</string>
+    <string name="link_note_suspicious_content_type_format">Suspicious content type: %1$s</string>
+    <string name="link_note_phishing_content">Page text contains phishing-style urgency or credential prompts</string>
+    <string name="link_note_weak_tls">TLS version is outdated and less secure</string>
+    <string name="link_note_https_downgrade">HTTPS request was downgraded to HTTP</string>
     <string name="qr_camera_permission_required">Camera permission is required for QR scanning</string>
     <string name="qr_camera_start_failed_format">Failed to start camera: %1$s</string>
     <string name="model_initializer_ready">AI models ready</string>

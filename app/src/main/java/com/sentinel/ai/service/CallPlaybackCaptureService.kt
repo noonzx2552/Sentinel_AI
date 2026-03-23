@@ -24,6 +24,8 @@ import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.security.ScamKeywordMatcher
+import com.sentinel.ai.utils.MediaProjectionHolder
+import com.sentinel.ai.utils.MediaProjectionStore
 import com.sentinel.ai.utils.OverlayController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +51,9 @@ class CallPlaybackCaptureService : Service() {
     private var audioRecord: AudioRecord? = null
     private var captureJob: Job? = null
     @Volatile private var isStopping = false
+    // When true, the MediaProjection came from MediaProjectionHolder and must NOT be stopped
+    // between calls so it can be reused on Android 14+ (single-use token).
+    private var usingHeldProjection = false
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var vad: SileroVad? = null
 
@@ -70,6 +75,25 @@ class CallPlaybackCaptureService : Service() {
         }
 
         return when (intent.action) {
+            ACTION_START_HELD -> {
+                // Use the MediaProjection object already stored in MediaProjectionHolder.
+                // No user prompt needed — this is the normal path after setup.
+                val held = MediaProjectionHolder.get()
+                if (held != null) {
+                    startCaptureWithProjection(held, fromHolder = true)
+                } else {
+                    // Holder is empty (process was killed). Try cached (resultCode, data) or fallback.
+                    val cached = MediaProjectionStore.get()
+                    if (cached != null) {
+                        startCapture(cached.first, cached.second)
+                    } else {
+                        Log.w(TAG, "No stored projection available")
+                        broadcastFallback()
+                        stopSelf()
+                    }
+                }
+                START_NOT_STICKY
+            }
             ACTION_START -> {
                 val resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_CANCELED)
                 val data: Intent? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -96,13 +120,23 @@ class CallPlaybackCaptureService : Service() {
     }
 
     private fun startCapture(resultCode: Int, projectionData: Intent) {
-        if (captureJob?.isActive == true) return
-        if (!WhisperCppSttClient.isConfigured()) {
-            Log.w(TAG, "Whisper.cpp not configured")
+        // Create MediaProjection from (resultCode, data). Also cache the object in
+        // MediaProjectionHolder so Android 14+ single-use tokens are not wasted on
+        // the next call.
+        val mp = try {
+            mediaProjectionManager.getMediaProjection(resultCode, projectionData)
+        } catch (e: Exception) {
+            Log.e(TAG, "getMediaProjection failed: ${e.message}", e)
             broadcastFallback()
             stopSelf()
             return
         }
+        MediaProjectionHolder.store(mp)   // cache for reuse
+        startCaptureWithProjection(mp, fromHolder = false)
+    }
+
+    private fun startCaptureWithProjection(mp: MediaProjection, fromHolder: Boolean) {
+        if (captureJob?.isActive == true) return
 
         vad = try { SileroVad(this) } catch (e: Exception) {
             Log.w(TAG, "Silero VAD init failed: ${e.message}", e)
@@ -110,10 +144,13 @@ class CallPlaybackCaptureService : Service() {
         }
         vad?.reset()
 
-        mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, projectionData).also { mp ->
-            mp.registerCallback(object : MediaProjection.Callback() {
+        usingHeldProjection = fromHolder
+        mediaProjection = mp.also {
+            it.registerCallback(object : MediaProjection.Callback() {
                 override fun onStop() {
                     Log.w(TAG, "MediaProjection stopped by system")
+                    // If the system stops the projection, clear the holder too
+                    if (usingHeldProjection) MediaProjectionHolder.release()
                     stopCapture()
                 }
             }, null)
@@ -225,8 +262,14 @@ class CallPlaybackCaptureService : Service() {
         try { audioRecord?.stop() } catch (_: Exception) { }
         try { audioRecord?.release() } catch (_: Exception) { }
         audioRecord = null
-        try { mediaProjection?.stop() } catch (_: Exception) { }
+        // Keep the MediaProjection alive when it came from MediaProjectionHolder so
+        // it can be reused for the next call without a new user prompt (critical on Android 14+
+        // where the createScreenCaptureIntent grant is single-use).
+        if (!usingHeldProjection) {
+            try { mediaProjection?.stop() } catch (_: Exception) { }
+        }
         mediaProjection = null
+        usingHeldProjection = false
         try { vad?.close() } catch (_: Exception) { }
         vad = null
         overlay.dismiss()
@@ -278,6 +321,8 @@ class CallPlaybackCaptureService : Service() {
         private val STEP_BYTES = SAMPLE_RATE * 2 * (CHUNK_SEC - OVERLAP_SEC)  // 2s, 1s overlap
 
         const val ACTION_START = "com.sentinel.ai.service.action.START_CALL_PLAYBACK_CAPTURE"
+        /** Start using the MediaProjection already stored in MediaProjectionHolder — no user prompt. */
+        const val ACTION_START_HELD = "com.sentinel.ai.service.action.START_CALL_PLAYBACK_CAPTURE_HELD"
         const val ACTION_STOP = "com.sentinel.ai.service.action.STOP_CALL_PLAYBACK_CAPTURE"
         const val EXTRA_RESULT_CODE = "extra_result_code"
         const val EXTRA_PROJECTION_DATA = "extra_projection_data"
@@ -288,6 +333,25 @@ class CallPlaybackCaptureService : Service() {
         @Volatile
         var isServiceRunning = false
             private set
+
+        /**
+         * Start capture using the MediaProjection already stored in [MediaProjectionHolder].
+         * This is the preferred path — no user prompt is shown.
+         */
+        fun startHeld(context: Context) {
+            val i = Intent(context, CallPlaybackCaptureService::class.java).apply {
+                action = ACTION_START_HELD
+            }
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(i)
+                } else {
+                    context.startService(i)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start (held): ${e.message}", e)
+            }
+        }
 
         fun start(context: Context, resultCode: Int, projectionData: Intent) {
             val i = Intent(context, CallPlaybackCaptureService::class.java).apply {

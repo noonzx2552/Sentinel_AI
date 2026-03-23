@@ -3,7 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/splash_bg">
+    android:background="@drawable/onboarding_bg_atmosphere">
+
+    <View
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_marginStart="-88dp"
+        android:layout_marginTop="-92dp"
+        android:background="@drawable/home_ambient_orb_teal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="190dp"
+        android:layout_height="190dp"
+        android:layout_marginTop="102dp"
+        android:layout_marginEnd="-72dp"
+        android:background="@drawable/home_ambient_orb_orange"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:id="@+id/setupScroll"
@@ -429,6 +447,64 @@
                         app:thumbTint="@color/permission_switch_thumb" />
                 </LinearLayout>
 
+                <!-- Call Audio Capture card — requests MediaProjection ONCE so the app can
+                     listen to the remote party's voice (VoIP calls) without a popup per call -->
+                <LinearLayout
+                    android:id="@+id/cardAudioCapture"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_mic" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_audio_capture_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/permission_audio_capture_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="3dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/btnAudioCapture"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text=""
+                        app:trackTint="@color/permission_switch_track"
+                        app:thumbTint="@color/permission_switch_thumb" />
+                </LinearLayout>
+
                 <LinearLayout
                     android:id="@+id/cardBattery"
                     android:layout_width="match_parent"
@@ -514,5 +590,22 @@
             android:backgroundTint="@color/splash_logo_bg"
             android:elevation="8dp"
             app:cornerRadius="26dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSkip"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/setup_skip_for_now"
+            android:textAllCaps="false"
+            android:textColor="@color/home_muted"
+            android:textSize="15sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@android:color/transparent"
+            app:strokeColor="@color/home_muted"
+            app:strokeWidth="1dp"
+            app:cornerRadius="26dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
