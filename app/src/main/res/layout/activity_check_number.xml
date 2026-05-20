@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_bg"
+    android:background="@drawable/subpage_bg_atmosphere"
     android:clipChildren="false"
     android:clipToPadding="false">
 
@@ -13,6 +13,24 @@
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false">
+
+        <View
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginStart="-76dp"
+            android:layout_marginTop="-82dp"
+            android:background="@drawable/home_ambient_orb_teal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            android:layout_marginTop="88dp"
+            android:layout_marginEnd="-64dp"
+            android:background="@drawable/home_ambient_orb_orange"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ScrollView
             android:id="@+id/checkNumberScroll"
@@ -99,8 +117,8 @@
                 android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="22dp"
-                app:cardElevation="2dp"
-                app:cardUseCompatPadding="true"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="false"
                 app:strokeColor="@color/home_card_border"
                 app:strokeWidth="1dp">
 
@@ -211,8 +229,8 @@
                 android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                app:cardUseCompatPadding="true"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="false"
                 app:strokeColor="@color/home_card_border"
                 app:strokeWidth="1dp">
 
@@ -515,6 +533,54 @@
                 android:fontFamily="monospace"
                 android:visibility="gone" />
 
+            <!-- Share / Copy row -->
+            <LinearLayout
+                android:id="@+id/numberResultActions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCopyNumberResult"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="@string/action_copy"
+                    android:textAllCaps="false"
+                    android:textColor="@color/splash_title"
+                    android:textSize="15sp"
+                    app:cornerRadius="18dp"
+                    app:icon="@drawable/ic_copy"
+                    app:iconGravity="textStart"
+                    app:strokeColor="@color/home_card_border" />
+
+                <Space android:layout_width="10dp" android:layout_height="wrap_content" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnShareNumberResult"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/splash_logo_bg"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="@string/action_share"
+                    android:textAllCaps="false"
+                    android:textColor="@color/splash_logo_icon"
+                    android:textSize="15sp"
+                    app:cornerRadius="18dp"
+                    app:icon="@drawable/ic_share"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/splash_logo_icon" />
+
+            </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -547,7 +613,7 @@
         <com.sentinel.ai.ui.navigation.BottomNavView
             android:id="@+id/bottomNavView"
             android:layout_width="0dp"
-            android:layout_height="72dp"
+            android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -555,3 +621,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
+
+
+
+

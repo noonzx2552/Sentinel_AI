@@ -734,7 +734,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="BlacklistSeller (Debug)"
+                    android:text="Number Search API (Debug)"
                     android:textColor="@android:color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -743,7 +743,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Test report search and show request, cookies, and raw output."
+                    android:text="Test the full logs endpoint and show request plus raw output."
                     android:textColor="#7C8EA2"
                     android:textSize="12sp" />
 
@@ -764,7 +764,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="BLS user (blank = default)"
+                    android:hint="Unused"
                     android:background="@drawable/bg_input_dark"
                     android:padding="10dp"
                     android:textColor="@android:color/white"
@@ -776,7 +776,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="BLS pass (blank = default)"
+                    android:hint="Unused"
                     android:background="@drawable/bg_input_dark"
                     android:padding="10dp"
                     android:textColor="@android:color/white"
@@ -788,7 +788,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="CapSolver key (blank = default)"
+                    android:hint="Bearer token (blank = default)"
                     android:background="@drawable/bg_input_dark"
                     android:padding="10dp"
                     android:textColor="@android:color/white"
@@ -800,7 +800,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Run BLS test"
+                    android:text="Full Logs Endpoint"
                     android:textAllCaps="false"
                     android:textSize="12sp"
                     android:backgroundTint="#2563EB" />

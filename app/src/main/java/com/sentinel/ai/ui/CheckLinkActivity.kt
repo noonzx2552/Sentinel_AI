@@ -3,7 +3,9 @@ package com.sentinel.ai.ui
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -19,7 +21,6 @@ import com.sentinel.ai.security.LinkChecker
 import com.sentinel.ai.security.SafetyLevel
 import com.sentinel.ai.ui.navigation.BottomTab
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -27,7 +28,8 @@ import java.util.Locale
 
 class CheckLinkActivity : BaseActivity() {
 
-    private val checker by lazy { LinkChecker(this, OkHttpClient()) }
+    private val checker by lazy { LinkChecker(this) }
+    private var lastResult: LinkCheckResult? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +45,16 @@ class CheckLinkActivity : BaseActivity() {
         val sslBody = findViewById<TextView>(R.id.txtSslBody)
         val historyBody = findViewById<TextView>(R.id.txtHistoryBody)
         val deductionsView = findViewById<TextView>(R.id.txtDeductions)
+        val resultActionsRow = findViewById<View>(R.id.linkResultActions)
+        val copyBtn = findViewById<MaterialButton>(R.id.btnCopyResult)
+        val shareBtn = findViewById<MaterialButton>(R.id.btnShareResult)
+
+        // If launched with a pre-filled URL, populate (auto-scan happens after all listeners bound)
+        val prefilledUrl = intent?.getStringExtra(EXTRA_URL)
+        if (!prefilledUrl.isNullOrBlank()) {
+            input.setText(prefilledUrl)
+            input.setSelection(prefilledUrl.length)
+        }
 
         paste.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -63,7 +75,9 @@ class CheckLinkActivity : BaseActivity() {
                 scanBtn.text = getString(R.string.checklink_scanning)
                 runCatching { checker.check(url) }
                     .onSuccess { result ->
+                        lastResult = result
                         updateUi(result, statusTitle, scoreView, domainBody, sslBody, historyBody, deductionsView)
+                        resultActionsRow?.visibility = View.VISIBLE
                         SentinelApp.instance.database.eventDao().insert(
                             GuardianEvent(
                                 source = getString(R.string.scan_event_source_web),
@@ -83,6 +97,40 @@ class CheckLinkActivity : BaseActivity() {
                 scanBtn.isEnabled = true
                 scanBtn.text = getString(R.string.checklink_scan)
             }
+        }
+
+        // Auto-trigger scan after all listeners are bound
+        if (!prefilledUrl.isNullOrBlank()) {
+            scanBtn.post { scanBtn.performClick() }
+        }
+
+        copyBtn?.setOnClickListener {
+            val result = lastResult ?: return@setOnClickListener
+            val statusText = when (result.status) {
+                SafetyLevel.SAFE -> getString(R.string.checklink_safe_title)
+                SafetyLevel.CAUTION -> getString(R.string.checklink_caution_title)
+                SafetyLevel.DANGER -> getString(R.string.checklink_danger_title)
+                SafetyLevel.UNKNOWN -> getString(R.string.checklink_unknown_title)
+            }
+            val text = getString(R.string.share_link_template, result.domain, statusText, result.score)
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("Sentinel Link Result", text))
+            showBottomPopup(getString(R.string.result_copied))
+        }
+
+        shareBtn?.setOnClickListener {
+            val result = lastResult ?: return@setOnClickListener
+            val statusText = when (result.status) {
+                SafetyLevel.SAFE -> getString(R.string.checklink_safe_title)
+                SafetyLevel.CAUTION -> getString(R.string.checklink_caution_title)
+                SafetyLevel.DANGER -> getString(R.string.checklink_danger_title)
+                SafetyLevel.UNKNOWN -> getString(R.string.checklink_unknown_title)
+            }
+            val text = getString(R.string.share_link_template, result.domain, statusText, result.score)
+            startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+            }, getString(R.string.share_result_link)))
         }
     }
 
@@ -143,6 +191,10 @@ class CheckLinkActivity : BaseActivity() {
         SafetyLevel.CAUTION -> RiskLevel.WARNING
         SafetyLevel.DANGER -> RiskLevel.CRITICAL
         SafetyLevel.UNKNOWN -> RiskLevel.SAFE
+    }
+
+    companion object {
+        const val EXTRA_URL = "extra_url"
     }
 
     private fun formatRegistrationDate(raw: String): String {

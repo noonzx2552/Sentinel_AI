@@ -8,20 +8,22 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
-import android.view.View
 import android.view.LayoutInflater
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import androidx.core.view.isVisible
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.sentinel.ai.R
 import com.sentinel.ai.SentinelApp
 import com.sentinel.ai.model.GuardianEvent
@@ -33,16 +35,16 @@ import com.sentinel.ai.ui.navigation.NavStateStore
 import com.sentinel.ai.utils.EventLocalization
 import com.sentinel.ai.utils.PermissionUtils
 import com.sentinel.ai.utils.ProfilePrefs
-import kotlinx.coroutines.launch
-import java.util.Locale
-import com.google.android.material.switchmaterial.SwitchMaterial
-import android.text.format.DateUtils
 import com.sentinel.ai.utils.ProtectionMode
 import com.sentinel.ai.utils.ProtectionPrefs
+import kotlinx.coroutines.launch
+import java.util.Locale
+import android.text.format.DateUtils
 
 class HomeActivity : BaseActivity() {
     private var currentStatus: RiskLevel = RiskLevel.SAFE
     private var latestThreat: GuardianEvent? = null
+    private var lastThreatVisible: Boolean? = null
 
     private lateinit var threatPanel: View
     private lateinit var safePanel: View
@@ -52,6 +54,8 @@ class HomeActivity : BaseActivity() {
     private lateinit var threatSeverityDot: View
     private lateinit var threatSourceValue: TextView
     private var protectionToggle: SwitchMaterial? = null
+    private var protectionShieldBadge: FrameLayout? = null
+    private var protectionShieldIcon: ImageView? = null
     private lateinit var recentList: LinearLayout
     private lateinit var recentEmpty: TextView
     private lateinit var modeMonitor: View
@@ -60,6 +64,9 @@ class HomeActivity : BaseActivity() {
     private lateinit var modeMonitorRadio: View
     private lateinit var modeWarningRadio: View
     private lateinit var modeAutoRadio: View
+    private var limitedBanner: View? = null
+    private var homeStatScansToday: TextView? = null
+    private var homeStatThreatsTotal: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +80,8 @@ class HomeActivity : BaseActivity() {
         threatSeverityDot = findViewById(R.id.homeThreatSeverityDot)
         threatSourceValue = findViewById(R.id.homeThreatSourceValue)
         protectionToggle = findViewById(R.id.homeProtectionToggle)
+        protectionShieldBadge = findViewById(R.id.homeProtectionShieldBadge)
+        protectionShieldIcon = findViewById(R.id.homeProtectionShieldIcon)
         recentList = findViewById(R.id.homeRecentList)
         recentEmpty = findViewById(R.id.homeRecentEmpty)
         modeMonitor = findViewById(R.id.homeModeMonitor)
@@ -81,6 +90,9 @@ class HomeActivity : BaseActivity() {
         modeMonitorRadio = findViewById(R.id.homeModeMonitorRadio)
         modeWarningRadio = findViewById(R.id.homeModeWarningRadio)
         modeAutoRadio = findViewById(R.id.homeModeAutoRadio)
+        limitedBanner = findViewById(R.id.homeLimitedBanner)
+        homeStatScansToday = findViewById(R.id.homeStatScansToday)
+        homeStatThreatsTotal = findViewById(R.id.homeStatThreatsTotal)
 
         findViewById<View>(R.id.quickCheckLink).setOnClickListener {
             goTo(Intent(this, CheckLinkActivity::class.java))
@@ -114,24 +126,37 @@ class HomeActivity : BaseActivity() {
 
         protectionToggle?.apply {
             isChecked = ProtectionPrefs.isEnabled(this@HomeActivity)
+            updateProtectionIndicator(isChecked)
             setOnCheckedChangeListener { _, checked ->
                 if (checked) {
-                    if (!PermissionUtils.allEssentialGranted(this@HomeActivity)) {
-                        isChecked = false
-                        Toast.makeText(
-                            this@HomeActivity,
-                            getString(R.string.setup_permissions_required),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        goTo(Intent(this@HomeActivity, SetupActivity::class.java))
-                        return@setOnCheckedChangeListener
+                    val allGranted = PermissionUtils.allEssentialGranted(this@HomeActivity)
+                    val minimalGranted = PermissionUtils.hasMinimalGranted(this@HomeActivity)
+                    when {
+                        allGranted -> {
+                            ProtectionPrefs.setEnabled(this@HomeActivity, true)
+                            SentinelGuardianService.start(this@HomeActivity)
+                        }
+                        minimalGranted -> {
+                            // Bypass: limited mode — allow toggle but show warning
+                            ProtectionPrefs.setEnabled(this@HomeActivity, true)
+                            showBottomPopup(getString(R.string.home_protection_limited), isLong = true, severity = PopupSeverity.WARNING)
+                        }
+                        else -> {
+                            isChecked = false
+                            Toast.makeText(
+                                this@HomeActivity,
+                                getString(R.string.setup_permissions_required),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            goTo(Intent(this@HomeActivity, SetupActivity::class.java))
+                            return@setOnCheckedChangeListener
+                        }
                     }
-                    ProtectionPrefs.setEnabled(this@HomeActivity, true)
-                    SentinelGuardianService.start(this@HomeActivity)
                 } else {
                     ProtectionPrefs.setEnabled(this@HomeActivity, false)
                     SentinelGuardianService.stop(this@HomeActivity)
                 }
+                updateProtectionIndicator(isChecked)
             }
         }
 
@@ -139,12 +164,28 @@ class HomeActivity : BaseActivity() {
         modeWarning.setOnClickListener { setProtectionMode(ProtectionMode.WARNING) }
         modeAuto.setOnClickListener { setProtectionMode(ProtectionMode.AUTO) }
         applyProtectionMode(ProtectionPrefs.getMode(this))
+        bindPressAnimation(
+            findViewById(R.id.quickCheckLink),
+            findViewById(R.id.quickCheckNumber),
+            findViewById(R.id.quickCallLog),
+            modeMonitor,
+            modeWarning,
+            modeAuto,
+            findViewById(R.id.homeRecentSeeAll)
+        )
+        findViewById<View>(R.id.homeScroll).post { animateEntrance() }
+
+        // Limited mode banner → tap to fix permissions
+        limitedBanner?.setOnClickListener {
+            goTo(Intent(this, SetupActivity::class.java))
+        }
 
         val eventDao = SentinelApp.instance.database.eventDao()
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 eventDao.getAllEvents().collect { events ->
                     renderRecent(events)
+                    updateHomeStats(events)
                 }
             }
         }
@@ -155,7 +196,23 @@ class HomeActivity : BaseActivity() {
         val name = ProfilePrefs.getName(this)
         findViewById<TextView>(R.id.homeGreeting)?.text = getString(R.string.home_greeting_format, name)
         protectionToggle?.isChecked = ProtectionPrefs.isEnabled(this)
+        updateProtectionIndicator(protectionToggle?.isChecked == true)
         applyProtectionMode(ProtectionPrefs.getMode(this))
+        updateLimitedModeBanner()
+    }
+
+    private fun updateLimitedModeBanner() {
+        val allGranted = PermissionUtils.allEssentialGranted(this)
+        limitedBanner?.visibility = if (!allGranted) View.VISIBLE else View.GONE
+    }
+
+    private fun updateHomeStats(events: List<GuardianEvent>) {
+        val today = System.currentTimeMillis()
+        val oneDayMs = 24 * 60 * 60 * 1000L
+        val todayScans = events.count { today - it.timestamp < oneDayMs }
+        val totalThreats = events.count { it.riskLevel == RiskLevel.CRITICAL }
+        homeStatScansToday?.text = todayScans.toString()
+        homeStatThreatsTotal?.text = totalThreats.toString()
     }
 
     override fun getCurrentTab(): BottomTab = BottomTab.HOME
@@ -168,9 +225,17 @@ class HomeActivity : BaseActivity() {
 
     private fun renderThreatState() {
         val isThreat = currentStatus == RiskLevel.CRITICAL
-        threatPanel.visibility = if (isThreat) View.VISIBLE else View.GONE
-        safePanel.visibility = if (isThreat) View.GONE else View.VISIBLE
+        if (lastThreatVisible == null) {
+            threatPanel.visibility = if (isThreat) View.VISIBLE else View.GONE
+            safePanel.visibility = if (isThreat) View.GONE else View.VISIBLE
+        } else if (lastThreatVisible != isThreat) {
+            crossfadePanels(show = if (isThreat) threatPanel else safePanel, hide = if (isThreat) safePanel else threatPanel)
+        } else {
+            threatPanel.visibility = if (isThreat) View.VISIBLE else View.GONE
+            safePanel.visibility = if (isThreat) View.GONE else View.VISIBLE
+        }
         NavStateStore.setDanger(isThreat)
+        lastThreatVisible = isThreat
 
         if (!isThreat) return
 
@@ -277,6 +342,81 @@ class HomeActivity : BaseActivity() {
         }
         dialog.setContentView(view)
         dialog.show()
+    }
+
+    private fun updateProtectionIndicator(enabled: Boolean) {
+        protectionShieldBadge?.setBackgroundResource(
+            if (enabled) R.drawable.home_badge_green_bg else R.drawable.home_badge_gray_bg
+        )
+        val tint = ContextCompat.getColor(
+            this,
+            if (enabled) R.color.bottom_nav_active_green else R.color.home_muted
+        )
+        protectionShieldIcon?.imageTintList = ColorStateList.valueOf(tint)
+    }
+
+    private fun animateEntrance() {
+        val sections = listOfNotNull(
+            findViewById<View>(R.id.homeHeroCard),
+            findViewById<View>(R.id.homeSafePanel),
+            findViewById<View>(R.id.homeThreatPanel),
+            findViewById<View>(R.id.homeQuickSection),
+            findViewById<View>(R.id.homeRecentSection),
+            findViewById<View>(R.id.homeModeSection)
+        )
+        sections.forEachIndexed { index, view ->
+            if (view.visibility != View.VISIBLE) return@forEachIndexed
+            view.alpha = 0f
+            view.translationY = 22f
+            view.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setInterpolator(AccelerateDecelerateInterpolator())
+                .setStartDelay((index * 55L).coerceAtMost(180L))
+                .setDuration(320L)
+                .start()
+        }
+    }
+
+    private fun crossfadePanels(show: View, hide: View) {
+        hide.animate().cancel()
+        show.animate().cancel()
+        hide.animate()
+            .alpha(0f)
+            .translationY(-8f)
+            .setDuration(160L)
+            .withEndAction {
+                hide.visibility = View.GONE
+                hide.alpha = 1f
+                hide.translationY = 0f
+            }
+            .start()
+        show.alpha = 0f
+        show.translationY = 16f
+        show.visibility = View.VISIBLE
+        show.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(240L)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
+    }
+
+    private fun bindPressAnimation(vararg views: View) {
+        views.forEach { view ->
+            view.setOnTouchListener { target, event ->
+                when (event.actionMasked) {
+                    android.view.MotionEvent.ACTION_DOWN -> {
+                        target.animate().scaleX(0.98f).scaleY(0.98f).setDuration(90L).start()
+                    }
+                    android.view.MotionEvent.ACTION_CANCEL,
+                    android.view.MotionEvent.ACTION_UP -> {
+                        target.animate().scaleX(1f).scaleY(1f).setDuration(110L).start()
+                    }
+                }
+                false
+            }
+        }
     }
 
     private fun renderRecent(events: List<GuardianEvent>) {

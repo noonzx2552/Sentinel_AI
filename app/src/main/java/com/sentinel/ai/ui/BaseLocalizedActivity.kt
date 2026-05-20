@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AppCompatActivity
 import com.sentinel.ai.utils.LanguageManager
@@ -42,6 +45,11 @@ open class BaseLocalizedActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPostCreate(savedInstanceState: android.os.Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        animateRootContentIn()
+    }
+
     override fun onResume() {
         super.onResume()
         if (!shouldApplyAppLanguage()) return
@@ -62,6 +70,23 @@ open class BaseLocalizedActivity : AppCompatActivity() {
             }
         }
         super.onStop()
+    }
+
+    protected open fun shouldAnimateRootOnEnter(): Boolean = true
+
+    private fun animateRootContentIn() {
+        if (!shouldAnimateRootOnEnter()) return
+        val content = findViewById<ViewGroup>(android.R.id.content) ?: return
+        val root = content.getChildAt(0) ?: return
+        if (root.alpha < 1f) return
+        root.alpha = 0f
+        root.translationY = 14f
+        root.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(240L)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
     }
 
     protected open fun shouldApplyAppLanguage(): Boolean = true

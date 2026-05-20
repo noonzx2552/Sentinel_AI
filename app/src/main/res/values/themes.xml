@@ -3,7 +3,7 @@
     <style name="Theme.SentinelAI" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/sentinel_primary</item>
         <item name="colorSecondary">@color/sentinel_accent</item>
-        <item name="android:statusBarColor">@color/profile_bg</item>
+        <item name="android:statusBarColor">@color/splash_bg</item>
         <item name="android:navigationBarColor">@color/bottom_nav_bg</item>
         <item name="android:windowAnimationStyle">@style/AnimationSentinel</item>
     </style>
@@ -21,7 +21,7 @@
     <style name="Theme.SentinelAI.Intro" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/splash_bg</item>
         <item name="android:statusBarColor">@color/splash_bg</item>
-        <item name="android:navigationBarColor">@color/splash_bg</item>
+        <item name="android:navigationBarColor">@color/bottom_nav_bg</item>
         <item name="android:windowAnimationStyle">@style/AnimationSentinel</item>
     </style>
 
@@ -46,6 +46,5 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <!-- Fallback widget namespace to satisfy style lookups -->
     <style name="Widget.Sentinel" parent="android:Widget" />
 </resources>

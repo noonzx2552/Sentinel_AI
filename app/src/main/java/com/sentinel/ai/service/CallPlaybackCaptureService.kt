@@ -16,10 +16,11 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.sentinel.ai.BuildConfig
 import com.sentinel.ai.R
+import com.sentinel.ai.ai.AudioPipelineConfig
 import com.sentinel.ai.ai.SileroVad
-import com.sentinel.ai.ai.WhisperCppSttClient
-import com.sentinel.ai.ai.RawSttClient
+import com.sentinel.ai.ai.SttEngineSelector
 import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.GuardianEventStore
 import com.sentinel.ai.model.RiskLevel
@@ -39,7 +40,7 @@ import java.nio.ByteOrder
 
 /**
  * During a call (incoming or outgoing): captures playback audio via MediaProjection,
- * buffers 3s chunks with 1s overlap, sends to WhisperCppSttClient (https://voice.smarthomeus3r.space/stt)
+ * buffers configurable chunks, gates them with Silero VAD, sends them through SttEngineSelector,
  * — same API as debug mode. Real-time STT: overlay + GuardianEventStore.
  */
 class CallPlaybackCaptureService : Service() {
@@ -56,11 +57,14 @@ class CallPlaybackCaptureService : Service() {
     private var usingHeldProjection = false
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var vad: SileroVad? = null
+    private val audioConfig = AudioPipelineConfig()
+    private lateinit var sttSelector: SttEngineSelector
 
     override fun onCreate() {
         super.onCreate()
         mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         overlay = OverlayController(this)
+        sttSelector = SttEngineSelector(this)
         createNotificationChannel()
     }
 
@@ -128,6 +132,7 @@ class CallPlaybackCaptureService : Service() {
         } catch (e: Exception) {
             Log.e(TAG, "getMediaProjection failed: ${e.message}", e)
             broadcastFallback()
+            CallProtectionOrchestrator.active(this).onPlaybackFailed("MediaProjection is unavailable")
             stopSelf()
             return
         }
@@ -135,6 +140,7 @@ class CallPlaybackCaptureService : Service() {
         startCaptureWithProjection(mp, fromHolder = false)
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
     private fun startCaptureWithProjection(mp: MediaProjection, fromHolder: Boolean) {
         if (captureJob?.isActive == true) return
 
@@ -165,12 +171,12 @@ class CallPlaybackCaptureService : Service() {
 
         val audioFormat = AudioFormat.Builder()
             .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-            .setSampleRate(SAMPLE_RATE)
+            .setSampleRate(audioConfig.sampleRate)
             .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
             .build()
 
         val bufferSize = AudioRecord.getMinBufferSize(
-            SAMPLE_RATE,
+            audioConfig.sampleRate,
             AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT
         ).coerceAtLeast(4096)
@@ -184,6 +190,7 @@ class CallPlaybackCaptureService : Service() {
         } catch (e: Exception) {
             Log.e(TAG, "AudioRecord build failed: ${e.message}", e)
             broadcastFallback()
+            CallProtectionOrchestrator.active(this).onPlaybackFailed("AudioRecord build failed")
             stopSelf()
             return
         }
@@ -193,6 +200,7 @@ class CallPlaybackCaptureService : Service() {
         } catch (e: Exception) {
             Log.e(TAG, "AudioRecord start failed: ${e.message}", e)
             broadcastFallback()
+            CallProtectionOrchestrator.active(this).onPlaybackFailed("AudioRecord start failed")
             stopSelf()
             return
         }
@@ -201,11 +209,12 @@ class CallPlaybackCaptureService : Service() {
         sendBroadcast(Intent(ACTION_CALL_PLAYBACK_CAPTURE_STARTED).setPackage(packageName))
         overlay.showLiveTranscript(getString(R.string.overlay_listening))
 
-        // 3s chunks, 1s overlap → advance 2s per chunk. Send to https://voice.smarthomeus3r.space/stt (same as debug).
+        // Configurable chunks with overlap. Default: 2s chunks, 500ms overlap.
         val buffer = ByteArrayOutputStream()
 
         captureJob = serviceScope.launch {
             val buf = ByteArray(bufferSize)
+            var pendingSpeechChunk: ByteArray? = null
             while (isActive) {
                 val read = audioRecord?.read(buf, 0, buf.size) ?: 0
                 if (read <= 0) {
@@ -214,31 +223,54 @@ class CallPlaybackCaptureService : Service() {
                 }
                 buffer.write(buf, 0, read)
 
-                while (buffer.size() >= CHUNK_BYTES) {
+                while (buffer.size() >= audioConfig.chunkBytes) {
                     val arr = buffer.toByteArray()
-                    val chunk = arr.copyOfRange(0, CHUNK_BYTES)
+                    val chunk = arr.copyOfRange(0, audioConfig.chunkBytes)
                     buffer.reset()
-                    buffer.write(arr, STEP_BYTES, arr.size - STEP_BYTES)
+                    buffer.write(arr, audioConfig.stepBytes, arr.size - audioConfig.stepBytes)
 
                     val shortCount = chunk.size / 2
                     val shorts = ShortArray(shortCount)
                     ByteBuffer.wrap(chunk).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts)
-                    val hasSpeech = vad?.isSpeech(shorts, shortCount, SAMPLE_RATE) ?: true
-                    if (!hasSpeech) continue
-
-                    launch {
-                        val text = try {
-                            RawSttClient.transcribePcm16(chunk)
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Raw STT failed: ${e.message}", e)
+                    val speechProbability = vad?.speechProbability(shorts, shortCount, audioConfig.sampleRate) ?: 1f
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "VAD probability=$speechProbability bytes=${chunk.size}")
+                    }
+                    val chunkToSend = when {
+                        speechProbability < audioConfig.vadSkipThreshold -> {
+                            pendingSpeechChunk = null
                             null
                         }
+                        speechProbability < audioConfig.vadSendThreshold -> {
+                            pendingSpeechChunk = if (pendingSpeechChunk == null) {
+                                chunk
+                            } else {
+                                pendingSpeechChunk!! + chunk
+                            }
+                            null
+                        }
+                        else -> {
+                            val merged = pendingSpeechChunk?.let { it + chunk } ?: chunk
+                            pendingSpeechChunk = null
+                            merged
+                        }
+                    } ?: continue
+
+                    launch {
+                        val sttResult = try {
+                            sttSelector.transcribeWithFallback(chunkToSend)
+                        } catch (e: Exception) {
+                            Log.w(TAG, "STT failed: ${e.message}", e)
+                            null
+                        }
+                        val text = sttResult?.text
                         if (!text.isNullOrBlank()) {
-                            Log.d(TAG, "Whisper text: $text")
+                            if (BuildConfig.DEBUG) Log.d(TAG, "STT text: $text")
                             GuardianEventStore.addEvent(
                                 GuardianEvent(source = "Call playback", content = text, score = 0, riskLevel = RiskLevel.SAFE)
                             )
                             withContext(Dispatchers.Main) { overlay.updateLiveTranscript(text) }
+                            CallProtectionOrchestrator.active(this@CallPlaybackCaptureService).onAudioTranscript(text, sttResult)
                             val m = ScamKeywordMatcher.get(this@CallPlaybackCaptureService).match(text)
                             if (m != null) {
                                 GuardianEventStore.addEvent(
@@ -314,11 +346,6 @@ class CallPlaybackCaptureService : Service() {
         private const val TAG = "CallPlaybackCapture"
         private const val CHANNEL_ID = "CallPlaybackCaptureChannel"
         private const val NOTIFICATION_ID = 2002
-        private const val SAMPLE_RATE = 16000
-        private const val CHUNK_SEC = 3
-        private const val OVERLAP_SEC = 1
-        private val CHUNK_BYTES = SAMPLE_RATE * 2 * CHUNK_SEC      // 3s @ 16kHz 16bit mono
-        private val STEP_BYTES = SAMPLE_RATE * 2 * (CHUNK_SEC - OVERLAP_SEC)  // 2s, 1s overlap
 
         const val ACTION_START = "com.sentinel.ai.service.action.START_CALL_PLAYBACK_CAPTURE"
         /** Start using the MediaProjection already stored in MediaProjectionHolder — no user prompt. */

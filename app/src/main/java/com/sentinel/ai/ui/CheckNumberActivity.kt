@@ -1,5 +1,9 @@
 package com.sentinel.ai.ui
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.LayoutInflater
@@ -31,6 +35,7 @@ class CheckNumberActivity : BaseActivity() {
     private lateinit var checker: NumberChecker
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     private var isReportExpanded = false
+    private var lastNumberResult: NumberCheckResult? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,8 +66,17 @@ class CheckNumberActivity : BaseActivity() {
         val ratingBarContainer = findViewById<View>(R.id.ratingBarContainer)
         val ratingBarFill = findViewById<View>(R.id.ratingBarFill)
         val resultTime = findViewById<TextView>(R.id.txtResultTime)
+        val numberResultActionsRow = findViewById<View>(R.id.numberResultActions)
+        val copyNumberBtn = findViewById<MaterialButton>(R.id.btnCopyNumberResult)
+        val shareNumberBtn = findViewById<MaterialButton>(R.id.btnShareNumberResult)
 
         clear.setOnClickListener { input.text?.clear() }
+
+        // If launched with a pre-filled number, populate and auto-scan after all listeners are set
+        val prefilledNumber = intent?.getStringExtra(EXTRA_NUMBER)
+        if (!prefilledNumber.isNullOrBlank()) {
+            input.setText(prefilledNumber)
+        }
         val toggleReport = View.OnClickListener {
             if (!reportHeader.isEnabled) return@OnClickListener
             isReportExpanded = !isReportExpanded
@@ -83,6 +97,7 @@ class CheckNumberActivity : BaseActivity() {
                 checkBtn.text = getString(R.string.checknumber_checking)
                 try {
                     val result = checker.check(number)
+                    lastNumberResult = result
                     val displayNumber = result.displayNumber
                         .ifBlank { result.formattedE164 }
                         .ifBlank { number }
@@ -107,6 +122,7 @@ class CheckNumberActivity : BaseActivity() {
                         ratingBarFill,
                         resultTime
                     )
+                    numberResultActionsRow?.visibility = View.VISIBLE
                     withContext(Dispatchers.IO) {
                         SentinelApp.instance.database.eventDao().insert(
                             GuardianEvent(
@@ -128,6 +144,42 @@ class CheckNumberActivity : BaseActivity() {
                     checkBtn.text = getString(R.string.checknumber_action)
                 }
             }
+        }
+
+        // Auto-trigger scan after all listeners are bound
+        if (!prefilledNumber.isNullOrBlank()) {
+            checkBtn.post { checkBtn.performClick() }
+        }
+
+        copyNumberBtn?.setOnClickListener {
+            val result = lastNumberResult ?: return@setOnClickListener
+            val displayNum = result.displayNumber.ifBlank { result.formattedE164 }
+            val statusText = when (result.status) {
+                SafetyLevel.SAFE -> getString(R.string.checknumber_safe_tag)
+                SafetyLevel.CAUTION -> getString(R.string.checknumber_caution_tag)
+                SafetyLevel.DANGER -> getString(R.string.checknumber_danger_tag)
+                SafetyLevel.UNKNOWN -> getString(R.string.checknumber_unknown_tag)
+            }
+            val text = getString(R.string.share_number_template, displayNum, statusText, result.score)
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("Sentinel Number Result", text))
+            showBottomPopup(getString(R.string.result_copied))
+        }
+
+        shareNumberBtn?.setOnClickListener {
+            val result = lastNumberResult ?: return@setOnClickListener
+            val displayNum = result.displayNumber.ifBlank { result.formattedE164 }
+            val statusText = when (result.status) {
+                SafetyLevel.SAFE -> getString(R.string.checknumber_safe_tag)
+                SafetyLevel.CAUTION -> getString(R.string.checknumber_caution_tag)
+                SafetyLevel.DANGER -> getString(R.string.checknumber_danger_tag)
+                SafetyLevel.UNKNOWN -> getString(R.string.checknumber_unknown_tag)
+            }
+            val text = getString(R.string.share_number_template, displayNum, statusText, result.score)
+            startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+            }, getString(R.string.share_result_number)))
         }
     }
 
@@ -339,7 +391,7 @@ class CheckNumberActivity : BaseActivity() {
         emptyView: TextView
     ) {
         val recent = events
-            .filter { it.source == getString(R.string.scan_event_source_number) }
+            .filter { com.sentinel.ai.utils.EventLocalization.matchesSourceRes(this, it.source, R.string.scan_event_source_number) }
             .sortedByDescending { it.timestamp }
             .take(3)
 
@@ -410,5 +462,6 @@ class CheckNumberActivity : BaseActivity() {
 
     companion object {
         private const val LOW_SCORE_THRESHOLD = 50
+        const val EXTRA_NUMBER = "extra_number"
     }
 }

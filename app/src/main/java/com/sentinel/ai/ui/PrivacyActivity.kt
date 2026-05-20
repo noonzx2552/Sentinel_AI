@@ -13,12 +13,14 @@ import androidx.core.content.ContextCompat
 import com.sentinel.ai.R
 import com.sentinel.ai.databinding.ActivityPrivacyBinding
 import com.sentinel.ai.utils.PermissionUtils
+import com.sentinel.ai.utils.ProfilePrefs
 
 class PrivacyActivity : BaseLocalizedActivity() {
 
     private lateinit var binding: ActivityPrivacyBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ProfilePrefs.forceLightMode(this)
         super.onCreate(savedInstanceState)
         binding = ActivityPrivacyBinding.inflate(layoutInflater)
         setContentView(binding.root)

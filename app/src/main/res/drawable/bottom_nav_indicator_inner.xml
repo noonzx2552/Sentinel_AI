@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <solid android:color="@color/bottom_nav_active_green" />
+    android:shape="rectangle">
+    <corners android:radius="30dp" />
+    <gradient
+        android:angle="90"
+        android:startColor="@color/bottom_nav_shell_shine"
+        android:centerColor="#00FFFFFF"
+        android:endColor="#00FFFFFF" />
 </shape>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/homeModeMonitor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <FrameLayout
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/home_badge_gray_bg">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_view"
+                app:tint="@color/home_muted" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_mode_monitor_title"
+                android:textColor="@color/splash_title"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/home_mode_monitor_body"
+                android:textColor="@color/home_muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/homeModeMonitorRadio"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:background="@drawable/home_radio_off" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/homeModeWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <FrameLayout
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/home_badge_yellow_bg">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_dialog_alert"
+                app:tint="@color/home_accent_yellow" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_mode_warning_title"
+                android:textColor="@color/splash_title"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/home_mode_warning_body"
+                android:textColor="@color/home_muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/homeModeWarningRadio"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:background="@drawable/home_radio_off" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/homeModeAuto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/home_mode_selected_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <FrameLayout
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/home_badge_green_bg">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@drawable/intro_icon_shield"
+                app:tint="@color/bottom_nav_active_green" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_mode_auto_title"
+                android:textColor="@color/splash_title"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/home_mode_auto_body"
+                android:textColor="@color/home_muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/homeModeAutoRadio"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:background="@drawable/home_radio_on" />
+    </LinearLayout>
+</LinearLayout>

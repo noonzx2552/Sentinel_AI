@@ -3,6 +3,8 @@ package com.sentinel.ai
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.sentinel.ai.model.db.GuardianDatabase
 import com.sentinel.ai.utils.LanguageManager
 
@@ -31,10 +33,24 @@ class SentinelApp : Application() {
             applicationContext,
             GuardianDatabase::class.java,
             "guardian_db"
-        ).build()
+        ).addMigrations(MIGRATION_1_2).build()
     }
 
     companion object {
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE events ADD COLUMN reasonsJson TEXT NOT NULL DEFAULT '[]'")
+                db.execSQL("ALTER TABLE events ADD COLUMN sourceTagsJson TEXT NOT NULL DEFAULT '[]'")
+                db.execSQL("ALTER TABLE events ADD COLUMN protectionMode TEXT")
+                db.execSQL("ALTER TABLE events ADD COLUMN phoneNumber TEXT")
+                db.execSQL("ALTER TABLE events ADD COLUMN displayName TEXT")
+                db.execSQL("ALTER TABLE events ADD COLUMN transcriptSnippet TEXT")
+                db.execSQL("ALTER TABLE events ADD COLUMN audioMode TEXT")
+                db.execSQL("ALTER TABLE events ADD COLUMN confidence REAL")
+                db.execSQL("ALTER TABLE events ADD COLUMN latencyMs INTEGER")
+            }
+        }
+
         lateinit var instance: SentinelApp
             private set
     }

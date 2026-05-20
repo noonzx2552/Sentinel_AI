@@ -1,6 +1,9 @@
 package com.sentinel.ai.ui
 
+import android.app.AlertDialog
 import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.LayoutInflater
@@ -11,7 +14,9 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.sentinel.ai.R
 import com.sentinel.ai.SentinelApp
@@ -19,7 +24,9 @@ import com.sentinel.ai.model.GuardianEvent
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.ui.navigation.BottomTab
 import com.sentinel.ai.utils.EventLocalization
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -33,6 +40,9 @@ class ActivityLogActivity : BaseActivity() {
     private lateinit var filterScans: TextView
     private var currentFilter: ActivityFilter = ActivityFilter.ALL
     private var lastEvents: List<GuardianEvent> = emptyList()
+    private var statsTotalView: TextView? = null
+    private var statsThreatsView: TextView? = null
+    private var statsSafeView: TextView? = null
 
     private val headerDateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     private val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
@@ -50,17 +60,27 @@ class ActivityLogActivity : BaseActivity() {
         filterAll = findViewById(R.id.filterAll)
         filterThreats = findViewById(R.id.filterThreats)
         filterScans = findViewById(R.id.filterScans)
+        statsTotalView = findViewById(R.id.statsTotal)
+        statsThreatsView = findViewById(R.id.statsThreats)
+        statsSafeView = findViewById(R.id.statsSafe)
+
         applyFilterUi()
         filterAll.setOnClickListener { setFilter(ActivityFilter.ALL) }
         filterThreats.setOnClickListener { setFilter(ActivityFilter.THREATS) }
         filterScans.setOnClickListener { setFilter(ActivityFilter.SCANS) }
 
+        // Clear all button
+        findViewById<View>(R.id.btnClearAll)?.setOnClickListener {
+            showClearAllConfirmation()
+        }
+
         lifecycleScope.launch {
             SentinelApp.instance.database.eventDao().getAllEvents().collect { events ->
                 lastEvents = events
                 val filtered = applyFilter(events)
-                adapter.submit(buildItems(filtered))
+                adapter.submitList(buildItems(filtered))
                 emptyState?.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+                updateStats(events)
             }
         }
     }
@@ -94,7 +114,7 @@ class ActivityLogActivity : BaseActivity() {
         currentFilter = filter
         applyFilterUi()
         val filtered = applyFilter(lastEvents)
-        adapter.submit(buildItems(filtered))
+        adapter.submitList(buildItems(filtered))
     }
 
     private fun applyFilter(events: List<GuardianEvent>): List<GuardianEvent> = when (currentFilter) {
@@ -114,6 +134,40 @@ class ActivityLogActivity : BaseActivity() {
         val textColor = if (active) android.R.color.white else R.color.home_muted
         view.setBackgroundResource(bg)
         view.setTextColor(ContextCompat.getColor(this, textColor))
+    }
+
+    private fun updateStats(events: List<GuardianEvent>) {
+        val total = events.size
+        val threats = events.count { it.riskLevel != RiskLevel.SAFE }
+        val safe = events.count { it.riskLevel == RiskLevel.SAFE }
+        statsTotalView?.text = total.toString()
+        statsThreatsView?.text = threats.toString()
+        statsSafeView?.text = safe.toString()
+    }
+
+    private fun showClearAllConfirmation() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_clear_activity, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialogView.findViewById<View>(R.id.clearDialogCancel).setOnClickListener {
+            dialog.dismiss()
+        }
+        dialogView.findViewById<View>(R.id.clearDialogConfirm).setOnClickListener {
+            dialog.dismiss()
+            lifecycleScope.launch(Dispatchers.IO) {
+                SentinelApp.instance.database.eventDao().clearAll()
+                withContext(Dispatchers.Main) {
+                    showBottomPopup(getString(R.string.activitylog_clear_done))
+                }
+            }
+        }
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.show()
     }
 
     private fun isSameDay(time1: Long, time2: Long): Boolean {
@@ -147,15 +201,9 @@ class ActivityLogActivity : BaseActivity() {
         data class Event(val event: GuardianEvent) : ActivityLogItem()
     }
 
-    private inner class ActivityLogAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-        private var items: List<ActivityLogItem> = emptyList()
+    private inner class ActivityLogAdapter : ListAdapter<ActivityLogItem, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
 
-        fun submit(newItems: List<ActivityLogItem>) {
-            items = newItems
-            notifyDataSetChanged()
-        }
-
-        override fun getItemViewType(position: Int): Int = when (items[position]) {
+        override fun getItemViewType(position: Int): Int = when (getItem(position)) {
             is ActivityLogItem.Section -> VIEW_TYPE_HEADER
             is ActivityLogItem.Event -> VIEW_TYPE_EVENT
         }
@@ -172,13 +220,11 @@ class ActivityLogActivity : BaseActivity() {
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            when (val item = items[position]) {
+            when (val item = getItem(position)) {
                 is ActivityLogItem.Section -> (holder as HeaderViewHolder).bind(item.title)
                 is ActivityLogItem.Event -> (holder as EventViewHolder).bind(item.event)
             }
         }
-
-        override fun getItemCount(): Int = items.size
 
         inner class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             private val title: TextView = view.findViewById(R.id.eventHeaderTitle)
@@ -201,6 +247,9 @@ class ActivityLogActivity : BaseActivity() {
                 val localized = EventLocalization.localizeEvent(itemView.context, event.source, event.content)
                 title.text = localized.source
                 message.text = localized.content
+                    .replace("\n", " ")
+                    .replace(Regex("\\s+"), " ")
+                    .trim()
                 time.text = formatTime(event.timestamp)
 
                 val (primaryLabel, primaryBg, primaryText, iconRes, iconBg) = when (event.riskLevel) {
@@ -284,6 +333,22 @@ class ActivityLogActivity : BaseActivity() {
     private companion object {
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_EVENT = 1
+
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ActivityLogItem>() {
+            override fun areItemsTheSame(oldItem: ActivityLogItem, newItem: ActivityLogItem): Boolean {
+                return when {
+                    oldItem is ActivityLogItem.Section && newItem is ActivityLogItem.Section ->
+                        oldItem.title == newItem.title
+                    oldItem is ActivityLogItem.Event && newItem is ActivityLogItem.Event ->
+                        oldItem.event.id == newItem.event.id
+                    else -> false
+                }
+            }
+
+            override fun areContentsTheSame(oldItem: ActivityLogItem, newItem: ActivityLogItem): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 
     private enum class ActivityFilter {

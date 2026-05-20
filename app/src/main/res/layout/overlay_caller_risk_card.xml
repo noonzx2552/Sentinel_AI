@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/callerRiskCard"
+        android:layout_width="332dp"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="10dp"
+        app:strokeColor="#D9E1EC"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:id="@+id/overlayRootPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_overlay_neutral"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvRiskBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_risk_badge_neutral"
+                    android:paddingStart="10dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="5dp"
+                    android:text="@string/overlay_risk_unknown"
+                    android:textColor="#36516F"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvProtectionMode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="#526277"
+                    android:textSize="12sp"
+                    tools:text="ตรวจจากเบอร์เท่านั้น" />
+
+                <ImageButton
+                    android:id="@+id/btnOverlayExpand"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/overlay_action_reason"
+                    android:padding="9dp"
+                    android:src="@drawable/ic_chevron_down"
+                    android:tint="#526277" />
+
+                <ImageButton
+                    android:id="@+id/btnOverlayClose"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/overlay_dismiss"
+                    android:padding="9dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:tint="#526277" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvDisplayName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="#172033"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                tools:text="ไม่พบในรายชื่อ" />
+
+            <TextView
+                android:id="@+id/tvPhoneNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="#526277"
+                android:textSize="14sp"
+                tools:text="085 521 8473" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="11dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvRiskScore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#172033"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    tools:text="72" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:text="/100"
+                    android:textColor="#6B7A90"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvPrimaryReason"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="#26344A"
+                    android:textSize="13sp"
+                    tools:text="พบรายงานจาก blacklist" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/sourceTagContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables" />
+
+            <LinearLayout
+                android:id="@+id/expandedPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tvReasons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="3dp"
+                    android:textColor="#26344A"
+                    android:textSize="13sp"
+                    tools:text="• พบคำว่า OTP&#10;• เบอร์ไม่อยู่ในรายชื่อผู้ติดต่อ" />
+
+                <TextView
+                    android:id="@+id/tvTranscriptPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp"
+                    android:background="@drawable/bg_overlay_tag"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:padding="9dp"
+                    android:textColor="#26344A"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    tools:text="เสียงล่าสุด: กรุณาแจ้ง OTP เดี๋ยวนี้"
+                    tools:visibility="visible" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btnOverlayReason"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_overlay_action"
+                        android:text="@string/overlay_action_reason"
+                        android:textColor="#172033"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnOverlayMute"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:background="@drawable/bg_overlay_action"
+                        android:text="@string/overlay_action_toggle_audio"
+                        android:textColor="#172033"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btnOverlayIgnore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_overlay_action"
+                        android:text="@string/overlay_action_ignore_number"
+                        android:textColor="#172033"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnOverlayReport"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:background="@drawable/bg_overlay_action"
+                        android:text="@string/overlay_action_report_number"
+                        android:textColor="#172033"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnOverlayHangup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:background="@drawable/bg_overlay_action"
+                        android:text="@string/overlay_action_hangup"
+                        android:textColor="#B42318"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

@@ -10,6 +10,15 @@ data class GuardianEvent(
     val score: Int,
     val riskLevel: RiskLevel,
     val timestamp: Long = System.currentTimeMillis(),
+    val reasonsJson: String = "[]",
+    val sourceTagsJson: String = "[]",
+    val protectionMode: String? = null,
+    val phoneNumber: String? = null,
+    val displayName: String? = null,
+    val transcriptSnippet: String? = null,
+    val audioMode: String? = null,
+    val confidence: Float? = null,
+    val latencyMs: Long? = null,
     @PrimaryKey(autoGenerate = true) val id: Int = 0
 )
 

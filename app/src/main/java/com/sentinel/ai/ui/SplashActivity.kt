@@ -88,7 +88,6 @@ class SplashActivity : BaseLocalizedActivity() {
             Intent(this, IntroActivity::class.java)
         }
         startActivity(target)
-        // Apply fade-out transition to this activity and fade-in to the next
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
     }
@@ -119,6 +118,8 @@ class SplashActivity : BaseLocalizedActivity() {
     override fun attachBaseContext(newBase: android.content.Context) {
         super.attachBaseContext(LanguageManager.wrapWithLanguage(newBase, LanguageManager.LANG_EN))
     }
+
+    override fun shouldAnimateRootOnEnter(): Boolean = false
 
     override fun shouldApplyAppLanguage(): Boolean = false
 }

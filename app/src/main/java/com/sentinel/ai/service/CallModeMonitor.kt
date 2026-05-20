@@ -34,6 +34,7 @@ class CallModeMonitor(private val context: Context) {
     private val tts = CallTtsController(context)
     private val overlay by lazy { OverlayController(context) }
     private val handler = Handler(Looper.getMainLooper())
+    private val orchestrator by lazy { CallProtectionOrchestrator.active(context) }
 
     private var phoneStateListener: PhoneStateListener? = null
     private var micRunning = false
@@ -46,7 +47,7 @@ class CallModeMonitor(private val context: Context) {
             if (intent?.action == CallPlaybackCaptureService.ACTION_CALL_CAPTURE_FALLBACK_MIC) {
                 Log.w(TAG, "Playback capture failed — falling back to mic")
                 playbackCaptureRunning = false
-                runMicFallback()
+                orchestrator.onPlaybackFailed("Playback capture failed")
             }
         }
     }
@@ -114,20 +115,8 @@ class CallModeMonitor(private val context: Context) {
 
     private fun enterCallMode(number: String?) {
         if (micRunning) return
-        if (!android.provider.Settings.canDrawOverlays(context)) {
-            GuardianEventStore.addEvent(
-                GuardianEvent(
-                    source = "Call monitor",
-                    content = "Overlay permission missing. Cannot show UI.",
-                    score = 0,
-                    riskLevel = RiskLevel.SAFE
-                )
-            )
-            return
-        }
-
+        micRunning = true
         try {
-            micRunning = true
             GuardianEventStore.addEvent(
                 GuardianEvent(
                     source = "Call monitor",
@@ -136,67 +125,18 @@ class CallModeMonitor(private val context: Context) {
                     riskLevel = RiskLevel.SAFE
                 )
             )
-
-            // Show caller overlay right away using contacts/known numbers
-            try {
-                val fallbackNumber = LastCallStore.get()?.number
-                val safeNumber = number?.takeIf { it.isNotBlank() } ?: fallbackNumber ?: context.getString(R.string.common_unknown)
-                val contactName = ContactLookup.getContactName(context, safeNumber)
-                val known = KnownNumberRepository.lookup(safeNumber) ?: KnownNumberRepository.heuristic(safeNumber)
-                val riskLevel = known?.riskLevel ?: RiskLevel.SAFE
-                val displayName = contactName ?: known?.displayName ?: context.getString(R.string.common_unknown)
-                val reason = known?.reason ?: context.getString(R.string.overlay_no_reports)
-                overlay.showCallerInfo(
-                    name = displayName,
-                    number = safeNumber,
-                    riskLevel = riskLevel,
-                    reason = reason,
-                    isOutgoing = stateIsOutgoing(),
-                    dismissOnCallState = false,
-                    allowGatekeeperDismiss = false,
-                    autoDismissMs = 0L,
-                    bypassGate = true
-                )
-            } catch (_: Exception) { }
-
-            // ---- Attempt playback capture (remote-party voice) ----
-            // Priority 1: use the MediaProjection object already held in memory (no popup).
-            // Priority 2: use the cached (resultCode, data) from MediaProjectionStore (Android 10-13
-            //             allows calling getMediaProjection() multiple times with the same result).
-            // Priority 3: mic fallback (captures owner voice only).
-            val hasHeld = MediaProjectionHolder.isReady()
-            val hasCached = MediaProjectionStore.get() != null
-
-            if (hasHeld || hasCached) {
-                Log.d(TAG, "Starting call playback capture (held=$hasHeld cached=$hasCached)")
-                playbackCaptureRunning = true
-                CallPlaybackCaptureService.startHeld(context)
-                // runMicFallback() will be triggered by fallbackReceiver if the service fails
-                return
-            }
-
-            if (!PermissionUtils.hasMicPermission(context)) {
-                GuardianEventStore.addEvent(
-                    GuardianEvent(
-                        source = "Call monitor",
-                        content = "Mic permission missing. Overlay only; call listening disabled.",
-                        score = 0,
-                        riskLevel = RiskLevel.SAFE
-                    )
-                )
-                try {
-                    tts.speak("Microphone permission missing. Overlay only.", flush = true)
-                } catch (_: Exception) { /* ignore */ }
-                return
-            }
-
-            // No MediaProjection grant yet — fall back to microphone
-            Log.d(TAG, "No MediaProjection grant — using mic fallback (owner voice only)")
-            runMicFallback()
+            orchestrator.onCallStarted(number)
         } catch (e: Exception) {
             Log.e(TAG, "enterCallMode failed", e)
             micRunning = false
-            try { overlay.dismiss() } catch (_: Exception) { }
+            GuardianEventStore.addEvent(
+                GuardianEvent(
+                    source = "Call monitor",
+                    content = "Call protection failed: ${e.message}",
+                    score = 0,
+                    riskLevel = RiskLevel.WARNING
+                )
+            )
         }
     }
 
@@ -262,6 +202,7 @@ class CallModeMonitor(private val context: Context) {
 
     private fun exitCallMode() {
         // Stop playback capture service if it was running
+        orchestrator.onCallEnded()
         if (playbackCaptureRunning) {
             playbackCaptureRunning = false
             try { CallPlaybackCaptureService.stop(context) } catch (_: Exception) {}
@@ -279,6 +220,7 @@ class CallModeMonitor(private val context: Context) {
 
     fun destroy() {
         stop()
+        orchestrator.destroy()
         speechTester.destroy()
         tts.shutdown()
     }

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/activity_clear_dialog_bg"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/activity_clear_icon_bg">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_exclamation"
+                app:tint="@color/home_accent_red" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/clearDialogTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/activitylog_clear_confirm_title"
+            android:textColor="@color/splash_title"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/clearDialogMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:lineSpacingExtra="2dp"
+        android:text="@string/activitylog_clear_confirm_msg"
+        android:textColor="@color/home_muted"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/clearDialogCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:background="@drawable/activity_clear_cancel_bg"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:minWidth="96dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:text="@string/action_cancel"
+            android:textColor="@color/home_muted"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="10dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/clearDialogConfirm"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:background="@drawable/activity_clear_destructive_bg"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:minWidth="96dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:text="@string/activitylog_clear_confirm_yes"
+            android:textColor="@color/splash_logo_icon"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,4 +1,5 @@
 package com.sentinel.ai.ui
+import android.annotation.SuppressLint
 import android.Manifest
 import android.app.Activity
 import android.content.BroadcastReceiver
@@ -457,7 +458,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
             val carrier = result?.carrier
             val region = result?.countryName ?: result?.region
             val reportCount = result?.reportCount ?: 0
-            val reportSummary = result?.reportDetails?.joinToString(" | ")?.take(140)
+            val reportSummary = result   ?.reportDetails?.joinToString(" | ")?.take(140)
             val riskLevel = result?.let { toRiskLevel(it.status) } ?: RiskLevel.SAFE
             if (result != null && DebugSettings.isDebugEnabled.value) {
                 delay(DEBUG_OVERLAY_RESULT_DELAY_MS)
@@ -876,6 +877,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun startLiveOfflineStt() {
         if (InternalAudioCaptureService.isServiceRunning) {
             Toast.makeText(this, "Stop capture before testing mic.", Toast.LENGTH_SHORT).show()
@@ -1015,79 +1017,13 @@ open class DashboardActivity : BaseLocalizedActivity() {
             Toast.makeText(this, "Whisper CPP is not configured or offline.", Toast.LENGTH_SHORT).show()
             return
         }
-        setStatus("Testing mic with Whisper CPP...")
-        testMicWhisperButton.isEnabled = false
-        testMicButton.isEnabled = false
-        lifecycleScope.launch(Dispatchers.IO) {
-            val sampleRate = 16000
-            val channelConfig = AudioFormat.CHANNEL_IN_MONO
-            val encoding = AudioFormat.ENCODING_PCM_16BIT
-            val minBuf = AudioRecord.getMinBufferSize(sampleRate, channelConfig, encoding)
-            val bufferSize = (minBuf.coerceAtLeast(2048))
-            val audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.VOICE_RECOGNITION,
-                sampleRate,
-                channelConfig,
-                encoding,
-                bufferSize
-            )
-            val output = ByteArrayOutputStream()
-            try {
-                audioRecord.startRecording()
-                val buffer = ByteArray(bufferSize)
-                val targetDurationMs = 2500
-                var capturedMs = 0
-                val frameMs = bufferSize * 1000 / (sampleRate * 2)
-                while (capturedMs < targetDurationMs) {
-                    val read = audioRecord.read(buffer, 0, buffer.size)
-                    if (read > 0) {
-                        output.write(buffer, 0, read)
-                        capturedMs += frameMs
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@DashboardActivity, "Mic test failed: ${e.message}", Toast.LENGTH_LONG).show()
-                    setStatus("Idle")
-                    testMicWhisperButton.isEnabled = true
-                    testMicButton.isEnabled = true
-                }
-                audioRecord.release()
-                return@launch
-            } finally {
-                try { audioRecord.stop() } catch (_: Exception) { }
-                audioRecord.release()
-            }
-
-            val audioData = output.toByteArray()
-            val normalizedPcm = normalizePcm16(audioData)
-            val transcript = try {
-                WhisperCppSttClient.transcribePcm16(normalizedPcm, sampleRate, 1) ?: ""
-            } catch (e: Exception) {
-                Log.w("DashboardActivity", "Whisper mic test failed: ${e.message}", e)
-                ""
-            }
-
-            val wavData = WavUtil.pcmToWav(normalizedPcm, sampleRate, 1, 16)
-            val testFile = File(cacheDir, "whisper_mic_test_${System.currentTimeMillis()}.wav")
-            testFile.writeBytes(wavData)
-            val savedPath = testFile.absolutePath
-
-            withContext(Dispatchers.Main) {
-                lastRecordingPath = savedPath
-                if (transcript.isNotBlank()) {
-                    transcriptTextView.append("\n[Whisper CPP] $transcript")
-                    setStatus("Whisper CPP: \"$transcript\"")
-                } else {
-                    setStatus("Whisper CPP: no text")
-                    Toast.makeText(this@DashboardActivity, "No text recognized from Whisper CPP.", Toast.LENGTH_SHORT).show()
-                }
-                Toast.makeText(this@DashboardActivity, "Test audio saved for playback.", Toast.LENGTH_SHORT).show()
-                updatePlayButtonState()
-                testMicWhisperButton.isEnabled = true
-                testMicButton.isEnabled = true
-            }
-        }
+        runMicTestWithEngine(
+            statusStart = "Testing mic with Whisper CPP...",
+            statusTag = "Whisper CPP",
+            wavPrefix = "whisper_mic_test",
+            errorLogTag = "Whisper mic test failed",
+            engine = { pcm, sampleRate -> WhisperCppSttClient.transcribePcm16(pcm, sampleRate, 1) }
+        )
     }
 
     private fun runMicTest() {
@@ -1106,88 +1042,117 @@ open class DashboardActivity : BaseLocalizedActivity() {
             setStatus("Mic test: model missing")
             return
         }
-        setStatus("Testing mic with offline STT...")
-        testMicButton.isEnabled = false
-        testMicWhisperButton.isEnabled = false
-        lifecycleScope.launch(Dispatchers.IO) {
-            val sampleRate = 16000
-            val channelConfig = AudioFormat.CHANNEL_IN_MONO
-            val encoding = AudioFormat.ENCODING_PCM_16BIT
-            val minBuf = AudioRecord.getMinBufferSize(sampleRate, channelConfig, encoding)
-            val bufferSize = (minBuf.coerceAtLeast(2048))
-            val audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.VOICE_RECOGNITION,
-                sampleRate,
-                channelConfig,
-                encoding,
-                bufferSize
-            )
-            val output = ByteArrayOutputStream()
-            try {
-                audioRecord.startRecording()
-                val buffer = ByteArray(bufferSize)
-                val targetDurationMs = 2500
-                var capturedMs = 0
-                val frameMs = bufferSize * 1000 / (sampleRate * 2) // 2 bytes per sample mono
-                while (capturedMs < targetDurationMs) {
-                    val read = audioRecord.read(buffer, 0, buffer.size)
-                    if (read > 0) {
-                        output.write(buffer, 0, read)
-                        capturedMs += frameMs
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@DashboardActivity, "Mic test failed: ${e.message}", Toast.LENGTH_LONG).show()
-                    setStatus("Idle")
-                    testMicButton.isEnabled = true
-                    testMicWhisperButton.isEnabled = true
-                }
-                audioRecord.release()
-                return@launch
-            } finally {
-                try { audioRecord.stop() } catch (_: Exception) { }
-                audioRecord.release()
-            }
-
-            val audioData = output.toByteArray()
-            val normalizedPcm = normalizePcm16(audioData)
-            val rms = computeRms(normalizedPcm)
-            Log.d("DashboardActivity", "Mic test captured bytes=${audioData.size} rms=$rms")
-            val transcript = try {
+        runMicTestWithEngine(
+            statusStart = "Testing mic with offline STT...",
+            statusTag = "Test Mic",
+            wavPrefix = "mic_test",
+            errorLogTag = "Mic test STT failed",
+            engine = { pcm, sampleRate ->
                 OfflineStt.resetRecognizer()
                 OfflineStt.transcribePcm16(
                     context = this@DashboardActivity,
-                    audio = normalizedPcm,
+                    audio = pcm,
                     sampleRate = sampleRate,
                     isStereo = false
-                ) ?: ""
+                )
+            }
+        )
+    }
+
+    private fun runMicTestWithEngine(
+        statusStart: String,
+        statusTag: String,
+        wavPrefix: String,
+        errorLogTag: String,
+        engine: suspend (ByteArray, Int) -> String?
+    ) {
+        setStatus(statusStart)
+        testMicWhisperButton.isEnabled = false
+        testMicButton.isEnabled = false
+        lifecycleScope.launch(Dispatchers.IO) {
+            val sampleRate = 16000
+            val rawPcm = recordMicPcm16(sampleRate, durationMs = 2500)
+            if (rawPcm == null) {
+                withContext(Dispatchers.Main) {
+                    setStatus("Idle")
+                    testMicWhisperButton.isEnabled = true
+                    testMicButton.isEnabled = true
+                }
+                return@launch
+            }
+            val normalizedPcm = normalizePcm16(rawPcm)
+            val transcript = try {
+                engine(normalizedPcm, sampleRate) ?: ""
             } catch (e: Exception) {
-                Log.w("DashboardActivity", "Mic test STT failed: ${e.message}", e)
+                Log.w("DashboardActivity", "$errorLogTag: ${e.message}", e)
                 ""
             }
 
-            // Save test audio to a WAV file for replay
             val wavData = WavUtil.pcmToWav(normalizedPcm, sampleRate, 1, 16)
-            val testFile = File(cacheDir, "mic_test_${System.currentTimeMillis()}.wav")
+            val testFile = File(cacheDir, "${wavPrefix}_${System.currentTimeMillis()}.wav")
             testFile.writeBytes(wavData)
             val savedPath = testFile.absolutePath
 
             withContext(Dispatchers.Main) {
                 lastRecordingPath = savedPath
                 if (transcript.isNotBlank()) {
-                    transcriptTextView.append("\n[Test Mic] $transcript")
-                    setStatus("Mic test: \"$transcript\"")
+                    transcriptTextView.append("\n[$statusTag] $transcript")
+                    setStatus("$statusTag: \"$transcript\"")
                 } else {
-                    setStatus("Mic test: no text")
-                    Toast.makeText(this@DashboardActivity, "No text recognized (check offline model).", Toast.LENGTH_SHORT).show()
+                    setStatus("$statusTag: no text")
+                    Toast.makeText(this@DashboardActivity, "No text recognized.", Toast.LENGTH_SHORT).show()
                 }
                 Toast.makeText(this@DashboardActivity, "Test audio saved for playback.", Toast.LENGTH_SHORT).show()
                 updatePlayButtonState()
-                testMicButton.isEnabled = true
                 testMicWhisperButton.isEnabled = true
+                testMicButton.isEnabled = true
             }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun recordMicPcm16(sampleRate: Int, durationMs: Int): ByteArray? {
+        val channelConfig = AudioFormat.CHANNEL_IN_MONO
+        val encoding = AudioFormat.ENCODING_PCM_16BIT
+        val minBuf = AudioRecord.getMinBufferSize(sampleRate, channelConfig, encoding)
+        val bufferSize = minBuf.coerceAtLeast(2048)
+        val audioRecord = try {
+                AudioRecord(
+                MediaRecorder.AudioSource.VOICE_RECOGNITION,
+                sampleRate,
+                channelConfig,
+                encoding,
+                bufferSize
+            )
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@DashboardActivity, "Mic init failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+            return null
+        }
+        val output = ByteArrayOutputStream()
+        try {
+            audioRecord.startRecording()
+            val buffer = ByteArray(bufferSize)
+            var capturedMs = 0
+            val frameMs = bufferSize * 1000 / (sampleRate * 2)
+            while (capturedMs < durationMs) {
+                val read = audioRecord.read(buffer, 0, buffer.size)
+                if (read > 0) {
+                    output.write(buffer, 0, read)
+                    capturedMs += frameMs
+                }
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@DashboardActivity, "Mic test failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+            return null
+        } finally {
+            try { audioRecord.stop() } catch (_: Exception) { }
+            audioRecord.release()
+        }
+        return output.toByteArray()
     }
 
     private fun computeRms(buffer: ByteArray): Int {
@@ -1686,7 +1651,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
         }
         val apiKey = debugBlsCapsolverInput.text?.toString().orEmpty().trim()
             .ifBlank { BuildConfig.BLACKLIST_API_KEY }
-        val apiUrl = BuildConfig.BLACKLIST_API_URL.ifBlank { "https://blacklist.smarthomeus3r.space/search" }
+        val apiUrl = BuildConfig.BLACKLIST_API_FULL_URL.ifBlank { "https://api.thammasorn.dev/api/search/full" }
         if (apiKey.isBlank()) {
             Toast.makeText(this, "Missing Blacklist API key.", Toast.LENGTH_SHORT).show()
             return
@@ -1699,10 +1664,10 @@ open class DashboardActivity : BaseLocalizedActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             val requestLog = StringBuilder()
-            requestLog.append("curl -X POST $apiUrl ^\n")
-            requestLog.append("  -H \"X-API-Key: $apiKey\" ^\n")
-            requestLog.append("  -H \"Content-Type: application/x-www-form-urlencoded\" ^\n")
-            requestLog.append("  -d \"phone_number=$number\"\n")
+            requestLog.append("curl.exe -X POST \"$apiUrl\" ^\n")
+            requestLog.append("  -H \"Authorization: Bearer $apiKey\" ^\n")
+            requestLog.append("  -H \"Content-Type: application/json\" ^\n")
+            requestLog.append("  -d \"{\\\"bank_number\\\":\\\"$number\\\"}\"\n")
 
             val responseText = com.sentinel.ai.security.BlacklistSellerClient.request(
                 number = number,
@@ -1843,6 +1808,7 @@ open class DashboardActivity : BaseLocalizedActivity() {
         private const val DEBUG_OVERLAY_RESULT_DELAY_MS = 3000L
     }
 
+    @SuppressLint("MissingPermission")
     private fun startSystemSttRecording() {
         stopSystemSttRecording(saveAudio = false)
         val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
@@ -1979,6 +1945,7 @@ private fun queryDisplayName(uri: Uri): String? {
      * Stable offline listening loop with noise gate, watchdog, and recognizer restart.
      * Call stableStartListening() to begin, stableStopListening() to end.
      */
+    @SuppressLint("MissingPermission")
     fun stableStartListening() {
         if (stableListenJob?.isActive == true) return
         val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
@@ -2088,4 +2055,3 @@ private fun queryDisplayName(uri: Uri): String? {
         stableRecognizer = OfflineStt.createRecognizer(this, STABLE_SAMPLE_RATE)
     }
 }
-

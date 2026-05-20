@@ -1,6 +1,7 @@
 package com.sentinel.ai.utils
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.AudioFormat
@@ -26,6 +27,7 @@ class MicCaptureManager(private val context: Context) {
     private var workerHandler: Handler? = null
     @Volatile private var running = false
 
+    @SuppressLint("MissingPermission")
     fun start(
         onChunk: (ByteArray) -> Unit,
         onError: (String) -> Unit,

@@ -1,8 +1,10 @@
 package com.sentinel.ai.security
 
-import okhttp3.FormBody
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 object BlacklistSellerClient {
 
@@ -18,19 +20,20 @@ object BlacklistSellerClient {
             return Result.failure(IllegalArgumentException("Missing phone number"))
         }
         if (apiKey.isBlank()) {
-            return Result.failure(IllegalStateException("Missing Blacklist API key"))
+            return Result.failure(IllegalStateException("Missing Blacklist bearer token"))
         }
 
         var lastError: String? = null
         repeat(retries.coerceAtLeast(1)) {
-            val body = FormBody.Builder()
-                .add("phone_number", digitsOnly)
-                .build()
+            val body = JSONObject()
+                .put("bank_number", digitsOnly)
+                .toString()
+                .toRequestBody(JSON)
             val request = Request.Builder()
                 .url(apiUrl)
                 .post(body)
-                .addHeader("X-API-Key", apiKey)
-                .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                .addHeader("Authorization", "Bearer $apiKey")
+                .addHeader("Content-Type", "application/json")
                 .build()
             try {
                 client.newCall(request).execute().use { resp ->
@@ -47,4 +50,6 @@ object BlacklistSellerClient {
 
         return Result.failure(IllegalStateException(lastError ?: "request failed"))
     }
+
+    private val JSON = "application/json; charset=utf-8".toMediaType()
 }

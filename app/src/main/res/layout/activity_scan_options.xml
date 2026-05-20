@@ -3,9 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_bg"
+    android:background="@drawable/subpage_bg_atmosphere"
     android:clipChildren="false"
     android:clipToPadding="false">
+
+    <View
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="-76dp"
+        android:layout_marginTop="-82dp"
+        android:background="@drawable/home_ambient_orb_teal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:layout_marginTop="88dp"
+        android:layout_marginEnd="-64dp"
+        android:background="@drawable/home_ambient_orb_orange"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scanOptionsScroll"
@@ -65,8 +83,8 @@
                 android:layout_marginTop="@dimen/card_margin_top"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="22dp"
-                app:cardElevation="2dp"
-                app:cardUseCompatPadding="true"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="false"
                 app:strokeColor="@color/home_card_border"
                 app:strokeWidth="1dp">
 
@@ -93,7 +111,7 @@
                             android:paddingTop="6dp"
                             android:paddingBottom="6dp"
                             android:text="@string/scan_tab_link"
-                            android:textColor="@color/splash_logo_bg"
+                            android:textColor="@color/splash_logo_icon"
                             android:textSize="12sp"
                             android:textStyle="bold" />
 
@@ -178,14 +196,15 @@
                 android:layout_weight="1"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
-                app:cardElevation="1dp"
-                app:cardUseCompatPadding="true"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="false"
                 app:strokeColor="@color/home_card_border"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/scan_file_dropzone_bg"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="16dp">
@@ -233,8 +252,8 @@
                 android:layout_weight="1"
                 app:cardBackgroundColor="@color/home_card_bg"
                 app:cardCornerRadius="18dp"
-                app:cardElevation="1dp"
-                app:cardUseCompatPadding="true"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="false"
                 app:strokeColor="@color/home_card_border"
                 app:strokeWidth="1dp">
 
@@ -278,6 +297,96 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/fileResultCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/home_card_bg"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:cardUseCompatPadding="false"
+            app:strokeColor="@color/home_card_border"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/home_badge_green_bg">
+
+                        <ImageView
+                            android:id="@+id/fileResultIcon"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_check"
+                            app:tint="@color/splash_logo_bg" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvFileResultTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/scan_file_result_ready"
+                            android:textColor="@color/splash_title"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvFileResultMeta"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:textColor="@color/home_muted"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvFileScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/checklink_chip_bg"
+                        android:paddingStart="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="6dp"
+                        android:textColor="@color/splash_logo_bg"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvFileIssues"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/scan_file_result_bg"
+                    android:padding="12dp"
+                    android:textColor="@color/home_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -320,13 +429,17 @@
     <com.sentinel.ai.ui.navigation.BottomNavView
         android:id="@+id/bottomNavView"
         android:layout_width="0dp"
-        android:layout_height="72dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
 
 
 

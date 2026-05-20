@@ -29,6 +29,15 @@ object EventLocalization {
             normalized.contains("qr", ignoreCase = true)
     }
 
+    fun matchesSourceRes(context: Context, source: String, resId: Int): Boolean {
+        val normalized = source.trim()
+        if (normalized.isBlank()) return false
+        val langs = listOf(LanguageManager.LANG_EN, LanguageManager.LANG_TH)
+        return langs.any { lang ->
+            getStringForLanguage(context, lang, resId).equals(normalized, ignoreCase = true)
+        }
+    }
+
     private fun localizeSource(context: Context, source: String): String {
         val normalized = source.trim()
         if (normalized.isBlank()) return source

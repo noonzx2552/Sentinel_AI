@@ -1,23 +1,22 @@
 package com.sentinel.ai.ui
 
 import android.content.Intent
-import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.widget.Toast
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.sentinel.ai.R
 import com.sentinel.ai.databinding.ActivitySetupBinding
 import com.sentinel.ai.service.SentinelGuardianService
-import com.sentinel.ai.utils.MediaProjectionHolder
-import com.sentinel.ai.utils.MediaProjectionStore
 import com.sentinel.ai.utils.ModelInitializer
 import com.sentinel.ai.utils.PermissionUtils
+import com.sentinel.ai.utils.ProfilePrefs
 
 class SetupActivity : BaseLocalizedActivity() {
 
     private lateinit var binding: ActivitySetupBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ProfilePrefs.forceLightMode(this)
         super.onCreate(savedInstanceState)
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -84,14 +83,6 @@ class SetupActivity : BaseLocalizedActivity() {
                 PermissionUtils.requestIgnoreBatteryOptimization(this)
             }
         }
-        binding.btnAudioCapture.setOnClickListener {
-            handlePermissionSwitch(
-                binding.btnAudioCapture,
-                MediaProjectionHolder.isReady()
-            ) {
-                requestAudioCapture()
-            }
-        }
         binding.btnContinue.setOnClickListener {
             val allGranted = PermissionUtils.allEssentialGranted(this)
             if (!allGranted) {
@@ -107,23 +98,6 @@ class SetupActivity : BaseLocalizedActivity() {
             if (allGranted) SentinelGuardianService.start(this)
             startActivity(Intent(this, HomeActivity::class.java))
             finish()
-        }
-
-        binding.btnSkip.setOnClickListener {
-            com.sentinel.ai.utils.OnboardingPrefs.setComplete(this, true)
-            Toast.makeText(this, getString(R.string.setup_limited_mode_note), Toast.LENGTH_LONG).show()
-            startActivity(Intent(this, HomeActivity::class.java))
-            finish()
-        }
-    }
-
-    private fun requestAudioCapture() {
-        try {
-            val mgr = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-            @Suppress("DEPRECATION")
-            startActivityForResult(mgr.createScreenCaptureIntent(), REQ_PROJECTION)
-        } catch (e: Exception) {
-            Toast.makeText(this, getString(R.string.permission_audio_capture_error), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -144,7 +118,6 @@ class SetupActivity : BaseLocalizedActivity() {
             PermissionUtils.hasCallLogPermission(this) && PermissionUtils.hasSmsPermission(this)
         )
         binding.btnBattery.applySwitchState(PermissionUtils.isBatteryOptimizationIgnored(this))
-        binding.btnAudioCapture.applySwitchState(MediaProjectionHolder.isReady())
 
         val hasMinimal = PermissionUtils.hasMinimalGranted(this)
         val allGranted = PermissionUtils.allEssentialGranted(this)
@@ -184,21 +157,6 @@ class SetupActivity : BaseLocalizedActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             REQ_ROLE -> updateButtons()
-            REQ_PROJECTION -> {
-                if (resultCode == RESULT_OK && data != null) {
-                    val mgr = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-                    try {
-                        val mp = mgr.getMediaProjection(resultCode, data)
-                        MediaProjectionHolder.store(mp)
-                        MediaProjectionStore.save(resultCode, data)  // keep for Android 10-13 reuse
-                        SentinelGuardianService.startProjectionMode(this)
-                        Toast.makeText(this, getString(R.string.permission_audio_capture_granted), Toast.LENGTH_SHORT).show()
-                    } catch (e: Exception) {
-                        Toast.makeText(this, getString(R.string.permission_audio_capture_error), Toast.LENGTH_SHORT).show()
-                    }
-                }
-                updateButtons()
-            }
         }
     }
 
@@ -209,6 +167,5 @@ class SetupActivity : BaseLocalizedActivity() {
         private const val REQ_PHONE = 103
         private const val REQ_CALLLOG_SMS = 104
         private const val REQ_BATTERY = 105
-        private const val REQ_PROJECTION = 106
     }
 }

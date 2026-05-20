@@ -26,7 +26,8 @@ class BottomNavController(
             if (tab == current) return
             stateStore.setCurrentTab(tab)
             bottomNavView.render(stateStore.state.value.copy(currentTab = tab), animate = true)
-            onNavigate(tab)
+            // Give the tap animation a short lead so the nav feels responsive.
+            bottomNavView.postDelayed({ onNavigate(tab) }, 90L)
         }
 
         activity.lifecycleScope.launch {

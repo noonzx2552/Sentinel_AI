@@ -42,16 +42,21 @@ class SileroVad(
     }
 
     fun isSpeech(samples: ShortArray, length: Int, sampleRate: Int): Boolean {
-        if (length <= 0 || inputName == null || outputName == null) return true
-        if (sampleRate != TARGET_SAMPLE_RATE) return true
+        return speechProbability(samples, length, sampleRate) >= threshold
+    }
 
+    fun speechProbability(samples: ShortArray, length: Int, sampleRate: Int): Float {
+        if (length <= 0 || inputName == null || outputName == null) return 1f
+        if (sampleRate != TARGET_SAMPLE_RATE) return 1f
+
+        var maxProbability = 0f
         var offset = 0
         while (offset + FRAME_SIZE <= length) {
             val prob = runFrame(samples, offset)
-            if (prob >= threshold) return true
+            if (prob > maxProbability) maxProbability = prob
             offset += FRAME_SIZE
         }
-        return false
+        return maxProbability
     }
 
     fun reset() {

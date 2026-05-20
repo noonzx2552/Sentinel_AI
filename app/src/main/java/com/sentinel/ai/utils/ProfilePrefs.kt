@@ -7,6 +7,7 @@ object ProfilePrefs {
     private const val PREFS_NAME = "profile_prefs"
     private const val KEY_PROFILE_NAME = "profile_name"
     private const val KEY_DARK_MODE = "dark_mode"
+    private const val KEY_THEME_V2_LIGHT_DEFAULT_APPLIED = "theme_v2_light_default_applied"
 
     fun getName(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -27,9 +28,22 @@ object ProfilePrefs {
 
     fun ensureDefaultTheme(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (!prefs.getBoolean(KEY_THEME_V2_LIGHT_DEFAULT_APPLIED, false)) {
+            // One-time migration: force light mode after the redesign update.
+            prefs.edit()
+                .putBoolean(KEY_DARK_MODE, false)
+                .putBoolean(KEY_THEME_V2_LIGHT_DEFAULT_APPLIED, true)
+                .apply()
+            applyTheme(false)
+            return
+        }
+
         if (!prefs.contains(KEY_DARK_MODE)) {
             prefs.edit().putBoolean(KEY_DARK_MODE, false).apply()
             applyTheme(false)
+        } else {
+            // Keep persisted preference, but default for fresh install is always light.
+            applyTheme(prefs.getBoolean(KEY_DARK_MODE, false))
         }
     }
 
@@ -40,6 +54,16 @@ object ProfilePrefs {
             .apply()
         
         applyTheme(enabled)
+    }
+
+    fun forceLightMode(context: Context) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_DARK_MODE, false)
+            .putBoolean(KEY_THEME_V2_LIGHT_DEFAULT_APPLIED, true)
+            .apply()
+
+        applyTheme(false)
     }
 
     fun applyTheme(enabled: Boolean) {

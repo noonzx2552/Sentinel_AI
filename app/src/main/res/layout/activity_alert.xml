@@ -3,63 +3,83 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sentinel_surface"
+    android:background="@drawable/home_bg_atmosphere"
     android:padding="20dp">
 
-    <TextView
-        android:id="@+id/alertTitle"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/alertCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/overlay_critical_title"
-        android:textColor="@color/sentinel_critical"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/alertBody"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/overlay_critical_body"
-        android:textColor="@color/sentinel_on_surface"
-        app:layout_constraintTop_toBottomOf="@id/alertTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/alertScore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textColor="@color/sentinel_on_surface"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/alertBody"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/alertDetail"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:textColor="@color/sentinel_on_surface"
-        app:layout_constraintTop_toBottomOf="@id/alertScore"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/alertDismiss" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/alertDismiss"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/alert_back"
-        app:backgroundTint="@color/sentinel_critical"
-        android:textAllCaps="false"
+        app:cardBackgroundColor="@color/home_threat_card_bg"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/home_threat_card_border"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:id="@+id/alertTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/overlay_critical_title"
+                android:textColor="@color/home_accent_red"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/alertBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/overlay_critical_body"
+                android:textColor="@color/splash_title"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/alertScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/checknumber_stat_bg"
+                android:paddingStart="10dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="6dp"
+                android:textColor="@color/splash_title"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/alertDetail"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:textColor="@color/home_muted"
+                android:textSize="13sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/alertDismiss"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/home_accent_red"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="@string/alert_back"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                app:cornerRadius="16dp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

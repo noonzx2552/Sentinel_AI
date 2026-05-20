@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -42,20 +41,12 @@ class ProfileActivity : BaseActivity() {
 
         // Toggles: persist state
         pushToggle?.setOnCheckedChangeListener { _, checked ->
-            Toast.makeText(
-                this,
-                getString(if (checked) R.string.profile_push_enabled else R.string.profile_push_disabled),
-                Toast.LENGTH_SHORT
-            ).show()
+            showBottomPopup(getString(if (checked) R.string.profile_push_enabled else R.string.profile_push_disabled))
         }
         
         darkToggle?.setOnCheckedChangeListener { _, checked ->
             ProfilePrefs.setDarkMode(this, checked)
-            Toast.makeText(
-                this,
-                getString(if (checked) R.string.profile_dark_enabled else R.string.profile_dark_disabled),
-                Toast.LENGTH_SHORT
-            ).show()
+            showBottomPopup(getString(if (checked) R.string.profile_dark_enabled else R.string.profile_dark_disabled))
             // Theme is applied inside ProfilePrefs.setDarkMode
         }
 
@@ -112,7 +103,7 @@ class ProfileActivity : BaseActivity() {
         val sheet = EditNameBottomSheet()
         sheet.onNameSaved = { newName ->
             nameView?.text = newName
-            Toast.makeText(this, getString(R.string.profile_name_updated), Toast.LENGTH_SHORT).show()
+            showBottomPopup(getString(R.string.profile_name_updated))
         }
         sheet.show(supportFragmentManager, "edit_name")
     }

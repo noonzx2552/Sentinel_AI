@@ -22,6 +22,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
 import com.sentinel.ai.R
+import com.sentinel.ai.model.CallerOverlayUiState
+import com.sentinel.ai.model.ProtectionMode
 import com.sentinel.ai.model.RiskLevel
 import com.sentinel.ai.security.NumberChecker
 import com.sentinel.ai.security.SafetyLevel
@@ -30,6 +32,7 @@ import com.sentinel.ai.utils.KnownNumberRepository
 import com.sentinel.ai.utils.LastCallStore
 import com.sentinel.ai.utils.NotificationHelper
 import com.sentinel.ai.utils.PermissionUtils
+import com.sentinel.ai.utils.OverlayController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,6 +54,7 @@ class IncomingCallOverlayService : Service() {
     private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val telephonyManager by lazy { getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager }
     private val notificationHelper by lazy { NotificationHelper(this) }
+    private val overlayController by lazy { OverlayController(this) }
 
     private var overlayView: View? = null
     private var phoneStateListener: PhoneStateListener? = null
@@ -206,8 +210,25 @@ class IncomingCallOverlayService : Service() {
         if (resetRetry) {
             cancelOverlayRetry()
         }
-        dismissOverlay()
-        showCallerInfoOverlay(data)
+        val state = CallerOverlayUiState(
+            phoneNumber = data.number,
+            displayName = data.name,
+            riskLevel = data.riskLevel,
+            riskScore = when (data.riskLevel) {
+                RiskLevel.SAFE -> 18
+                RiskLevel.WARNING -> 55
+                RiskLevel.CRITICAL -> 86
+            },
+            reasons = listOf(data.reason).filter { it.isNotBlank() },
+            sourceTags = buildList {
+                add(getString(R.string.overlay_tag_number_check))
+                if (data.reportCount > 0) add(getString(R.string.overlay_tag_blacklist))
+            },
+            protectionMode = ProtectionMode.NUMBER_ONLY,
+            liveTranscript = null,
+            isExpanded = data.riskLevel != RiskLevel.SAFE || data.reportCount > 0
+        )
+        overlayController.showCallerRiskOverlay(state, force = true)
     }
 
     private fun showCallerInfoOverlay(data: OverlayData) {
@@ -295,6 +316,7 @@ class IncomingCallOverlayService : Service() {
     }
 
     private fun dismissOverlay() {
+        overlayController.dismiss(force = true)
         overlayView?.let {
             runCatching { windowManager.removeView(it) }
         }

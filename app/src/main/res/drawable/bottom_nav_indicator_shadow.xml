@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <size android:width="76dp" android:height="76dp" />
+    <size
+        android:width="220dp"
+        android:height="88dp" />
     <gradient
         android:type="radial"
-        android:gradientRadius="16dp"
+        android:gradientRadius="72dp"
         android:centerX="50%"
-        android:centerY="78%"
-        android:startColor="@color/bottom_nav_indicator_glow"
-        android:centerColor="#00FFFFFF"
-        android:endColor="#00FFFFFF" />
+        android:centerY="24%"
+        android:startColor="@color/bottom_nav_shell_glow"
+        android:centerColor="@android:color/transparent"
+        android:endColor="@android:color/transparent" />
 </shape>

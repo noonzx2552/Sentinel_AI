@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /d/scammerdetect/scammerdetect/app/src/main/res/values* -name \"colors.xml\")",
+      "Bash(xargs ls:*)",
+      "Bash(grep -E \"\\\\.\\(kt|xml\\)$\")"
+    ]
+  }
+}

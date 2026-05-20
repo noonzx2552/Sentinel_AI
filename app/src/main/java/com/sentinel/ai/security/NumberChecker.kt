@@ -94,16 +94,48 @@ class NumberChecker(
                 notes.add(context.getString(R.string.number_note_premium_risky))
             }
             PhoneNumberUtil.PhoneNumberType.PERSONAL_NUMBER -> score -= 8
-            PhoneNumberUtil.PhoneNumberType.VOIP -> score -= 6
+            PhoneNumberUtil.PhoneNumberType.VOIP -> {
+                score -= 6
+                notes.add(context.getString(R.string.number_note_voip_risky))
+            }
             PhoneNumberUtil.PhoneNumberType.UNKNOWN -> score -= 5
             else -> {}
         }
 
+        // Thai-specific prefix analysis
+        if (region == "TH") {
+            val thaiDigits = nationalDigits
+            when {
+                thaiDigits.startsWith("06") -> {
+                    score -= 8
+                    notes.add(context.getString(R.string.number_note_th_06x_prefix))
+                }
+                thaiDigits.startsWith("09") -> {
+                    // 09x: mixed carriers, slightly elevated spoofing risk
+                    score -= 3
+                }
+                thaiDigits.startsWith("02") || thaiDigits.startsWith("03") ||
+                thaiDigits.startsWith("04") || thaiDigits.startsWith("05") ||
+                thaiDigits.startsWith("07") -> {
+                    // Landline prefixes — lower scam risk but can be spoofed via CLI
+                    score -= 2
+                }
+                else -> {}
+            }
+        }
+
+        // International number from high-risk region
+        val highRiskRegions = setOf("NG", "GH", "CM", "SN", "KE", "ZA", "PK", "BD", "IN", "PH", "RU", "UA", "BY", "MD")
+        if (region != null && region in highRiskRegions) {
+            score -= 10
+            notes.add(context.getString(R.string.number_note_high_risk_region, region))
+        }
+
         val queryNumber = nationalDigits.ifBlank { formattedE164.filter { it.isDigit() } }
-        val isMockScammer = digitsOnly == "0999999999" || digitsOnly == "66999999999"
-        val isMockSafe = digitsOnly == "0812345678" || digitsOnly == "66812345678"
-        val isForcedScammer = digitsOnly == "0616581564" || digitsOnly == "66616581564"
-        val isMock = isMockScammer || isMockSafe || isForcedScammer
+        val mocksEnabled = BuildConfig.DEBUG
+        val isMockScammer = mocksEnabled && (digitsOnly == "0999999999" || digitsOnly == "66999999999")
+        val isMockSafe = mocksEnabled && (digitsOnly == "0812345678" || digitsOnly == "66812345678")
+        val isForcedScammer = mocksEnabled && (digitsOnly == "0616581564" || digitsOnly == "66616581564")
         
         val external = if (isMockScammer) {
             // Mock External Info for True carrier
@@ -174,11 +206,18 @@ class NumberChecker(
             score = 0
             notes.add("User-flagged scammer")
         } else if (reports != null && reports.count > 0) {
-            score = (score - 35).coerceAtLeast(0)
+            val reportPenalty = when {
+                reports.count >= 10 -> 50
+                reports.count >= 5  -> 42
+                reports.count >= 3  -> 35
+                reports.count == 2  -> 25
+                else                -> 15
+            }
+            score = (score - reportPenalty).coerceAtLeast(0)
             notes.add(context.getString(R.string.checknumber_reports_found_format, reports.count))
-        } else {
-            // No reports found - set score to 100 (completely safe)
-            score = 100
+            if (reports.count >= 5) {
+                notes.add(context.getString(R.string.number_note_many_reports, reports.count))
+            }
         }
 
         val finalScore = score.coerceIn(0, 100)
@@ -192,7 +231,7 @@ class NumberChecker(
             rawInput = raw,
             formattedE164 = formattedE164,
             displayNumber = phoneNumberUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.NATIONAL),
-            region = countryName ?: region,
+            region = region,
             carrier = carrier,
             countryName = countryName,
             externalLineType = externalLineType,
@@ -215,8 +254,10 @@ class NumberChecker(
 
     private fun fetchExternalInfo(queryNumber: String, region: String?): ExternalLookupResult? {
         val digitsOnly = queryNumber.filter { it.isDigit() }
-        val isMock = digitsOnly == "0999999999" || digitsOnly == "66999999999" || 
-                     digitsOnly == "0812345678" || digitsOnly == "66812345678"
+        val isMock = BuildConfig.DEBUG && (
+            digitsOnly == "0999999999" || digitsOnly == "66999999999" ||
+            digitsOnly == "0812345678" || digitsOnly == "66812345678"
+        )
         if (isMock) return null // Handled in check()
 
         val number = queryNumber.ifBlank { return null }
@@ -269,9 +310,10 @@ class NumberChecker(
      */
     private fun fetchReports(rawNumber: String): ReportLookupResult? {
         val digitsOnly = rawNumber.filter { it.isDigit() }
-        
-        // TEST CASE: Fake Scammer Number for UI Testing (099-999-9999)
-        if (digitsOnly == "0999999999" || digitsOnly == "66999999999") {
+
+        if (BuildConfig.DEBUG) {
+            // TEST CASE: Fake Scammer Number for UI Testing (099-999-9999)
+            if (digitsOnly == "0999999999" || digitsOnly == "66999999999") {
             val fakeJson = JSONObject().apply {
                 put("count", 3)
                 put("results", JSONArray().apply {
@@ -294,14 +336,15 @@ class NumberChecker(
             }
             return parseReports(fakeJson.toString())
         }
-        
-        // TEST CASE: Fake Safe Number for UI Testing (081-234-5678)
-        if (digitsOnly == "0812345678" || digitsOnly == "66812345678") {
-            return ReportLookupResult(count = 0, details = emptyList(), rawHtml = "Mocked Safe")
+
+            // TEST CASE: Fake Safe Number for UI Testing (081-234-5678)
+            if (digitsOnly == "0812345678" || digitsOnly == "66812345678") {
+                return ReportLookupResult(count = 0, details = emptyList(), rawHtml = "Mocked Safe")
+            }
         }
 
         val apiKey = BuildConfig.BLACKLIST_API_KEY
-        val apiUrl = BuildConfig.BLACKLIST_API_URL.ifBlank { "https://blacklist.smarthomeus3r.space/search" }
+        val apiUrl = BuildConfig.BLACKLIST_API_URL.ifBlank { "https://api.thammasorn.dev/api/search" }
         val response = BlacklistSellerClient.request(
             number = rawNumber,
             apiKey = apiKey,
@@ -312,22 +355,52 @@ class NumberChecker(
     }
 
     private fun parseReports(raw: String): ReportLookupResult? {
-        val json = JSONObject(raw)
+        val envelope = JSONObject(raw)
+        val json = envelope.optJSONObject("result") ?: envelope
         val count = json.optInt("count", 0)
+        val total = json.optDouble("total", 0.0).takeIf { it > 0.0 }
+        val currency = json.optString("currency").takeIf { it.isNotBlank() } ?: "THB"
         val results = json.optJSONArray("results")
+            ?: json.optJSONArray("reports")
         val details = mutableListOf<String>()
         if (results != null) {
             for (i in 0 until results.length()) {
                 val item = results.optJSONObject(i) ?: continue
                 val index = item.optString("index").trim()
-                val sellerInfo = item.optString("seller_info").trim()
+                val sellerInfo = item.optString("seller_info")
+                    .ifBlank { buildThammasornReportInfo(item) }
+                    .trim()
                 val amount = item.optString("amount").trim()
                 if (sellerInfo.isBlank() && amount.isBlank()) continue
-                val formatted = formatReportDetail(index, sellerInfo, amount)
+                val formatted = formatReportDetail(index, sellerInfo, formatAmount(amount, currency))
                 if (formatted.isNotBlank()) details.add(formatted)
             }
         }
+        if (total != null && count > 0) {
+            details.add(0, "ยอดเสียหายรวม: ${formatAmount(total, currency)}")
+        }
         return ReportLookupResult(count = count, details = details, rawHtml = raw)
+    }
+
+    private fun buildThammasornReportInfo(item: JSONObject): String {
+        val parts = mutableListOf<String>()
+        item.optString("report_number").takeIf { it.isNotBlank() }?.let { parts.add("เลขรายงาน: $it") }
+        item.optString("seller_name").takeIf { it.isNotBlank() }?.let { parts.add("ชื่อผู้ขาย: $it") }
+        item.optString("product").takeIf { it.isNotBlank() }?.let { parts.add("สินค้า: $it") }
+        item.optString("seller_page").takeIf { it.isNotBlank() }?.let { parts.add("เพจขายของ: $it") }
+        item.optString("date").takeIf { it.isNotBlank() }?.let { parts.add("วันที่: $it") }
+        return parts.joinToString(" | ")
+    }
+
+    private fun formatAmount(raw: String, currency: String): String {
+        if (raw.isBlank()) return raw
+        val trimmed = raw.trim()
+        return if (trimmed.contains(Regex("[A-Za-zก-ฮ]"))) trimmed else "$trimmed $currency"
+    }
+
+    private fun formatAmount(raw: Double, currency: String): String {
+        val amountText = if (raw % 1.0 == 0.0) raw.toInt().toString() else raw.toString()
+        return "$amountText $currency"
     }
 
     private fun formatReportDetail(index: String, sellerInfo: String, amount: String): String {
@@ -364,7 +437,7 @@ class NumberChecker(
     }
 
     private fun splitReportTokens(text: String): List<String> {
-        val tokens = listOf("เลขรายงาน", "สินค้า", "เพจขายของ", "วันที่", "ดูรายละเอียด")
+        val tokens = listOf("เลขรายงาน", "ชื่อผู้ขาย", "สินค้า", "เพจขายของ", "วันที่", "ดูรายละเอียด")
         var normalized = text
         tokens.forEach { token ->
             normalized = normalized.replace(token, "|$token")

@@ -41,11 +41,13 @@ android {
         def blsPass = (project.findProperty("BLS_PASS") ?: "67766776_").toString().replace("\"", "")
         buildConfigField("String", "BLS_USER", "\"${blsUser}\"")
         buildConfigField("String", "BLS_PASS", "\"${blsPass}\"")
-        // Blacklist API (smarthomeus3r)
-        def blacklistApiKey = (project.findProperty("BLACKLIST_API_KEY") ?: 'k3yb11acklist$eller-aslwisdn435hu234iohh').toString().replace("\"", "")
-        def blacklistApiUrl = (project.findProperty("BLACKLIST_API_URL") ?: "https://blacklist.smarthomeus3r.space/search").toString().replace("\"", "")
+        // Blacklist API (thammasorn.dev)
+        def blacklistApiKey = (project.findProperty("BLACKLIST_API_KEY") ?: "sai_cCkLOvuv3H3K-ZwYia4X6Glh_SQ4yznniISlaxjSFTY").toString().replace("\"", "")
+        def blacklistApiUrl = (project.findProperty("BLACKLIST_API_URL") ?: "https://api.thammasorn.dev/api/search").toString().replace("\"", "")
+        def blacklistApiFullUrl = (project.findProperty("BLACKLIST_API_FULL_URL") ?: "https://api.thammasorn.dev/api/search/full").toString().replace("\"", "")
         buildConfigField("String", "BLACKLIST_API_KEY", "\"${blacklistApiKey}\"")
         buildConfigField("String", "BLACKLIST_API_URL", "\"${blacklistApiUrl}\"")
+        buildConfigField("String", "BLACKLIST_API_FULL_URL", "\"${blacklistApiFullUrl}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

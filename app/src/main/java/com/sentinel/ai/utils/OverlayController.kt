@@ -13,11 +13,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.google.android.material.card.MaterialCardView
 import com.sentinel.ai.R
 import com.sentinel.ai.utils.SensitiveAppBypass
 import com.sentinel.ai.utils.OverlayGatekeeper
+import com.sentinel.ai.model.CallerOverlayUiState
+import com.sentinel.ai.model.ProtectionMode
 import com.sentinel.ai.model.RiskLevel
+import com.sentinel.ai.service.CallProtectionOrchestrator
 
 class OverlayController(private val context: Context) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -26,6 +31,8 @@ class OverlayController(private val context: Context) {
     private var liveTranscriptBadge: android.widget.TextView? = null
     private var liveTranscriptTitle: android.widget.TextView? = null
     private var liveTranscriptParams: WindowManager.LayoutParams? = null
+    private var callerRiskState: CallerOverlayUiState? = null
+    private var callerRiskParams: WindowManager.LayoutParams? = null
     private val handler = Handler(Looper.getMainLooper())
 
     init {
@@ -106,6 +113,170 @@ class OverlayController(private val context: Context) {
                 liveTranscriptTitle?.text = context.getString(R.string.scam_keyword_risk_title, scenarioName)
             }
         }
+    }
+
+    fun showCallerRiskOverlay(state: CallerOverlayUiState, force: Boolean = false) {
+        if (!Settings.canDrawOverlays(context)) return
+        if (!force && !OverlayGatekeeper.shouldShow(state.phoneNumber, state.riskLevel, state.timestamp)) return
+        if (SensitiveAppBypass.isBlocked() || !AllowedAppGate.isAllowed()) {
+            dismiss()
+            return
+        }
+        handler.post {
+            callerRiskState = state
+            dismissInternal()
+            val view = LayoutInflater.from(context).inflate(R.layout.overlay_caller_risk_card, null)
+            bindCallerRiskOverlay(view, state)
+            val params = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                overlayType(),
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                y = if (state.riskLevel == RiskLevel.CRITICAL) 52 else 34
+            }
+            attachDraggable(view, params)
+            runCatching {
+                windowManager.addView(view, params)
+                currentView = view
+                callerRiskParams = params
+            }
+        }
+    }
+
+    fun updateCallerRiskOverlay(transform: (CallerOverlayUiState) -> CallerOverlayUiState) {
+        handler.post {
+            val next = callerRiskState?.let(transform) ?: return@post
+            callerRiskState = next
+            currentView?.let { view ->
+                if (view.findViewById<View>(R.id.callerRiskCard) != null) {
+                    bindCallerRiskOverlay(view, next)
+                } else {
+                    showCallerRiskOverlay(next, force = true)
+                }
+            } ?: showCallerRiskOverlay(next, force = true)
+        }
+    }
+
+    fun updateCallerRiskTranscript(text: String, level: RiskLevel? = null, score: Int? = null, reasons: List<String> = emptyList(), sourceTags: List<String> = emptyList()) {
+        updateCallerRiskOverlay { current ->
+            current.copy(
+                liveTranscript = text.take(160),
+                riskLevel = level ?: current.riskLevel,
+                riskScore = score ?: current.riskScore,
+                reasons = (reasons + current.reasons).distinct().ifEmpty { current.reasons },
+                sourceTags = (sourceTags + current.sourceTags).distinct(),
+                isExpanded = current.isExpanded || level == RiskLevel.CRITICAL,
+                timestamp = System.currentTimeMillis()
+            )
+        }
+    }
+
+    private fun bindCallerRiskOverlay(view: View, state: CallerOverlayUiState) {
+        val panel = view.findViewById<View>(R.id.overlayRootPanel)
+        val riskBadge = view.findViewById<TextView>(R.id.tvRiskBadge)
+        val mode = view.findViewById<TextView>(R.id.tvProtectionMode)
+        val displayName = view.findViewById<TextView>(R.id.tvDisplayName)
+        val number = view.findViewById<TextView>(R.id.tvPhoneNumber)
+        val score = view.findViewById<TextView>(R.id.tvRiskScore)
+        val primaryReason = view.findViewById<TextView>(R.id.tvPrimaryReason)
+        val tags = view.findViewById<LinearLayout>(R.id.sourceTagContainer)
+        val expanded = view.findViewById<View>(R.id.expandedPanel)
+        val reasons = view.findViewById<TextView>(R.id.tvReasons)
+        val transcript = view.findViewById<TextView>(R.id.tvTranscriptPreview)
+        val expand = view.findViewById<View>(R.id.btnOverlayExpand)
+        val close = view.findViewById<View>(R.id.btnOverlayClose)
+        val ignore = view.findViewById<View>(R.id.btnOverlayIgnore)
+        val mute = view.findViewById<View>(R.id.btnOverlayMute)
+        val report = view.findViewById<View>(R.id.btnOverlayReport)
+        val reasonButton = view.findViewById<View>(R.id.btnOverlayReason)
+
+        val palette = when (state.riskLevel) {
+            RiskLevel.SAFE -> OverlayPalette(R.drawable.bg_overlay_safe, R.drawable.bg_risk_badge_safe, "#087A3F", "SAFE")
+            RiskLevel.WARNING -> OverlayPalette(R.drawable.bg_overlay_warning, R.drawable.bg_risk_badge_warning, "#A85B00", "WARNING")
+            RiskLevel.CRITICAL -> OverlayPalette(R.drawable.bg_overlay_critical, R.drawable.bg_risk_badge_critical, "#B42318", "CRITICAL")
+        }
+        panel.setBackgroundResource(palette.panelRes)
+        riskBadge.setBackgroundResource(palette.badgeRes)
+        riskBadge.setTextColor(Color.parseColor(palette.textColor))
+        riskBadge.text = palette.label
+        mode.text = protectionModeLabel(state.protectionMode)
+        displayName.text = state.displayName?.takeIf { it.isNotBlank() } ?: context.getString(R.string.overlay_contact_unknown)
+        number.text = formatPhoneDisplay(state.phoneNumber)
+        score.text = state.riskScore.coerceIn(0, 100).toString()
+        primaryReason.text = state.reasons.firstOrNull() ?: context.getString(R.string.overlay_reason_default_safe)
+        reasons.text = state.reasons.joinToString("\n") { "• $it" }
+        expanded.visibility = if (state.isExpanded || state.riskLevel == RiskLevel.CRITICAL) View.VISIBLE else View.GONE
+        if (state.liveTranscript.isNullOrBlank()) {
+            transcript.visibility = View.GONE
+        } else {
+            transcript.visibility = View.VISIBLE
+            transcript.text = context.getString(R.string.overlay_transcript_format, state.liveTranscript)
+        }
+        tags.removeAllViews()
+        state.sourceTags.take(4).forEach { tag ->
+            tags.addView(makeTag(tag))
+        }
+        close.setOnClickListener {
+            OverlayGatekeeper.dismissNumberForSession(state.phoneNumber)
+            dismiss()
+        }
+        ignore.setOnClickListener {
+            OverlayGatekeeper.dismissNumberForSession(state.phoneNumber)
+            dismiss()
+        }
+        mute.setOnClickListener {
+            CallProtectionOrchestrator.active(context).toggleAudio()
+        }
+        report.setOnClickListener {
+            CallProtectionOrchestrator.active(context).reportCurrentNumber()
+            updateCallerRiskOverlay {
+                it.copy(
+                    reasons = (listOf(context.getString(R.string.overlay_report_saved)) + it.reasons).distinct(),
+                    isExpanded = true,
+                    timestamp = System.currentTimeMillis()
+                )
+            }
+        }
+        reasonButton.setOnClickListener {
+            val next = state.copy(isExpanded = true, timestamp = System.currentTimeMillis())
+            callerRiskState = next
+            bindCallerRiskOverlay(view, next)
+        }
+        expand.setOnClickListener {
+            val next = state.copy(isExpanded = !state.isExpanded, timestamp = System.currentTimeMillis())
+            callerRiskState = next
+            bindCallerRiskOverlay(view, next)
+        }
+    }
+
+    private fun makeTag(text: String): TextView {
+        return TextView(context).apply {
+            this.text = text
+            setTextColor(Color.parseColor("#44546A"))
+            textSize = 11f
+            setBackgroundResource(R.drawable.bg_overlay_tag)
+            val margin = (6 * context.resources.displayMetrics.density).toInt()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { marginEnd = margin }
+        }
+    }
+
+    private fun protectionModeLabel(mode: ProtectionMode): String = when (mode) {
+        ProtectionMode.PLAYBACK_CAPTURE -> context.getString(R.string.overlay_mode_playback)
+        ProtectionMode.MIC_FALLBACK -> context.getString(R.string.overlay_mode_mic)
+        ProtectionMode.NO_AUDIO -> context.getString(R.string.overlay_mode_no_audio)
+        ProtectionMode.NUMBER_ONLY -> context.getString(R.string.overlay_mode_number_only)
+        ProtectionMode.ACCESSIBILITY -> context.getString(R.string.overlay_mode_accessibility)
+        ProtectionMode.UNKNOWN -> context.getString(R.string.overlay_mode_unknown)
     }
 
     @JvmOverloads
@@ -292,6 +463,7 @@ class OverlayController(private val context: Context) {
             liveTranscriptView = null
             liveTranscriptBadge = null
             liveTranscriptParams = null
+            callerRiskParams = null
         }
     }
 
@@ -347,4 +519,11 @@ class OverlayController(private val context: Context) {
         val n = name.trim()
         return n.equals("Unknown", true) || n.equals("Unknown caller", true) || n.equals("ไม่ทราบ", true)
     }
+
+    private data class OverlayPalette(
+        val panelRes: Int,
+        val badgeRes: Int,
+        val textColor: String,
+        val label: String
+    )
 }

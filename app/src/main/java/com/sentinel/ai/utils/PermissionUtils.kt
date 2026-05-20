@@ -116,16 +116,52 @@ object PermissionUtils {
             hasSmsPermission(context) &&
             isBatteryOptimizationIgnored(context)
     }
+
+    /**
+     * Bypass / Limited mode: only requires the minimum to run manual scans.
+     * Call screening, accessibility, overlay, battery optimization are optional.
+     */
+    fun hasMinimalGranted(context: Context): Boolean {
+        return isNotificationPermissionGranted(context)
+    }
+
+    /**
+     * Returns how many of the 9 essential permissions are currently granted (0-9).
+     */
+    fun grantedCount(context: Context): Int {
+        var count = 0
+        if (hasMicPermission(context)) count++
+        if (canDrawOverlays(context)) count++
+        if (isCallScreeningRoleGranted(context)) count++
+        if (isNotificationPermissionGranted(context)) count++
+        if (isAccessibilityEnabled(context)) count++
+        if (hasPhoneStatePermission(context)) count++
+        if (hasCallLogPermission(context)) count++
+        if (hasSmsPermission(context)) count++
+        if (isBatteryOptimizationIgnored(context)) count++
+        return count
+    }
+
+    fun totalPermissionCount(): Int = 9
     
     fun isBatteryOptimizationIgnored(context: Context): Boolean {
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
         return powerManager.isIgnoringBatteryOptimizations(context.packageName)
     }
 
+    @android.annotation.SuppressLint("BatteryLife")
     fun requestIgnoreBatteryOptimization(activity: Activity) {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
             data = Uri.parse("package:${activity.packageName}")
         }
-        activity.startActivity(intent)
+        try {
+            activity.startActivity(intent)
+        } catch (_: android.content.ActivityNotFoundException) {
+            activity.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.parse("package:${activity.packageName}")
+                }
+            )
+        }
     }
 }

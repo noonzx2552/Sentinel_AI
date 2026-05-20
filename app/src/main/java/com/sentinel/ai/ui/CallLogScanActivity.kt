@@ -17,6 +17,7 @@ import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.sentinel.ai.BuildConfig
 import com.sentinel.ai.R
 import com.sentinel.ai.SentinelApp
 import com.sentinel.ai.model.GuardianEvent
@@ -166,17 +167,14 @@ class CallLogScanActivity : BaseActivity() {
                 return@launch
             }
 
-            // FAKE DATA INJECTION (As requested)
-            // 1. Safe Number
-            calls.add(CallLogItem("02-123-4567", System.currentTimeMillis() - 3600000, CallLog.Calls.INCOMING_TYPE, "Safe Business"))
-            // 2. Unsafe Number
-            calls.add(CallLogItem("099-999-9999", System.currentTimeMillis() - 7200000, CallLog.Calls.MISSED_TYPE, null))
-            // 3. Suspicious Number
-            calls.add(CallLogItem("098-888-8888", System.currentTimeMillis() - 10800000, CallLog.Calls.INCOMING_TYPE, null))
-            // 4. Unknown Number
-            calls.add(CallLogItem("082-222-2222", System.currentTimeMillis() - 14400000, CallLog.Calls.OUTGOING_TYPE, null))
-            
-            /*
+            // FAKE DATA INJECTION (debug builds only)
+            if (BuildConfig.DEBUG) {
+                calls.add(CallLogItem("02-123-4567", System.currentTimeMillis() - 3600000, CallLog.Calls.INCOMING_TYPE, "Safe Business"))
+                calls.add(CallLogItem("099-999-9999", System.currentTimeMillis() - 7200000, CallLog.Calls.MISSED_TYPE, null))
+                calls.add(CallLogItem("098-888-8888", System.currentTimeMillis() - 10800000, CallLog.Calls.INCOMING_TYPE, null))
+                calls.add(CallLogItem("082-222-2222", System.currentTimeMillis() - 14400000, CallLog.Calls.OUTGOING_TYPE, null))
+            }
+
             cursor?.use {
                 val numberIdx = it.getColumnIndex(CallLog.Calls.NUMBER)
                 val dateIdx = it.getColumnIndex(CallLog.Calls.DATE)
@@ -193,7 +191,6 @@ class CallLogScanActivity : BaseActivity() {
                     }
                 }
             }
-            */
 
             // Show list immediately
             withContext(Dispatchers.Main) {
@@ -211,23 +208,21 @@ class CallLogScanActivity : BaseActivity() {
 
             if (calls.isEmpty()) return@launch
 
-            // Analyze in parallel (Mocked for Fake Data)
+            // Analyze in parallel
             allScannedCalls = calls.map { item ->
                 async {
-                    // MOCK ANALYSIS based on number
-                    val status = when (item.number) {
+                    val mockedStatus = if (BuildConfig.DEBUG) when (item.number) {
                         "02-123-4567" -> SafetyLevel.SAFE
                         "099-999-9999" -> SafetyLevel.DANGER
                         "098-888-8888" -> SafetyLevel.CAUTION
-                        else -> SafetyLevel.UNKNOWN
+                        "082-222-2222" -> SafetyLevel.UNKNOWN
+                        else -> null
+                    } else null
+                    val status = mockedStatus ?: try {
+                        numberChecker.check(item.number).status
+                    } catch (_: Exception) {
+                        SafetyLevel.UNKNOWN
                     }
-                    /*
-                    val result = try {
-                        numberChecker.check(item.number)
-                    } catch (e: Exception) {
-                         // ... (original error handling) ...
-                    }
-                    */
                     item to status
                 }
             }.awaitAll()

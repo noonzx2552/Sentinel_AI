@@ -22,7 +22,7 @@ interface GuardianEventDao {
     suspend fun clearAll()
 }
 
-@Database(entities = [GuardianEvent::class], version = 1, exportSchema = false)
+@Database(entities = [GuardianEvent::class], version = 2, exportSchema = false)
 abstract class GuardianDatabase : RoomDatabase() {
     abstract fun eventDao(): GuardianEventDao
 }
