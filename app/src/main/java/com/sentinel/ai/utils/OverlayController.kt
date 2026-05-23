@@ -414,6 +414,41 @@ class OverlayController(private val context: Context) {
         }
     }
 
+    fun showSmsRiskAlert(sender: String, score: Int, reason: String) {
+        if (!Settings.canDrawOverlays(context)) return
+        if (SensitiveAppBypass.isBlocked()) {
+            dismiss()
+            return
+        }
+        handler.post {
+            dismissInternal()
+            val view = LayoutInflater.from(context).inflate(R.layout.view_overlay_scam_alert, null)
+            view.findViewById<TextView>(R.id.tvScamTitle).text = context.getString(R.string.sms_alert_title)
+            view.findViewById<TextView>(R.id.tvScamNumber).text =
+                context.getString(R.string.sms_alert_sender_format, sender.ifBlank { "SMS" })
+            view.findViewById<TextView>(R.id.tvScamReason).text =
+                context.getString(R.string.sms_alert_reason_format, score.coerceIn(0, 100), reason)
+            view.findViewById<View>(R.id.btnOverlayClose)?.setOnClickListener { dismiss() }
+            val params = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                overlayType(),
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                y = 80
+            }
+            runCatching {
+                windowManager.addView(view, params)
+                currentView = view
+            }
+            handler.postDelayed({ dismissInternal() }, 9000L)
+        }
+    }
+
     private fun showLayout(layoutId: Int, autoDismissMs: Long) {
         if (!Settings.canDrawOverlays(context)) return
         if (SensitiveAppBypass.isBlocked() || !AllowedAppGate.isAllowed()) {

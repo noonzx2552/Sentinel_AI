@@ -1,17 +1,19 @@
 package com.sentinel.ai.utils
 
-import com.sentinel.ai.utils.OverlayGatekeeper
-
 /**
  * Tracks sensitive apps (e.g., banking) to disable overlays while they are foreground.
  */
 object SensitiveAppBypass {
-    private val sensitivePackages = setOf(
+    val sensitivePackages = setOf(
         "com.kasikorn.retail.mbanking.wap", // K Plus
         "com.scb.phone", // SCB Easy
         "com.bbl.mobilebanking", // Bualuang mBanking
-        "com.krungthai.beacon", // Krungthai Next
-        "com.gsb.mobile.banking", // GSB
+        "ktbcs.netbank", // Krungthai NEXT
+        "com.krungthai.beacon", // Krungthai Next legacy/fallback
+        "com.mobilife.gsb.mymo", // MyMo by GSB
+        "com.gsb.mobile.banking", // GSB legacy/fallback
+        "com.krungsri.kma", // Krungsri
+        "com.TMBTOUCH.PRODUCTION", // ttb touch
         "com.cimbclicksTH", // CIMB
         "com.uob.mightyth", // UOB
         "com.kbank.service" // fallback kasikorn older
@@ -36,6 +38,9 @@ object SensitiveAppBypass {
             OverlayGatekeeper.dismissAll()
         }
     }
+
+    fun isSensitivePackage(packageName: String?): Boolean =
+        packageName != null && sensitivePackages.contains(packageName) && !bypassPackages.contains(packageName)
 
     fun isBlocked(): Boolean = currentSensitive
 }

@@ -21,7 +21,9 @@ class RiskScoring(private val nlpInference: NLPInference = NLPInference()) {
 
     private val suspiciousKeywords = listOf(
         "otp", "giftcard", "transfer", "urgent", "account", "verify", "password", "reward", "prize",
+        "login", "click", "http://", "https://", "bit.ly", "tinyurl", "shorturl", "confirm",
         "ด่วน", "เดี๋ยวนี้", "ทันที", "โอน", "บัญชี", "อายัด", "หมายจับ", "เงินฝาก", "คดี", "เจ้าหน้าที่",
+        "คลิก", "ยืนยัน", "รหัส", "พัสดุ", "ระงับ", "หมดอายุ", "รับสิทธิ์", "ลิงก์", "เข้าสู่ระบบ",
         "arrest", "police", "warrant", "freeze", "transfer now", "pay now", "bank officer",
         "ศาล", "ผู้พิพากษา", "จับกุม", "ข้อมูลส่วนตัว", "ชำระค่าปรับ"
     )

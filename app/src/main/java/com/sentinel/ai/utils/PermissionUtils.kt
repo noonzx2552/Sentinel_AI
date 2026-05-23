@@ -33,6 +33,35 @@ object PermissionUtils {
         ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.RECORD_AUDIO), requestCode)
     }
 
+    fun requestCorePermissions(activity: Activity, requestCode: Int) {
+        val permissions = buildList {
+            if (!hasMicPermission(activity)) add(Manifest.permission.RECORD_AUDIO)
+            if (!hasCallLogPermission(activity)) add(Manifest.permission.READ_CALL_LOG)
+            if (!hasSmsPermission(activity)) add(Manifest.permission.READ_SMS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !isNotificationPermissionGranted(activity)) {
+                add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(activity, permissions.toTypedArray(), requestCode)
+        }
+    }
+
+    fun hasCorePermissions(context: Context): Boolean =
+        hasMicPermission(context) &&
+            hasCallLogPermission(context) &&
+            hasSmsPermission(context) &&
+            isNotificationPermissionGranted(context)
+
+    fun hasCallProtectionPermissions(context: Context): Boolean =
+        hasPhoneStatePermission(context) &&
+            isCallScreeningRoleGranted(context) &&
+            canDrawOverlays(context)
+
+    fun hasBackgroundProtectionPermissions(context: Context): Boolean =
+        isAccessibilityEnabled(context) && isBatteryOptimizationIgnored(context)
+
     fun canDrawOverlays(context: Context): Boolean = Settings.canDrawOverlays(context)
 
     fun requestOverlayPermission(activity: Activity) {

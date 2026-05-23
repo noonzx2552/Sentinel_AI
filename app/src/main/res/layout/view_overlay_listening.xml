@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sentinel AI is listening to the call"
+        android:text="CyGuard is listening to the call"
         android:textStyle="bold"
         android:textColor="@color/sentinel_on_surface"
         android:textSize="16sp" />

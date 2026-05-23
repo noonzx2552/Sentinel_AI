@@ -69,6 +69,19 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
+                        <FrameLayout
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/home_icon_button_bg">
+
+                            <ImageView
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_sentinel_logo" />
+                        </FrameLayout>
+
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -79,8 +92,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/home_title"
-                                android:textColor="@color/splash_title"
-                                android:textSize="25sp"
+                                android:textColor="@color/home_hero_text"
+                                android:textSize="28sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -89,7 +102,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="@string/home_greeting"
-                                android:textColor="@color/home_muted"
+                                android:textColor="@color/home_hero_muted"
                                 android:textSize="13sp" />
                         </LinearLayout>
 
@@ -107,7 +120,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@android:drawable/ic_menu_info_details"
-                                app:tint="@color/home_muted" />
+                                app:tint="@color/home_hero_text" />
                         </FrameLayout>
                     </LinearLayout>
 
@@ -124,8 +137,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/home_status_title"
-                            android:textColor="@color/splash_title"
-                            android:textSize="19sp"
+                            android:textColor="@color/home_hero_text"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -147,7 +160,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="@string/home_status_body"
-                        android:textColor="@color/home_muted"
+                        android:textColor="@color/home_hero_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -740,4 +753,3 @@
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="sentinel_primary">#07101B</color>
-    <color name="sentinel_accent">#1CD0B1</color>
-    <color name="sentinel_warning">#FFC15C</color>
-    <color name="sentinel_critical">#FF6173</color>
-    <color name="sentinel_surface">#081321</color>
-    <color name="sentinel_on_surface">#EAF3FF</color>
-    <color name="sentinel_card">#10243C</color>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="sentinel_primary">#071018</color>
+    <color name="sentinel_accent">#29E0C3</color>
+    <color name="sentinel_warning">#FFC35F</color>
+    <color name="sentinel_critical">#FF5B75</color>
+    <color name="sentinel_surface">#0A1116</color>
+    <color name="sentinel_on_surface">#EDF5EA</color>
+    <color name="sentinel_card">#111C22</color>
+    <color name="ic_launcher_background">#071018</color>
     <color name="permission_done">#4AA9FF</color>
     <color name="permission_pending">@color/sentinel_card</color>
 
@@ -34,10 +34,10 @@
     <color name="permission_subtle">#90A8CC</color>
     <color name="permission_switch_off">#2A4262</color>
 
-    <color name="home_bg">#060F1B</color>
-    <color name="home_card_bg">#0F2239</color>
-    <color name="home_card_border">#263F60</color>
-    <color name="home_muted">#A8BFDF</color>
+    <color name="home_bg">#071018</color>
+    <color name="home_card_bg">#111C22</color>
+    <color name="home_card_border">#274237</color>
+    <color name="home_muted">#B4C5B8</color>
     <color name="home_accent_red">#FF6F82</color>
     <color name="home_accent_blue">#60B2FF</color>
     <color name="home_accent_yellow">#FFC25F</color>
@@ -51,6 +51,8 @@
     <color name="home_mode_selected_border">#27897F</color>
     <color name="home_chip_bg">#173A44</color>
     <color name="home_chip_text">#8CF3DE</color>
+    <color name="home_hero_text">#F8FBF5</color>
+    <color name="home_hero_muted">#C8D8C9</color>
 
     <color name="activity_chip_bg_critical">#45202D</color>
 

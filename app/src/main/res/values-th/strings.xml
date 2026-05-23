@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sentinel AI</string>
-    <string name="splash_title">Sentinel AI</string>
+    <string name="app_name">CyGuard</string>
+    <string name="splash_title">CyGuard</string>
     <string name="splash_subtitle">กำลังเริ่มการป้องกันด้วย AI</string>
     <string name="splash_status_model">กำลังโหลดโมเดลหลัก...</string>
     <string name="splash_status_rules">กำลังตั้งค่าการตรวจจับ...</string>
     <string name="splash_status_security">กำลังตรวจสอบความปลอดภัย...</string>
     <string name="setup_title">เปิดใช้โล่ป้องกัน</string>
-    <string name="setup_permissions">อนุญาตสิทธิ์เหล่านี้เพื่อให้ Sentinel ป้องกันคุณแบบเรียลไทม์</string>
+    <string name="setup_permissions">อนุญาตสิทธิ์เหล่านี้เพื่อให้ CyGuard ป้องกันคุณแบบเรียลไทม์</string>
     <string name="setup_data_stays">ข้อมูลอยู่บนเครื่องของคุณ</string>
     <string name="action_continue">ดำเนินการต่อ</string>
     <string name="action_enable">เปิดใช้งาน</string>
-    <string name="dashboard_title">แดชบอร์ด Sentinel</string>
+    <string name="dashboard_title">แดชบอร์ด CyGuard</string>
     <string name="guardian_toggle">โหมด Guardian</string>
     <string name="status_monitoring">กำลังเฝ้าระวัง</string>
     <string name="status_warning">เตือนภัย</string>
     <string name="status_critical">วิกฤต</string>
     <string name="recent_events">เหตุการณ์ล่าสุด</string>
     <string name="accessibility_description">อ่านข้อความเพื่อค้นหาความเสี่ยงจากมิจฉาชีพ ข้อมูลประมวลผลบนเครื่องเท่านั้น</string>
-    <string name="accessibility_summary">Sentinel AI เฝ้าระวังแอปแชทเพื่อหาสัญญาณมิจฉาชีพ</string>
+    <string name="accessibility_summary">CyGuard เฝ้าระวังแอปแชทเพื่อหาสัญญาณมิจฉาชีพ</string>
     <string name="overlay_warning_title">พบการสนทนาที่มีความเสี่ยงสูง</string>
     <string name="overlay_warning_body">โปรดระวัง พบรูปแบบการหลอกลวงจากผู้โทรหรือแชท</string>
     <string name="overlay_critical_title">ความเสี่ยงมิจฉาชีพระดับวิกฤต</string>
-    <string name="overlay_critical_body">Sentinel AI ตัดสายเพื่อป้องกันคุณ</string>
-    <string name="notification_channel_name">Sentinel Guardian</string>
+    <string name="overlay_critical_body">CyGuard ตัดสายเพื่อป้องกันคุณ</string>
+    <string name="notification_channel_name">CyGuard Guardian</string>
     <string name="notification_channel_desc">การเฝ้าระวังมิจฉาชีพแบบเรียลไทม์</string>
-    <string name="notification_title">Sentinel Guardian</string>
+    <string name="notification_title">CyGuard Guardian</string>
     <string name="notification_body">กำลังเฝ้าระวังการโทรและแชทเพื่อหาสัญญาณมิจฉาชีพ</string>
     <string name="notification_tap_to_stop">แตะเพื่อปิด Guardian</string>
     <string name="caretaker_channel_name">การแจ้งเตือนผู้ดูแล</string>
@@ -40,7 +40,7 @@
     <string name="action_enabled">เปิดใช้งานแล้ว</string>
     <string name="label_status">สถานะ</string>
     <string name="alert_back">กลับไปที่แดชบอร์ด</string>
-    <string name="intro_title">Sentinel ปกป้องคุณอย่างไร</string>
+    <string name="intro_title">CyGuard ปกป้องคุณอย่างไร</string>
     <string name="intro_subtitle">AI ขั้นสูงทำงานเงียบ ๆ เบื้องหลังเพื่อป้องกันคุณจากมิจฉาชีพ</string>
     <string name="intro_card_title_realtime">ตรวจจับแบบเรียลไทม์</string>
     <string name="intro_card_body_realtime">ติดตามการโทรที่กำลังใช้งานเพื่อหาคำสำคัญและโทนเสียงเสี่ยงทันที</string>
@@ -77,7 +77,16 @@
     <string name="permission_audio_capture_body">ถอดความเสียงของผู้โทรแบบเรียลไทม์เพื่อตรวจจับคำพูดมิจฉาชีพ อนุญาตครั้งเดียว ไม่มี popup ทุกสาย</string>
     <string name="permission_audio_capture_granted">เปิดใช้งานการจับเสียงในสายแล้ว</string>
     <string name="permission_audio_capture_error">ไม่สามารถเปิดใช้การจับเสียงในสายได้ กรุณาลองใหม่</string>
-    <string name="home_title">Sentinel AI</string>
+    <string name="permission_group_core_title">ตั้งค่าด่วน</string>
+    <string name="permission_group_core_body">แจ้งเตือน ไมค์ บันทึกสาย และ SMS กดครั้งเดียวได้หลายสิทธิ์</string>
+    <string name="permission_group_call_title">ป้องกันสายโทร</string>
+    <string name="permission_group_call_body">Caller ID สถานะโทรศัพท์ และแจ้งเตือนทับหน้าจอสำหรับสายเสี่ยง</string>
+    <string name="permission_group_background_title">เฝ้าระวังต่อเนื่อง</string>
+    <string name="permission_group_background_body">การช่วยการเข้าถึงและแบตเตอรี่ เพื่อให้ระบบไม่หลับกลางทาง</string>
+    <string name="permission_group_done">พร้อมแล้ว</string>
+    <string name="permission_group_missing_format">เหลือ %1$d อย่าง</string>
+    <string name="permission_group_action">เปิดใช้</string>
+    <string name="home_title">CyGuard</string>
     <string name="home_greeting">สวัสดี</string>
     <string name="home_status_title">คุณปลอดภัย</string>
     <string name="home_status_body">อุปกรณ์ของคุณได้รับการปกป้องและระบบทำงานปกติ</string>
@@ -134,7 +143,7 @@
     <string name="checklink_title">ตรวจสอบลิงก์</string>
     <string name="checklink_subtitle">วิเคราะห์ภัยแบบเรียลไทม์</string>
     <string name="checklink_input_label">URL ที่ต้องการสแกน</string>
-    <string name="checklink_input_value">https://sentinel-ai-secure.com</string>
+    <string name="checklink_input_value">https://cyguard-secure.com</string>
     <string name="checklink_paste">วาง</string>
     <string name="checklink_scan">สแกนลิงก์</string>
     <string name="checklink_scanning">กำลังสแกน...</string>
@@ -161,7 +170,7 @@
     <string name="checklink_item_history_body">ไม่พบรายงานมัลแวร์ก่อนหน้า</string>
     <string name="checklink_deductions_title">รายการหักคะแนน</string>
     <string name="checklink_no_deductions">ไม่มีการหักคะแนน</string>
-    <string name="checknumber_title">Sentinel AI</string>
+    <string name="checknumber_title">CyGuard</string>
     <string name="checknumber_subtitle">ศูนย์สแกน</string>
     <string name="checknumber_heading">ตรวจสอบเบอร์</string>
     <string name="checknumber_heading_body">ระบุความเสี่ยง สแปม และการหลอกลวงได้ทันที</string>
@@ -302,7 +311,7 @@
     <string name="profile_call_playback_disabled">ปิดจับเสียงโทร</string>
     <string name="profile_help_support">ช่วยเหลือและสนับสนุน</string>
     <string name="profile_log_out">ออกจากระบบ</string>
-    <string name="profile_version">Sentinel AI v2.5.0 (Build 342)</string>
+    <string name="profile_version">CyGuard v2.5.0 (Build 342)</string>
     <string name="profile_debug_mode">โหมดดีบัก</string>
     <string name="home_greeting_format">สวัสดี, %1$s</string>
     <string name="profile_edit_name">แก้ไขชื่อ</string>
@@ -476,7 +485,7 @@
     <string name="qr_scanner_title">สแกน QR</string>
     <string name="qr_scanner_status">กำลังสแกนอย่างปลอดภัย</string>
     <string name="qr_scanner_instruction">วาง QR ให้อยู่ในกรอบ</string>
-    <string name="qr_scanner_subinstruction">Sentinel จะตรวจลิงก์ เบอร์ และข้อความที่ซ่อนอยู่ก่อนเปิดใช้งาน</string>
+    <string name="qr_scanner_subinstruction">CyGuard จะตรวจลิงก์ เบอร์ และข้อความที่ซ่อนอยู่ก่อนเปิดใช้งาน</string>
     <string name="model_initializer_ready">โมเดล AI พร้อมใช้งาน</string>
     <string name="overlay_listening">กำลังรับฟัง...</string>
     <string name="vosk_model_failed_format">โหลดโมเดล Vosk ล้มเหลว: %1$s</string>
@@ -502,9 +511,12 @@
     </plurals>
     <string name="overlay_reports_found_format">พบรายงาน %1$d รายการ</string>
     <string name="credits_title">เครดิต</string>
-    <string name="credits_body">แอพ ScammerDetect พัฒนาโดยทีม Sentinel AI</string>
+    <string name="credits_body">แอพ CyGuard พัฒนาโดยทีม CyGuard</string>
     <string name="credits_names">thammasorn chensintananan\narchwin kerddee\npunika sunthornwedsawong</string>
     <string name="scam_alert_risk_message">พบความเสี่ยงจากบทสนทนา</string>
+    <string name="sms_alert_title">SMS เข้าข่ายมิจฉาชีพ</string>
+    <string name="sms_alert_sender_format">จาก: %1$s</string>
+    <string name="sms_alert_reason_format">คะแนน %1$d/100 - %2$s</string>
     <string name="scam_keyword_risk_title">⚠ พบคำเสี่ยง: %1$s</string>
     <string name="call_status_searching">กำลังค้นหา...</string>
     <string name="call_status_checking">กำลังตรวจสอบเบอร์...</string>
@@ -534,8 +546,8 @@
     <string name="share_result_number">แชร์ผลการตรวจสอบเบอร์</string>
     <string name="copy_result">คัดลอกผลลัพธ์</string>
     <string name="result_copied">คัดลอกผลลัพธ์แล้ว</string>
-    <string name="share_link_template">Sentinel AI — ผลการตรวจสอบลิงก์\nURL: %1$s\nสถานะ: %2$s\nคะแนนความปลอดภัย: %3$d/100</string>
-    <string name="share_number_template">Sentinel AI — ผลการตรวจสอบเบอร์\nเบอร์: %1$s\nสถานะ: %2$s\nคะแนนความปลอดภัย: %3$d/100</string>
+    <string name="share_link_template">CyGuard — ผลการตรวจสอบลิงก์\nURL: %1$s\nสถานะ: %2$s\nคะแนนความปลอดภัย: %3$d/100</string>
+    <string name="share_number_template">CyGuard — ผลการตรวจสอบเบอร์\nเบอร์: %1$s\nสถานะ: %2$s\nคะแนนความปลอดภัย: %3$d/100</string>
 
     <!-- Home Stats -->
     <string name="home_stats_scans_today">สแกนวันนี้</string>

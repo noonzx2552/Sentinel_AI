@@ -1,4 +1,4 @@
-package com.sentinel.ai.security
+    package com.sentinel.ai.security
 
 import android.util.Log
 import com.sentinel.ai.ui.DebugSettings

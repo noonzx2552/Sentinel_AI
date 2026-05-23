@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="sentinel_primary">#0D2540</color>
-    <color name="sentinel_accent">#11BFA4</color>
-    <color name="sentinel_warning">#E5A93A</color>
-    <color name="sentinel_critical">#E35A6A</color>
-    <color name="sentinel_surface">#F2F8FC</color>
-    <color name="sentinel_on_surface">#0F2239</color>
-    <color name="sentinel_card">#FFFFFF</color>
-    <color name="ic_launcher_background">#FFFFFF</color>
-    <color name="permission_done">#2F8CFF</color>
+    <color name="sentinel_primary">#091523</color>
+    <color name="sentinel_accent">#14D4B8</color>
+    <color name="sentinel_warning">#F1A83B</color>
+    <color name="sentinel_critical">#E64661</color>
+    <color name="sentinel_surface">#F4F7F4</color>
+    <color name="sentinel_on_surface">#101923</color>
+    <color name="sentinel_card">#FCFEFA</color>
+    <color name="ic_launcher_background">#091523</color>
+    <color name="permission_done">#306FEA</color>
     <color name="permission_pending">@color/sentinel_card</color>
 
-    <color name="splash_bg">#F3FAFC</color>
-    <color name="splash_title">#10233A</color>
-    <color name="splash_subtitle">#0EA78E</color>
-    <color name="splash_version">#6E8AA8</color>
-    <color name="splash_logo_bg">#11BFA4</color>
+    <color name="splash_bg">#F5F7F2</color>
+    <color name="splash_title">#101923</color>
+    <color name="splash_subtitle">#118A78</color>
+    <color name="splash_version">#637063</color>
+    <color name="splash_logo_bg">#14D4B8</color>
     <color name="splash_logo_icon">#FFFFFF</color>
     <color name="splash_glow_center">#99D7FFF3</color>
     <color name="splash_glow_edge">#00D7FFF3</color>
-    <color name="splash_bar_bg">#DCEAF1</color>
-    <color name="splash_bar_start">#74E4CF</color>
-    <color name="splash_bar_end">#11BFA4</color>
+    <color name="splash_bar_bg">#DBE3D8</color>
+    <color name="splash_bar_start">#FFCB6B</color>
+    <color name="splash_bar_end">#14D4B8</color>
 
     <color name="intro_card_bg">#FFFFFF</color>
     <color name="intro_card_border">#DCE7EF</color>
@@ -34,37 +34,39 @@
     <color name="permission_subtle">#7A94AE</color>
     <color name="permission_switch_off">#C8D8E6</color>
 
-    <color name="home_bg">#EEF6FB</color>
-    <color name="home_card_bg">#FFFFFF</color>
-    <color name="home_card_border">#D8E4ED</color>
-    <color name="home_muted">#4D6E8C</color>
-    <color name="home_accent_red">#D94C5D</color>
-    <color name="home_accent_blue">#2E87EE</color>
-    <color name="home_accent_yellow">#BE8729</color>
-    <color name="home_accent_purple">#6B59CC</color>
-    <color name="home_threat_card_bg">#FFF1F4</color>
-    <color name="home_threat_card_border">#F5CFD7</color>
+    <color name="home_bg">#F3F6EF</color>
+    <color name="home_card_bg">#FCFEFA</color>
+    <color name="home_card_border">#DCE4D5</color>
+    <color name="home_muted">#57675D</color>
+    <color name="home_accent_red">#D93855</color>
+    <color name="home_accent_blue">#306FEA</color>
+    <color name="home_accent_yellow">#A56A16</color>
+    <color name="home_accent_purple">#7352C7</color>
+    <color name="home_threat_card_bg">#FFF0F2</color>
+    <color name="home_threat_card_border">#F0C8CF</color>
     <color name="home_threat_glow_outer">#F9DDE2</color>
     <color name="home_threat_glow_inner">#F4C7D0</color>
     <color name="home_threat_badge_bg">#FFFFFF</color>
-    <color name="home_mode_selected_bg">#E8F7F4</color>
-    <color name="home_mode_selected_border">#A9DCD3</color>
-    <color name="home_chip_bg">#E6F4F4</color>
-    <color name="home_chip_text">#0A7D72</color>
+    <color name="home_mode_selected_bg">#E6F8F3</color>
+    <color name="home_mode_selected_border">#9EDDD0</color>
+    <color name="home_chip_bg">#E1F5EF</color>
+    <color name="home_chip_text">#087767</color>
+    <color name="home_hero_text">#F8FBF5</color>
+    <color name="home_hero_muted">#C8D8C9</color>
 
     <color name="activity_chip_bg_critical">#FFE5EA</color>
 
-    <color name="bottom_nav_bg">#F9FCFF</color>
-    <color name="bottom_nav_shell">#F5FAFF</color>
-    <color name="bottom_nav_shell_stroke">#DAE9F3</color>
+    <color name="bottom_nav_bg">#F7FAF4</color>
+    <color name="bottom_nav_shell">#FCFEFA</color>
+    <color name="bottom_nav_shell_stroke">#DAE4D6</color>
     <color name="bottom_nav_shell_shine">#63FFFFFF</color>
     <color name="bottom_nav_shell_glow">#3511BFA4</color>
     <color name="bottom_nav_indicator_bg">#FFFFFF</color>
     <color name="bottom_nav_indicator_glow">#2011BFA4</color>
     <color name="bottom_nav_inactive">#6A819B</color>
-    <color name="bottom_nav_active_green">#11BFA4</color>
-    <color name="bottom_nav_active_blue">#2F8CFF</color>
-    <color name="bottom_nav_active_red">#E35A6A</color>
+    <color name="bottom_nav_active_green">#14BFA6</color>
+    <color name="bottom_nav_active_blue">#306FEA</color>
+    <color name="bottom_nav_active_red">#E64661</color>
 
     <color name="profile_bg">#EEF6FB</color>
     <color name="profile_card_bg">#FFFFFF</color>

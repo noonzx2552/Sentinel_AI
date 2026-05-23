@@ -112,13 +112,227 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/cardCorePermissions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_notification" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_group_core_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:lineSpacingExtra="3dp"
+                            android:text="@string/permission_group_core_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/statusCorePermissions"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/permission_group_action"
+                            android:textColor="@color/splash_subtitle"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCorePermissions"
+                        android:layout_width="92dp"
+                        android:layout_height="44dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/permission_group_action"
+                        android:textAllCaps="false"
+                        android:textColor="@color/splash_logo_icon"
+                        android:textSize="13sp"
+                        app:backgroundTint="@color/splash_logo_bg"
+                        app:cornerRadius="18dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/cardCallProtection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_call" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_group_call_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:lineSpacingExtra="3dp"
+                            android:text="@string/permission_group_call_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/statusCallProtection"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/permission_group_action"
+                            android:textColor="@color/splash_subtitle"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCallProtection"
+                        android:layout_width="92dp"
+                        android:layout_height="44dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/permission_group_action"
+                        android:textAllCaps="false"
+                        android:textColor="@color/splash_logo_icon"
+                        android:textSize="13sp"
+                        app:backgroundTint="@color/splash_logo_bg"
+                        app:cornerRadius="18dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/cardBackgroundProtection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/permission_card_bg"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/intro_icon_bg">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/permission_icon_accessibility" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_group_background_title"
+                            android:textColor="@color/splash_title"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:lineSpacingExtra="3dp"
+                            android:text="@string/permission_group_background_body"
+                            android:textColor="@color/permission_body"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/statusBackgroundProtection"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/permission_group_action"
+                            android:textColor="@color/splash_subtitle"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBackgroundProtection"
+                        android:layout_width="92dp"
+                        android:layout_height="44dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/permission_group_action"
+                        android:textAllCaps="false"
+                        android:textColor="@color/splash_logo_icon"
+                        android:textSize="13sp"
+                        app:backgroundTint="@color/splash_logo_bg"
+                        app:cornerRadius="18dp" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/cardAccessibility"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="14dp"
                     android:background="@drawable/permission_card_bg"
                     android:orientation="horizontal"
-                    android:padding="18dp">
+                    android:padding="18dp"
+                    android:visibility="gone">
 
                     <FrameLayout
                         android:layout_width="56dp"
@@ -175,7 +389,8 @@
                     android:layout_marginBottom="14dp"
                     android:background="@drawable/permission_card_bg"
                     android:orientation="horizontal"
-                    android:padding="18dp">
+                    android:padding="18dp"
+                    android:visibility="gone">
 
                     <FrameLayout
                         android:layout_width="56dp"
@@ -231,7 +446,8 @@
                     android:layout_marginBottom="14dp"
                     android:background="@drawable/permission_card_bg"
                     android:orientation="horizontal"
-                    android:padding="18dp">
+                    android:padding="18dp"
+                    android:visibility="gone">
 
                     <FrameLayout
                         android:layout_width="56dp"
@@ -287,7 +503,8 @@
                     android:layout_marginBottom="14dp"
                     android:background="@drawable/permission_card_bg"
                     android:orientation="horizontal"
-                    android:padding="18dp">
+                    android:padding="18dp"
+                    android:visibility="gone">
 
                     <FrameLayout
                         android:layout_width="56dp"
@@ -342,7 +559,8 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/permission_card_bg"
                     android:orientation="horizontal"
-                    android:padding="18dp">
+                    android:padding="18dp"
+                    android:visibility="gone">
 
                     <FrameLayout
                         android:layout_width="56dp"
@@ -398,7 +616,8 @@
                     android:layout_marginTop="14dp"
                     android:background="@drawable/permission_card_bg"
                     android:orientation="horizontal"
-                    android:padding="18dp">
+                    android:padding="18dp"
+                    android:visibility="gone">
 
                     <FrameLayout
                         android:layout_width="56dp"
@@ -454,7 +673,8 @@
                     android:layout_marginTop="14dp"
                     android:background="@drawable/permission_card_bg"
                     android:orientation="horizontal"
-                    android:padding="18dp">
+                    android:padding="18dp"
+                    android:visibility="gone">
 
                     <FrameLayout
                         android:layout_width="56dp"

