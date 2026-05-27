@@ -6,7 +6,7 @@ import org.json.JSONObject
 
 /**
  * Matches transcript text against scam scenario keywords from scammerkeyword.json.
- * Uses canonical + variants (รวมคำเพี้ยน/สะกดหลอก จาก STT) to detect risk phrases.
+ * Uses canonical, variants, and sample sentences (TH/EN/Karaoke) to detect risk phrases.
  */
 data class ScamKeywordMatch(val scenarioId: String, val scenarioName: String, val matchedKeyword: String)
 
@@ -27,25 +27,40 @@ class ScamKeywordMatcher(private val context: Context) {
                     val id = s.optString("id", "")
                     val name = s.optString("name", "")
                     if (id.isBlank()) continue
-                    val words = s.optJSONArray("words") ?: continue
-                    for (j in 0 until words.length()) {
-                        val w = words.optJSONObject(j) ?: continue
-                        val canon = w.optString("canonical", "").trim()
-                        val vars = w.optJSONArray("variants")
-                        val all = mutableListOf<String>()
-                        if (canon.isNotBlank()) all.add(canon)
-                        if (vars != null) for (k in 0 until vars.length()) {
-                            val v = vars.optString(k, "").trim()
-                            if (v.isNotBlank()) all.add(v)
+                    val words = s.optJSONArray("words")
+                    if (words != null) {
+                        for (j in 0 until words.length()) {
+                            val w = words.optJSONObject(j) ?: continue
+                            addKeyword(list, w.optString("canonical", ""), id, name)
+                            val variants = w.optJSONArray("variants") ?: continue
+                            for (k in 0 until variants.length()) {
+                                addKeyword(list, variants.optString(k, ""), id, name)
+                            }
                         }
-                        for (kw in all.distinct()) if (kw.length >= 2) list.add(Entry(kw, id, name))
+                    }
+
+                    val sentences = s.optJSONArray("sentences")
+                    if (sentences != null) {
+                        for (j in 0 until sentences.length()) {
+                            val sentence = sentences.optJSONObject(j) ?: continue
+                            addKeyword(list, sentence.optString("th", ""), id, name)
+                            addKeyword(list, sentence.optString("en", ""), id, name)
+                            addKeyword(list, sentence.optString("karaoke", ""), id, name)
+                        }
                     }
                 }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Load $ASSET_NAME failed", e)
         }
-        return list
+        return list.distinctBy { it.keyword.lowercase() to it.scenarioId }
+    }
+
+    private fun addKeyword(list: MutableList<Entry>, keyword: String, scenarioId: String, scenarioName: String) {
+        val value = keyword.trim()
+        if (value.length >= MIN_KEYWORD_LENGTH) {
+            list.add(Entry(value, scenarioId, scenarioName))
+        }
     }
 
     /**
@@ -64,6 +79,7 @@ class ScamKeywordMatcher(private val context: Context) {
     companion object {
         private const val TAG = "ScamKeywordMatcher"
         private const val ASSET_NAME = "scammerkeyword.json"
+        private const val MIN_KEYWORD_LENGTH = 2
 
         @Volatile
         private var instance: ScamKeywordMatcher? = null

@@ -34,10 +34,10 @@
     <color name="permission_subtle">#7A94AE</color>
     <color name="permission_switch_off">#C8D8E6</color>
 
-    <color name="home_bg">#F3F6EF</color>
-    <color name="home_card_bg">#FCFEFA</color>
-    <color name="home_card_border">#DCE4D5</color>
-    <color name="home_muted">#57675D</color>
+    <color name="home_bg">#F4F8F6</color>
+    <color name="home_card_bg">#FEFFFC</color>
+    <color name="home_card_border">#D9E6E0</color>
+    <color name="home_muted">#60736D</color>
     <color name="home_accent_red">#D93855</color>
     <color name="home_accent_blue">#306FEA</color>
     <color name="home_accent_yellow">#A56A16</color>
@@ -47,23 +47,23 @@
     <color name="home_threat_glow_outer">#F9DDE2</color>
     <color name="home_threat_glow_inner">#F4C7D0</color>
     <color name="home_threat_badge_bg">#FFFFFF</color>
-    <color name="home_mode_selected_bg">#E6F8F3</color>
-    <color name="home_mode_selected_border">#9EDDD0</color>
-    <color name="home_chip_bg">#E1F5EF</color>
-    <color name="home_chip_text">#087767</color>
-    <color name="home_hero_text">#F8FBF5</color>
-    <color name="home_hero_muted">#C8D8C9</color>
+    <color name="home_mode_selected_bg">#E5F8F3</color>
+    <color name="home_mode_selected_border">#94D9CC</color>
+    <color name="home_chip_bg">#DFF7F2</color>
+    <color name="home_chip_text">#087A6C</color>
+    <color name="home_hero_text">#101923</color>
+    <color name="home_hero_muted">#60736D</color>
 
     <color name="activity_chip_bg_critical">#FFE5EA</color>
 
-    <color name="bottom_nav_bg">#F7FAF4</color>
-    <color name="bottom_nav_shell">#FCFEFA</color>
-    <color name="bottom_nav_shell_stroke">#DAE4D6</color>
+    <color name="bottom_nav_bg">#F6FAF7</color>
+    <color name="bottom_nav_shell">#FEFFFC</color>
+    <color name="bottom_nav_shell_stroke">#D7E5DE</color>
     <color name="bottom_nav_shell_shine">#63FFFFFF</color>
     <color name="bottom_nav_shell_glow">#3511BFA4</color>
     <color name="bottom_nav_indicator_bg">#FFFFFF</color>
     <color name="bottom_nav_indicator_glow">#2011BFA4</color>
-    <color name="bottom_nav_inactive">#6A819B</color>
+    <color name="bottom_nav_inactive">#6D817A</color>
     <color name="bottom_nav_active_green">#14BFA6</color>
     <color name="bottom_nav_active_blue">#306FEA</color>
     <color name="bottom_nav_active_red">#E64661</color>

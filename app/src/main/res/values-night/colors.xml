@@ -51,8 +51,8 @@
     <color name="home_mode_selected_border">#27897F</color>
     <color name="home_chip_bg">#173A44</color>
     <color name="home_chip_text">#8CF3DE</color>
-    <color name="home_hero_text">#F8FBF5</color>
-    <color name="home_hero_muted">#C8D8C9</color>
+    <color name="home_hero_text">#101923</color>
+    <color name="home_hero_muted">#60736D</color>
 
     <color name="activity_chip_bg_critical">#45202D</color>
 
