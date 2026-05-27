@@ -28,6 +28,8 @@
     </item>
 
     <item
+        android:width="120dp"
+        android:height="120dp"
         android:gravity="center"
-        android:drawable="@drawable/ic_launcher_foreground" />
+        android:drawable="@drawable/ic_sentinel_logo" />
 </layer-list>
